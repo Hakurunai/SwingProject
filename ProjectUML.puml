@@ -1,27 +1,53 @@
 @startuml
 'https://plantuml.com/class-diagram
 
-abstract class AbstractList
-abstract AbstractCollection
-interface List
-interface Collection
+skinparam classAttributeIconSize 0
 
-List <|-- AbstractList
-Collection <|-- AbstractCollection
+package greta.fr
+{
+    class View
+    class Controller
+    class Model
+    class ModelDTO
 
-Collection <|- List
-AbstractCollection <|- AbstractList
-AbstractList <|-- ArrayList
+    class Product{
+    - id : String
+    - name : String
+    - price : float
+    - storedQuantity : int
+    }
 
-class ArrayList {
-Object[] elementData
-size()
-}
+    class Site{
+    - allOrder : ArrayList<Order>
+    - storedProduct : ArrayList<Product>
 
-enum TimeUnit {
-DAYS
-HOURS
-MINUTES
+    + ListAllProducts() : String
+    + ListAllOrder() : String
+    + ListOrder(final int id) : String
+    }
+
+    class Order{
+    - id : int
+    - creationDate : LocalDate
+    - clientName : String
+    - orderedProduct : ArrayList<Product>
+    - isDelivered : boolean
+    - nonDeliveredExplanation : String
+    }
+
+    package "Task"
+    {
+        class DeliverMailTask
+        class CryptDataTask
+    }
+
+    package "Util"
+    {
+        class SerializerHelper
+        class DeliverMailHelper
+        class CryptHelper
+        class LoggerHelper
+    }
 }
 
 @enduml
