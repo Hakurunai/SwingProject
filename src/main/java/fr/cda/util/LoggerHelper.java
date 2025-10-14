@@ -5,5 +5,5 @@ import org.apache.logging.log4j.Logger;
 
 public class LoggerHelper
 {
-    public static final Logger Log = LogManager.getLogger(LoggerHelper.class);
+    public static final Logger log = LogManager.getLogger(LoggerHelper.class);
 }

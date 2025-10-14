@@ -1,5 +1,7 @@
 package fr.cda.swing;
 
+import fr.cda.util.LoggerHelper;
+
 import javax.swing.*;
 
 public abstract class Dialog implements ISwingInterface
@@ -8,6 +10,8 @@ public abstract class Dialog implements ISwingInterface
 
     public Dialog(String title, JFrame frameOwner, final int width, final int height, final boolean autoShow)
     {
+        LoggerHelper.log.info("Creation of a new Dialog named : " + title);
+
         dialog = new JDialog(frameOwner, title);
         dialog.setSize(width, height);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
