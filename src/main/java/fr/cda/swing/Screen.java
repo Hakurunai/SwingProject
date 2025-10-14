@@ -4,17 +4,18 @@ import fr.cda.util.LoggerHelper;
 
 import javax.swing.*;
 
-public abstract class MainScreen implements ISwingInterface
+public abstract class Screen implements ISwingInterface
 {
     protected JFrame frame;
 
-    public MainScreen(final String title, final int width, final int height, final boolean autoShow)
+    public Screen(final String title, final int width, final int height, final boolean autoShow)
     {
         LoggerHelper.log.info("Creation of a new MainScreen named : " + title);
 
         frame = new JFrame(title);
         frame.setSize(width, height);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
 
         Init();
 

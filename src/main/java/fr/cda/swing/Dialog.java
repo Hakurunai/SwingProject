@@ -15,6 +15,7 @@ public abstract class Dialog implements ISwingInterface
         dialog = new JDialog(frameOwner, title);
         dialog.setSize(width, height);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setLocationRelativeTo(dialog.getOwner());
 
         Init();
 
