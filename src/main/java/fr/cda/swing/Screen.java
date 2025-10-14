@@ -5,7 +5,7 @@ import java.awt.*;
 
 public abstract class Screen
 {
-    JFrame frame;
+    protected JFrame frame;
 
     public Screen(final String title, final int width, final int height, final boolean autoShow)
     {
