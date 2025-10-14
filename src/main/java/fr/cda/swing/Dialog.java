@@ -1,8 +1,9 @@
 package fr.cda.swing;
 
 import javax.swing.*;
+import java.awt.event.ActionListener;
 
-public abstract class Dialog
+public abstract class Dialog implements ISwingInterface
 {
     protected JDialog dialog;
 
@@ -24,5 +25,5 @@ public abstract class Dialog
 
     public void Display() {dialog.setVisible(true);}
 
-    public void Hide()  {dialog.setVisible(false);}
+    public void Hide() {dialog.setVisible(false);}
 }

@@ -3,7 +3,7 @@ package fr.cda.swing;
 import javax.swing.*;
 import java.awt.*;
 
-public abstract class Screen
+public abstract class Screen implements ISwingInterface
 {
     protected JFrame frame;
 
