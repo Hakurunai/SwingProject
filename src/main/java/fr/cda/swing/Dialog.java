@@ -1,7 +1,6 @@
 package fr.cda.swing;
 
 import javax.swing.*;
-import java.awt.event.ActionListener;
 
 public abstract class Dialog implements ISwingInterface
 {
