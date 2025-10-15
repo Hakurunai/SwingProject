@@ -25,7 +25,7 @@ public abstract class Dialog implements ISwingInterface
         }
     }
 
-    public abstract void Init();
+    protected abstract void Init();
 
     public void Display() {dialog.setVisible(true);}
 

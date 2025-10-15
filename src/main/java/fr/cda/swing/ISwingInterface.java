@@ -2,9 +2,13 @@ package fr.cda.swing;
 
 public interface ISwingInterface
 {
-    public abstract void Init();
-
+    /**
+     * Used to show the interface on screen
+     */
     public void Display();
 
+    /**
+     * Used to hide the interface already visible on screen
+     */
     public void Hide();
 }
