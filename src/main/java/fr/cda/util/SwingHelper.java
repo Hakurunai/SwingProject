@@ -21,8 +21,8 @@ public abstract class SwingHelper
     }
 
     /**
-     * Can be used to determine the max size of an array of JComponent
-     * @param components
+     * Can be used to determine the max Dimension from an array of JComponent
+     * @param components an array of components from who we want to determine the max dimension
      * @return the Dimension with max value from the provided array, 0,0 if the array is empty
      */
     public static Dimension DetermineMaxSize(JComponent[] components)
@@ -45,10 +45,10 @@ public abstract class SwingHelper
     /**
      * Is used to add an array of component with a specified strut to space them
      * A 0 size param for a specific strut result in no strut added at all to the JPanel
-     * @param targetPanel
-     * @param components
-     * @param horizontalStrut
-     * @param verticalStrut
+     * @param targetPanel the panel who will own the components
+     * @param components the components who will be added to the target
+     * @param horizontalStrut value applied for the horizontalStrut
+     * @param verticalStrut value applied for the verticalStrut
      */
     public static void AddComponentToPanelWithStruts(JPanel targetPanel, JComponent[] components, final int horizontalStrut, final int verticalStrut)
     {
@@ -73,7 +73,7 @@ public abstract class SwingHelper
 
     /**
      * Allow to set a same border value for each side of a JPanel
-     * @param target
+     * @param target the JPanel targeted by the border update
      * @param border the size in pixel we want to set the border
      */
     public static void SetPanelAllBorder(JPanel target, final int border)
@@ -81,6 +81,10 @@ public abstract class SwingHelper
         target.setBorder(BorderFactory.createEmptyBorder(border, border, border, border));
     }
 
+    /**
+     *
+     * @return an empty non editable and non focusable JTextArea
+     */
     public static JTextArea CreateNonEditableTextArea()
     {
         JTextArea textArea = new JTextArea();
