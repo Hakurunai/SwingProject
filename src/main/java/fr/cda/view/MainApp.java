@@ -6,13 +6,13 @@ import fr.cda.util.SwingHelper;
 import javax.swing.*;
 import java.awt.*;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainApp extends Screen
 {
-    private List<JButton> allButtons = new ArrayList<>();
+    private JTextArea infoArea;
 
+    private JButton addButton;
+    private JButton removeButton;
 
     private static final int PANEL_BORDER_SIZE = 10;
 
@@ -21,52 +21,96 @@ public class MainApp extends Screen
         super(title, width, height, autoShow);
     }
 
-
     @Override
     public void Init()
     {
         JPanel panelMain = new JPanel(new BorderLayout());
 
-        //West pannel with buttons
-        JPanel panelButtons = InitButtonPanel(panelMain);
-        panelMain.add(panelButtons, BorderLayout.WEST);
+        //West panel with buttons
+        JPanel westPanel = CreateButtonPanel();
+        panelMain.add(westPanel, BorderLayout.WEST);
 
-        // Liste des produits
+        JPanel centerPanel = CreateCenterPanel();
+        panelMain.add(centerPanel, BorderLayout.CENTER);
+
+        frame.add(panelMain);
+    }
+
+    private JPanel CreateCenterPanel()
+    {
+        JPanel northPanel = CreateListAndDescriptionPanel();
+
+        JPanel southPanel = CreateInfoArea();
+
+        final int DIVIDER_LOCATION_PARAM = 150;
+        JSplitPane verticalPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, northPanel, southPanel);
+        verticalPane.setDividerLocation(DIVIDER_LOCATION_PARAM);
+
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(PANEL_BORDER_SIZE, 0, PANEL_BORDER_SIZE, PANEL_BORDER_SIZE));
+        mainPanel.add(verticalPane, BorderLayout.CENTER);
+
+        return mainPanel;
+    }
+
+    private JPanel CreateInfoArea()
+    {
+        infoArea = new JTextArea();
+        infoArea.setEditable(false);
+        infoArea.setFocusable(false);
+        JScrollPane infoScroll = new JScrollPane(infoArea);
+
+        JPanel mainPanel  = new JPanel(new BorderLayout());
+        mainPanel.add(infoScroll, BorderLayout.CENTER);
+        return mainPanel;
+    }
+
+    private JPanel CreateListAndDescriptionPanel()
+    {
+        //Todo : replace demo code
+        //Todo: ===========================
+        //Liste des produits
         JList<String> listeProduits = new JList<>(new String[]{"Produit 1", "Produit 2", "Produit 3"});
         JScrollPane scrollListe = new JScrollPane(listeProduits);
 
         // Détails du produit
         JTextArea detailsProduit = new JTextArea("Détails du produit...");
+        detailsProduit.setEditable(false);
+        detailsProduit.setFocusable(false);
         JScrollPane scrollDetails = new JScrollPane(detailsProduit);
+        //Todo: ===========================
 
-        // SplitPane entre liste et détails
+
+        final int DIVIDER_LOCATION_PARAM = 100;
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollListe, scrollDetails);
-        splitPane.setDividerLocation(200);
+        splitPane.setDividerLocation(DIVIDER_LOCATION_PARAM);
 
-        // Panneau central qui contient le SplitPane
-        JPanel panelCentral = new JPanel(new BorderLayout());
-        panelCentral.add(splitPane, BorderLayout.CENTER);
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(splitPane, BorderLayout.CENTER);
 
-        panelMain.add(panelCentral, BorderLayout.CENTER);
-
-        frame.add(panelMain);
+        return mainPanel;
     }
 
-    private static JPanel InitButtonPanel(JPanel panelMain)
+    /**
+     * Used to create the left pannel containing some buttons
+     * References to those buttons will be kept inside this class
+     * @return a JPanel with the buttons
+     */
+    private JPanel CreateButtonPanel()
     {
         final int BUTTON_HORIZONTAL_STRUT = 0;
         final int BUTTON_VERTICAL_STRUT = 10;
 
         JPanel panelButtons = new JPanel();
         panelButtons.setLayout(new BoxLayout(panelButtons, BoxLayout.Y_AXIS));
-        SwingHelper.SetPanelAllBorder(panelButtons, PANEL_BORDER_SIZE);
+        panelButtons.setBorder(BorderFactory.createEmptyBorder(PANEL_BORDER_SIZE, PANEL_BORDER_SIZE, PANEL_BORDER_SIZE, PANEL_BORDER_SIZE));
 
-        JButton buttonAdd = new JButton("Ajouter");
-        JButton buttonDelete = new JButton("Supprimer");
+        addButton = new JButton("Ajouter");
+        removeButton = new JButton("Supprimer");
 
         //Todo: Add listener to the buttons
 
-        JButton[] buttonArray = {buttonAdd, buttonDelete};
+        JButton[] buttonArray = {addButton, removeButton};
 
         SwingHelper.SetSameSize(buttonArray);
         SwingHelper.AddComponentToPanelWithStruts(panelButtons, buttonArray, BUTTON_HORIZONTAL_STRUT, BUTTON_VERTICAL_STRUT);
