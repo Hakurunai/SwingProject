@@ -13,10 +13,14 @@ public abstract class SwingHelper
     {
         Dimension commonDim = DetermineMaxSize(components);
 
+        //The default font is proportional, so we raise the estimated width here before the real display
+        //So we can avoid having a truncated text like that : "Generate...", for less than 1 pixel of error
+        commonDim.width += 1;
         for (JComponent component : components)
         {
             component.setPreferredSize(commonDim);
             component.setMaximumSize(commonDim);
+            component.setMinimumSize(commonDim);
         }
     }
 
