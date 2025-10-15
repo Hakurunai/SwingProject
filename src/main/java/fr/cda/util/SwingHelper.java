@@ -3,7 +3,7 @@ package fr.cda.util;
 import javax.swing.*;
 import java.awt.*;
 
-public class SwingHelper
+public abstract class SwingHelper
 {
     /**
      * Determine the max size of an array of JButton and set it to all of the buttons of this array
