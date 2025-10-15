@@ -1,6 +1,5 @@
 package fr.cda.view;
 
-import fr.cda.configuration.Config;
 import fr.cda.swing.Screen;
 import fr.cda.util.SwingHelper;
 

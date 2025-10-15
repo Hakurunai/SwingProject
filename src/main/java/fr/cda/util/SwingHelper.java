@@ -76,16 +76,6 @@ public abstract class SwingHelper
     }
 
     /**
-     * Allow to set a same border value for each side of a JPanel
-     * @param target the JPanel targeted by the border update
-     * @param border the size in pixel we want to set the border
-     */
-    public static void SetPanelAllBorder(JPanel target, final int border)
-    {
-        target.setBorder(BorderFactory.createEmptyBorder(border, border, border, border));
-    }
-
-    /**
      *
      * @return an empty non-editable and non-focusable JTextArea
      */
