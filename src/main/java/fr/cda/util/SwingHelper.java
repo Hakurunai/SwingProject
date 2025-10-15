@@ -6,7 +6,7 @@ import java.awt.*;
 public abstract class SwingHelper
 {
     /**
-     * Determine the max size of an array of JButton and set it to all of the buttons of this array
+     * Determine the max size of an array of JButton and set it to all the buttons of this array
      * @param components that we want to normalize the size
      */
     public static void SetSameSize(JComponent[] components)
@@ -87,7 +87,7 @@ public abstract class SwingHelper
 
     /**
      *
-     * @return an empty non editable and non focusable JTextArea
+     * @return an empty non-editable and non-focusable JTextArea
      */
     public static JTextArea CreateNonEditableTextArea()
     {
