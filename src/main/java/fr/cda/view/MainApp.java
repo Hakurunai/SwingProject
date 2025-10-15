@@ -10,9 +10,15 @@ import java.awt.*;
 public class MainApp extends Screen
 {
     private JTextArea infoArea;
+    private JTextArea productDetailArea;
 
-    private JButton addButton;
-    private JButton removeButton;
+    private JButton buttonShowStorage;
+    private JButton buttonShowOrder;
+    private JButton buttonShowSpecificOrder;
+    private JButton buttonMakeDeliveries;
+    private JButton buttonComputeProfit;
+    private JButton buttonSendMailData;
+    private JButton buttonGenerateBackUp;
 
     private static final int PANEL_BORDER_SIZE = 10;
 
@@ -55,15 +61,14 @@ public class MainApp extends Screen
 
     private JPanel CreateInfoArea()
     {
-        infoArea = new JTextArea();
-        infoArea.setEditable(false);
-        infoArea.setFocusable(false);
-        JScrollPane infoScroll = new JScrollPane(infoArea);
+        infoArea = SwingHelper.CreateNonEditableTextArea();
+        JScrollPane scrollPane = new JScrollPane(infoArea);
 
-        JPanel mainPanel  = new JPanel(new BorderLayout());
-        mainPanel.add(infoScroll, BorderLayout.CENTER);
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
         return mainPanel;
     }
+
 
     private JPanel CreateListAndDescriptionPanel()
     {
@@ -74,10 +79,8 @@ public class MainApp extends Screen
         JScrollPane scrollListe = new JScrollPane(listeProduits);
 
         // Détails du produit
-        JTextArea detailsProduit = new JTextArea("Détails du produit...");
-        detailsProduit.setEditable(false);
-        detailsProduit.setFocusable(false);
-        JScrollPane scrollDetails = new JScrollPane(detailsProduit);
+        productDetailArea = SwingHelper.CreateNonEditableTextArea();
+        JScrollPane scrollDetails = new JScrollPane(productDetailArea);
         //Todo: ===========================
 
 
@@ -105,12 +108,21 @@ public class MainApp extends Screen
         panelButtons.setLayout(new BoxLayout(panelButtons, BoxLayout.Y_AXIS));
         panelButtons.setBorder(BorderFactory.createEmptyBorder(PANEL_BORDER_SIZE, PANEL_BORDER_SIZE, PANEL_BORDER_SIZE, PANEL_BORDER_SIZE));
 
-        addButton = new JButton("Ajouter");
-        removeButton = new JButton("Supprimer");
+        buttonShowStorage = new JButton("Show storage");
+        buttonShowOrder = new JButton("Show all order");
+        buttonShowSpecificOrder = new JButton("Show order");
+        buttonMakeDeliveries = new JButton("Make deliveries");
+        buttonComputeProfit = new JButton("Compute profit");
+        buttonSendMailData = new JButton("Send data to mail");
+        buttonGenerateBackUp = new JButton("Generate back up");
+
 
         //Todo: Add listener to the buttons
 
-        JButton[] buttonArray = {addButton, removeButton};
+        JButton[] buttonArray =
+                { buttonShowStorage, buttonShowOrder, buttonShowSpecificOrder,
+                buttonMakeDeliveries, buttonComputeProfit, buttonSendMailData,
+                buttonGenerateBackUp };
 
         SwingHelper.SetSameSize(buttonArray);
         SwingHelper.AddComponentToPanelWithStruts(panelButtons, buttonArray, BUTTON_HORIZONTAL_STRUT, BUTTON_VERTICAL_STRUT);

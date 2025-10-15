@@ -80,4 +80,12 @@ public abstract class SwingHelper
     {
         target.setBorder(BorderFactory.createEmptyBorder(border, border, border, border));
     }
+
+    public static JTextArea CreateNonEditableTextArea()
+    {
+        JTextArea textArea = new JTextArea();
+        textArea.setEditable(false);
+        textArea.setFocusable(false);
+        return textArea;
+    }
 }
