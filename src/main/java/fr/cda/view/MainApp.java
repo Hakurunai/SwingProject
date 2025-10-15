@@ -13,8 +13,6 @@ public class MainApp extends Screen
 {
     private List<JButton> allButtons = new ArrayList<>();
 
-    private static final int BUTTON_HORIZONTAL_STRUT = 0;
-    private static final int BUTTON_VERTICAL_STRUT = 10;
 
     private static final int PANEL_BORDER_SIZE = 10;
 
@@ -56,16 +54,21 @@ public class MainApp extends Screen
 
     private static JPanel InitButtonPanel(JPanel panelMain)
     {
+        final int BUTTON_HORIZONTAL_STRUT = 0;
+        final int BUTTON_VERTICAL_STRUT = 10;
+
         JPanel panelButtons = new JPanel();
         panelButtons.setLayout(new BoxLayout(panelButtons, BoxLayout.Y_AXIS));
-        panelButtons.setBorder(BorderFactory.createEmptyBorder(PANEL_BORDER_SIZE, PANEL_BORDER_SIZE, PANEL_BORDER_SIZE, PANEL_BORDER_SIZE));
+        SwingHelper.SetPanelAllBorder(panelButtons, PANEL_BORDER_SIZE);
 
         JButton buttonAdd = new JButton("Ajouter");
         JButton buttonDelete = new JButton("Supprimer");
 
-        JButton[] buttonArray = {buttonAdd, buttonDelete};
-        SwingHelper.SetSameSize(buttonArray);
+        //Todo: Add listener to the buttons
 
+        JButton[] buttonArray = {buttonAdd, buttonDelete};
+
+        SwingHelper.SetSameSize(buttonArray);
         SwingHelper.AddComponentToPanelWithStruts(panelButtons, buttonArray, BUTTON_HORIZONTAL_STRUT, BUTTON_VERTICAL_STRUT);
 
         return panelButtons;
