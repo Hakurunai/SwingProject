@@ -18,7 +18,7 @@ public abstract class Dialog implements ISwingInterface
      */
     public Dialog(String title, JFrame frameOwner, final int width, final int height, final boolean autoShow)
     {
-        LoggerHelper.log.info("Creation of a new Dialog named : " + title);
+        LoggerHelper.log.info("Creation of a new Dialog named : {}", title);
 
         dialog = new JDialog(frameOwner, title);
         dialog.setSize(width, height);
@@ -41,10 +41,18 @@ public abstract class Dialog implements ISwingInterface
     /**
      * Implementation of ISwingInterface used to show the interface on screen
      */
-    public void Display() {dialog.setVisible(true);}
+    public void Display()
+    {
+        LoggerHelper.log.info("ACTION set visible Dialog named : {}", dialog.getTitle());
+        dialog.setVisible(true);
+    }
 
     /**
      * Implementation of ISwingInterface used to hide the interface
      */
-    public void Hide() {dialog.setVisible(false);}
+    public void Hide()
+    {
+        LoggerHelper.log.info("ACTION hide Dialog named : {}", dialog.getTitle());
+        dialog.setVisible(false);
+    }
 }

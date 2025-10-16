@@ -1,6 +1,7 @@
 package fr.cda.view;
 
 import fr.cda.swing.Screen;
+import fr.cda.util.LoggerHelper;
 import fr.cda.util.SwingHelper;
 
 import javax.swing.*;
@@ -40,6 +41,7 @@ public class MainApp extends Screen
     @Override
     protected void Init()
     {
+        LoggerHelper.log.info("START Initialisation of the Main App named : {}", frame.getTitle());
         JPanel panelMain = new JPanel(new BorderLayout());
 
         JPanel westPanel = CreateButtonPanel();
@@ -49,6 +51,7 @@ public class MainApp extends Screen
         panelMain.add(centerPanel, BorderLayout.CENTER);
 
         frame.add(panelMain);
+        LoggerHelper.log.info("END Initialisation of the Main App named : {}", frame.getTitle());
     }
 
     /**
@@ -57,6 +60,8 @@ public class MainApp extends Screen
      */
     private JPanel CreateCenterPanel()
     {
+        LoggerHelper.log.info("START Initialisation of the Main App named : {}", frame.getTitle());
+
         JPanel northPanel = CreateListAndDescriptionPanel();
 
         JPanel southPanel = CreateInfoArea();
@@ -87,17 +92,16 @@ public class MainApp extends Screen
     }
 
     /**
-     * Generate a JPanel containing a SplitPane whith a list and a non-editable text area
+     * Generate a JPanel containing a SplitPane with a list and a non-editable text area
      * Some references are kept inside this class to access the data
-     * @return a JPanel used to display and select some datas
+     * @return a JPanel used to display and select some data
      */
     private JPanel CreateListAndDescriptionPanel()
     {
         //Todo : replace demo code
         //Todo: ===========================
-        //Liste des produits
-        JList<String> listeProduits = new JList<>(new String[]{"Produit 1", "Produit 2", "Produit 3"});
-        JScrollPane scrollListe = new JScrollPane(listeProduits);
+        JList<String> listProducts = new JList<>(new String[]{"Produit 1", "Produit 2", "Produit 3"});
+        JScrollPane scrollList = new JScrollPane(listProducts);
 
         // Détails du produit
         productDetailArea = SwingHelper.CreateNonEditableTextArea();
@@ -106,7 +110,7 @@ public class MainApp extends Screen
 
 
         final int DIVIDER_LOCATION_PARAM = 100;
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollListe, scrollDetails);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollList, scrollDetails);
         splitPane.setDividerLocation(DIVIDER_LOCATION_PARAM);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -136,7 +140,6 @@ public class MainApp extends Screen
         buttonComputeProfit = new JButton("Compute profit");
         buttonSendMailData = new JButton("Send data to mail");
         buttonGenerateBackUp = new JButton("Generate back up");
-
 
         //Todo: Add listener to the buttons
 

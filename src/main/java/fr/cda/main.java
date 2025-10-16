@@ -14,7 +14,7 @@ public class main
 
     public static void RunApp()
     {
-        //InvokeLater is used to avoid potential issue whith swing with thread
+        //InvokeLater is used to avoid potential issue with swing with thread
         SwingUtilities.invokeLater(() ->
         {
             MainApp mainApp = new MainApp(MAIN_APP_NAME, MAIN_APP_WIDTH, MAIN_APP_HEIGHT, true);

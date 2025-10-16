@@ -17,7 +17,7 @@ public abstract class Screen implements ISwingInterface
      */
     public Screen(final String title, final int width, final int height, final boolean autoShow)
     {
-        LoggerHelper.log.info("Creation of a new MainScreen named : " + title);
+        LoggerHelper.log.info("Creation of a new MainScreen named : {}", title);
 
         frame = new JFrame(title);
         frame.setSize(width, height);
@@ -40,10 +40,18 @@ public abstract class Screen implements ISwingInterface
     /**
      * Implementation of ISwingInterface used to show the interface on screen
      */
-    public void Display() {frame.setVisible(true);}
+    public void Display()
+    {
+        LoggerHelper.log.info("TRY to set visible Screen named : {}", frame.getTitle());
+        frame.setVisible(true);
+    }
 
     /**
      * Implementation of ISwingInterface used to hide the interface
      */
-    public void Hide() {frame.setVisible(false);}
+    public void Hide()
+    {
+        LoggerHelper.log.info("TRY to hide Screen named : {}", frame.getTitle());
+        frame.setVisible(false);
+    }
 }
