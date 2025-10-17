@@ -1,0 +1,34 @@
+@startuml
+'https://plantuml.com/class-diagram
+skinparam classAttributeIconSize 0
+
+!include ../swing/SwingPackage.puml
+
+package "View"
+{
+    Frame <|-- MainApp
+
+    class MainApp <<final>>
+    {
+        - JTextArea infoArea
+        - JTextArea productDetailArea
+
+        - buttonShowStorage : JButton
+        - buttonShowOrder : JButton
+        - buttonShowSpecificOrder : JButton
+        - buttonMakeDeliveries : JButton
+        - buttonComputeProfit : JButton
+        - buttonSendMailData : JButton
+        - buttonGenerateBackUp : JButton
+
+        - {static} PANEL_BORDER_SIZE : int {final}
+
+        # Init()
+
+        - JPanel CreateCenterPanel()
+        - JPanel CreateInfoArea()
+        - JPanel CreateListAndDescriptionPanel()
+        - JPanel CreateButtonPanel()
+    }
+}
+@enduml

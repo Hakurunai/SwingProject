@@ -1,0 +1,10 @@
+@startuml
+'https://plantuml.com/class-diagram
+skinparam classAttributeIconSize 0
+
+package "Controller"
+{
+    class Controller
+}
+
+@enduml

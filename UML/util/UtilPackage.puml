@@ -1,0 +1,36 @@
+@startuml
+'https://plantuml.com/class-diagram
+skinparam classAttributeIconSize 0
+
+package "Util"
+{
+    abstract SerializerHelper
+    {
+        + {static} SerializeProduct(Product)
+        + {static} SerializeProduct(List<Product>)
+
+        + {static} SerializeOrder(Order)
+        + {static} SerializeOrder(List<Order>)
+
+        + {static} DeserializeProduct(File) : List<Product>
+        + {static} DeserializeOrder(File) : List<Order>
+    }
+
+    abstract DeliverMailHelper
+    abstract CryptHelper
+
+    abstract LoggerHelper
+    {
+        + {static} log : log4j::Logger
+    }
+
+    abstract SwingHelper
+    {
+        + {static} SetSameSize(JComponent[])
+        + {static} DetermineMaxSize(JComponent[]) : Dimension
+        + {static} AddComponentToPanelWithStruts(JPanel, JComponent[], final int, final int)
+        + {static} CreateNonEditableTextArea() : JTextArea
+    }
+}
+
+@enduml
