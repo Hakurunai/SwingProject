@@ -16,7 +16,7 @@ public abstract class Dialog implements ISwingInterface
      * @param height the size in pixel for the height
      * @param autoShow if true, the constructor will automatically call Display
      */
-    public Dialog(String title, JFrame frameOwner, final int width, final int height, final boolean autoShow)
+    protected Dialog(final String title, JFrame frameOwner, final int width, final int height, final boolean autoShow)
     {
         LoggerHelper.log.info("Creation of a new Dialog named : {}", title);
 

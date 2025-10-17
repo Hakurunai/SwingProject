@@ -1,6 +1,6 @@
 package fr.cda.view;
 
-import fr.cda.swing.Screen;
+import fr.cda.swing.Frame;
 import fr.cda.util.LoggerHelper;
 import fr.cda.util.SwingHelper;
 
@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 
 
-public class MainApp extends Screen
+public final class MainApp extends Frame
 {
     private JTextArea infoArea;
     private JTextArea productDetailArea;

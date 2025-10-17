@@ -4,7 +4,7 @@ import fr.cda.util.LoggerHelper;
 
 import javax.swing.*;
 
-public abstract class Screen implements ISwingInterface
+public abstract class Frame implements ISwingInterface
 {
     protected JFrame frame;
 
@@ -15,7 +15,7 @@ public abstract class Screen implements ISwingInterface
      * @param height the size in pixel for the height
      * @param autoShow if true, the constructor will automatically call Display
      */
-    public Screen(final String title, final int width, final int height, final boolean autoShow)
+    protected Frame(final String title, final int width, final int height, final boolean autoShow)
     {
         LoggerHelper.log.info("Creation of a new MainScreen named : {}", title);
 
