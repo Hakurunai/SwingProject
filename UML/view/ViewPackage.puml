@@ -1,8 +1,10 @@
-@startuml
-'https://plantuml.com/class-diagram
-skinparam classAttributeIconSize 0
+!ifndef VIEW__PUML
+!define VIEW__PUML
 
 !include ../swing/SwingPackage.puml
+!include ../util/UtilPackage.puml
+
+View --> SwingHelper
 
 package "View"
 {
@@ -31,4 +33,5 @@ package "View"
         - JPanel CreateButtonPanel()
     }
 }
-@enduml
+
+!endif

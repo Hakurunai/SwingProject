@@ -1,28 +1,28 @@
-@startuml
-'https://plantuml.com/class-diagram
-skinparam classAttributeIconSize 0
+!ifndef MODEL__PUML
+!define MODEL__PUML
 
 package "Model"
-    {
-
+{
     Order "0,n" o-- "1-n" Product
 
-    class Product{
+    class Product
+    {
         - id : String
         - name : String
         - category : String
         - price : float
         - storedQuantity : int
-        }
+    }
 
-    class Order{
+    class Order
+    {
         - id : String
         - creationDate : LocalDate
         - clientName : String
         - orderedProduct : ArrayList<Product>
         - isDelivered : boolean
         - nonDeliveredExplanation : String
-        }
     }
+}
 
-@enduml
+!endif

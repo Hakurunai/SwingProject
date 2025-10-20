@@ -1,9 +1,28 @@
-@startuml
-'https://plantuml.com/class-diagram
-skinparam classAttributeIconSize 0
+!ifndef DAO__PUML
+!define DAO__PUML
 
 package "DAO"
 {
+    OrderDAO --|> DAO
+    ProductDAO --|> DAO
+
+    abstract DAO<T>
+    {
+        # linkedSite : Site
+
+        + {abstract} Create(id : String) : T
+        + {abstract} read(id : String) : T
+    }
+
+    class OrderDAO <Order> <<final>>
+    {
+
+    }
+
+    class ProductDAO <Product> <<final>>
+    {
+
+    }
 }
 
-@enduml
+!endif

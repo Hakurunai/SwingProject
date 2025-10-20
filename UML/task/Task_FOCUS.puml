@@ -1,0 +1,9 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!define TASK_FOCUS
+
+!include ../Common.puml
+!include TaskPackage.puml
+
+@enduml

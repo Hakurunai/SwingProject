@@ -1,0 +1,9 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!include ../Common.puml
+
+!define CONTROLLER_FOCUS
+!include ControllerPackage.puml
+
+@enduml

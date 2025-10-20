@@ -1,18 +1,25 @@
-@startuml
-'https://plantuml.com/class-diagram
-skinparam classAttributeIconSize 0
+!ifndef SITE__PUML
+!define SITE__PUML
 
 !include ../view/ViewPackage.puml
 !include ../model/ModelPackage.puml
+!include ../util/UtilPackage.puml
+!include ../dao/DaoPackage.puml
 
 package Site
 {
     Site "n" *-- "1" SiteConfig
     Site *-- "1" MainApp
 
-    Site "n" *-- "1" Product
-    Site "n" *-- "1" Order
+    Site "1" *-- "n" Product
+    Site "1" *-- "n" Order
 
+    Site *-- "1" OrderDAO
+    Site *-- "1" ProductDAO
+
+
+    Site --> SerializerHelper
+    Site <-- DAO.DAO
 
     class SiteConfig
     {
@@ -23,7 +30,8 @@ package Site
         + {static} DEFAULT : SiteConfig
     }
 
-    class Site{
+    class Site
+    {
         - allOrder : Hashmap<String, Order>
         - allProduct : Hashmap<String, Product>
 
@@ -35,7 +43,7 @@ package Site
         - LoadCustomConfig() : boolean
         - LoadDefaultConfig()
         - LaunchApp()
-        }
+    }
 }
 
-@enduml
+!endif

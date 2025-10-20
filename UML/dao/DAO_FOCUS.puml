@@ -1,0 +1,9 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!define DAO_PACKAGE_FOCUS
+
+!include ../Common.puml
+!include DAOPackage.puml
+
+@enduml

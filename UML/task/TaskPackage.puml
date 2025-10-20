@@ -1,6 +1,5 @@
-@startuml
-'https://plantuml.com/class-diagram
-skinparam classAttributeIconSize 0
+!ifndef TASK__PUML
+!define TASK__PUML
 
 package "Task"
 {
@@ -12,4 +11,4 @@ package "Task"
     class CryptDataTask
 }
 
-@enduml
+!endif

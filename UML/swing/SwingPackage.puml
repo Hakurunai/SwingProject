@@ -1,6 +1,5 @@
-@startuml
-'https://plantuml.com/class-diagram
-skinparam classAttributeIconSize 0
+!ifndef SWING__PUML
+!define SWING__PUML
 
 package "Swing"
 {
@@ -12,7 +11,7 @@ package "Swing"
         # dialog JDialog
 
         # Dialog(title : String, frameOwner : JFrame, width : int, height : int, autoShow : boolean)
-        # abstract Init()
+        # {abstract} Init()
     }
 
     abstract Frame
@@ -20,7 +19,7 @@ package "Swing"
         # frame : JFrame
 
         #Frame(title : String, width : int, height : int, autoShow : boolean)
-        # abstract Init()
+        # {abstract} Init()
     }
 
     interface ISwingInterface
@@ -29,4 +28,5 @@ package "Swing"
         + Hide()
     }
 }
-@enduml
+
+!endif
