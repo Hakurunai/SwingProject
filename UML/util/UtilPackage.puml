@@ -1,9 +1,5 @@
-!if %not(%defined(UTIL__PUML))
+!ifndef UTIL__PUML
 !define UTIL_PUML
-
-@startuml
-'https://plantuml.com/class-diagram
-skinparam classAttributeIconSize 0
 
 package "Util"
 {
@@ -20,7 +16,14 @@ package "Util"
     }
 
     abstract DeliverMailHelper
+    {
+
+    }
+
     abstract CryptHelper
+    {
+
+    }
 
     abstract LoggerHelper
     {
@@ -36,4 +39,4 @@ package "Util"
     }
 }
 
-@enduml
+!endif

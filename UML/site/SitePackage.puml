@@ -6,6 +6,8 @@
 !include ../util/UtilPackage.puml
 !include ../dao/DaoPackage.puml
 
+DAO.DAOModel --> Site.Site
+
 package Site
 {
     Site "n" *-- "1" SiteConfig
@@ -19,14 +21,12 @@ package Site
 
 
     Site --> SerializerHelper
-    Site <-- DAO.DAO
 
     class SiteConfig
     {
         - siteName : String
         - int appWidth
         - int appHeight
-
         + {static} DEFAULT : SiteConfig
     }
 

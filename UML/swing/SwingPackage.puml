@@ -3,30 +3,58 @@
 
 package "Swing"
 {
-    ISwingInterface <|.. Frame
-    ISwingInterface <|.. Dialog
-
-    abstract Dialog
-    {
-        # dialog JDialog
-
-        # Dialog(title : String, frameOwner : JFrame, width : int, height : int, autoShow : boolean)
-        # {abstract} Init()
-    }
-
-    abstract Frame
-    {
-        # frame : JFrame
-
-        #Frame(title : String, width : int, height : int, autoShow : boolean)
-        # {abstract} Init()
-    }
+    ISwingInterface <|.. AbstractSwingInterface
+    AbstractSwingInterface <|-- Frame
+    AbstractSwingInterface <|-- Dialog
+    AbstractSwingInterface "0-n" *-- "1" SwingInterfaceConfig
 
     interface ISwingInterface
     {
         + Display()
         + Hide()
     }
+
+    abstract AbstractSwingInterface
+    {
+        + AbstractSwingInterface(config : SwingInterfaceConfig, autoShow : boolean)
+        # {abstract} Init()
+        - LoadConfig()
+    }
+
+    note left of AbstractSwingInterface::Init
+        Called from the ctor
+        Will serve to create the
+        interface with Swing components
+    end note
+
+    note left of AbstractSwingInterface::LoadConfig
+                Called from the ctor
+    end note
+
+    class SwingInterfaceConfig
+    {
+        - title : String
+        - width : int
+        - height : int
+
+        + SwingInterfaceConfig(title, width, height)
+        + {static} DEFAULT : SiteConfig
+    }
+
+    abstract Dialog
+    {
+        # dialog JDialog
+
+        # Dialog(frameOwner : JFrame, config, autoShow : boolean)
+    }
+
+    abstract Frame
+    {
+        # frame : JFrame
+
+        #Frame(config : SwingInterfaceConfig, autoShow : boolean)
+    }
 }
+
 
 !endif

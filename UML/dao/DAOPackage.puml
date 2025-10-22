@@ -3,15 +3,15 @@
 
 package "DAO"
 {
-    OrderDAO --|> DAO
-    ProductDAO --|> DAO
+    OrderDAO --|> DAOModel
+    ProductDAO --|> DAOModel
 
-    abstract DAO<T>
+    abstract DAOModel<T>
     {
         # linkedSite : Site
 
         + {abstract} Create(id : String) : T
-        + {abstract} read(id : String) : T
+        + {abstract} Read(id : String) : T
     }
 
     class OrderDAO <Order> <<final>>
