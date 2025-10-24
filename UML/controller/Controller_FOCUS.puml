@@ -2,8 +2,13 @@
 'https://plantuml.com/class-diagram
 
 !include ../Common.puml
-
-!define CONTROLLER_FOCUS
 !include ControllerPackage.puml
+
+
+remove model.idGenerator
+remove model.Database
+
+remove util.SwingHelper
+remove util.SerializerHelper
 
 @enduml

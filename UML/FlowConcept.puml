@@ -1,0 +1,51 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!include Common.puml
+
+package model
+{
+    class BackApp
+    class Database
+    class DAO
+    class Product
+    class Order
+}
+
+package controller
+{
+    class AppController
+    class GUIController
+}
+
+package view
+{
+    class FrontApp
+    class HomeView
+    class AnyDialogView
+}
+
+circle files
+
+note left of GUIController : Handle first verifications\nbefore any operation on back
+note right of Database : Keep data in memory while app is running
+
+Database "1" --* BackApp
+AppController "1" --* BackApp
+
+Order "n" --* "1" Database
+Product "n" --* "1" Database
+Database --> files : handle read and write
+
+DAO --> Database : Send Crud operation
+DAO "n" --* "1" AppController
+
+GUIController <--> AppController : exchange operation and result
+
+GUIController --* FrontApp : send result
+
+AnyDialogView "n" --* "1" HomeView
+HomeView "1" --* FrontApp
+
+
+@enduml

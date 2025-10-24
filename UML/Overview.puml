@@ -6,13 +6,12 @@
 package fr.cda
 {
     !include util/UtilPackage.puml
-    !include task/TaskPackage.puml
-    !include swing/SwingPackage.puml
-    !include site/SitePackage.puml
+
+    !include async/AsyncPackage.puml
+
     !include model/modelPackage.puml
     !include controller/ControllerPackage.puml
     !include view/ViewPackage.puml
-    !include dao/DAOPackage.puml
 }
 
 @enduml

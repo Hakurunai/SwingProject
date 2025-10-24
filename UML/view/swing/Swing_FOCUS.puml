@@ -3,7 +3,7 @@
 
 !define SWING_FOCUS
 
-!include ../Common.puml
+!include ../../Common.puml
 !include SwingPackage.puml
 
 

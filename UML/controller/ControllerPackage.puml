@@ -1,9 +1,53 @@
 !ifndef CONTROLLER__PUML
 !define CONTROLLER__PUML
 
-package "Controller"
+!include ../model/ModelPackage.puml
+!include ../async/AsyncPackage.puml
+
+package controller
 {
-    class Controller
+    class AppController
+    {
+        + SaveProductToFile(orderPath : String) : OperationResult<String>
+        + SaveOrderToFile(orderPath : String) : OperationResult<String>
+
+        + CreateNewProduct(data : Product) : OperationResult<String>
+        + ReadProduct(id : String) : OperationResult<Product>
+        + ReadAllProduct() : OperationResult<ArrayList<Product>>
+        + UpdateProduct(data : Product) OperationResult<Void>
+        + DeleteProduct(id : String) OperationResult<Void>
+
+        + CreateNewOrder(data : Order) : OperationResult<String>
+        + ReadOrder(id : String) : OperationResult<Order>
+        + ReadAllOrder() : OperationResult<ArrayList<Product>>
+        + UpdateOrder(data : Order) OperationResult<Void>
+        + DeleteOrder(id : String) OperationResult<Void>
+
+        + SendDeliveredOrderByMail() : OperationResult<Void>
+        + SaveBackViaFTP() : OperationResult<Void>
+    }
+
+
+    class GUIController
+    {
+
+    }
+
+    note right of GUIController
+        Use his own thread to treat demands
+        from FrontApp while keeping order
+    end note
+
+    GUIController --> AppController
+    AppController --> GUIController
 }
+
+model.dao.ProductDAO "1" --* controller.AppController
+model.dao.OrderDAO "1" --* controller.AppController
+
+controller.AppController --> util.DeliverMailHelper
+controller.AppController --> util.CryptHelper
+
+async.AsyncQueue "1" --* controller.GUIController
 
 !endif

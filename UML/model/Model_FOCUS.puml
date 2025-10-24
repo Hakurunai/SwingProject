@@ -2,6 +2,8 @@
 'https://plantuml.com/class-diagram
 
 !define MODEL_FOCUS
+
+!include ../Common.puml
 !include ModelPackage.puml
 
 @enduml

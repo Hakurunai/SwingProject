@@ -1,0 +1,33 @@
+!ifndef DAO__PUML
+!define DAO__PUML
+
+!include ../ModelPackage.puml
+
+package model.dao
+{
+    abstract DAO<T>
+    {
+        - Database
+
+        + DAO(database)
+
+        + CreateNewData(data : T) : OperationResult<String>
+        + ReadData(id : String) : OperationResult<T>
+        + ReadAllData() : OperationResult<ArrayList<T>>
+        + UpdateData(data : T) : OperationResult<Void>
+        + DeleteData(id : String) : OperationResult<Void>
+
+        + SaveDataToFile(path : String) : OperationResult<String>
+    }
+
+    class OrderDAO <Order> <<final>>
+
+    class ProductDAO <Product> <<final>>
+
+    OrderDAO --|> DAO
+    ProductDAO --|> DAO
+}
+
+model.Database "1" ..|> model.dao.DAO
+
+!endif

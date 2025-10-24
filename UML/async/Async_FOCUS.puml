@@ -1,11 +1,7 @@
 @startuml
 'https://plantuml.com/class-diagram
 
-!define SITE_FOCUS
-
 !include ../Common.puml
-!include SitePackage.puml
-
-hide Util
+!include AsyncPackage.puml
 
 @enduml

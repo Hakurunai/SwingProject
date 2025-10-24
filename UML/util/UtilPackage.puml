@@ -1,7 +1,7 @@
 !ifndef UTIL__PUML
 !define UTIL_PUML
 
-package "Util"
+package util
 {
     abstract SerializerHelper
     {
@@ -28,14 +28,6 @@ package "Util"
     abstract LoggerHelper
     {
         + {static} log : log4j::Logger
-    }
-
-    abstract SwingHelper
-    {
-        + {static} SetSameSize(JComponent[])
-        + {static} DetermineMaxSize(JComponent[]) : Dimension
-        + {static} AddComponentToPanelWithStruts(JPanel, JComponent[], final int, final int)
-        + {static} CreateNonEditableTextArea() : JTextArea
     }
 }
 
