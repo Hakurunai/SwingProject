@@ -3,11 +3,20 @@ package fr.cda.async;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * This is a container of Runnable with his own thread
+ * He will automatically run any new runnable added to it
+ * Runnables are executed sequentially by arrival order, only when the previous one is ended
+ */
 public class AsyncProcessQueue
 {
     private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
     private final Thread workerThread;
 
+    /**
+     * This ctor will directly instantiate and start the internal thread
+     * @param threadName Specific name for the internal thread
+     */
     public AsyncProcessQueue(final String threadName)
     {
         workerThread = new Thread(this::ProcessOperationOnQueue, threadName);
@@ -15,11 +24,18 @@ public class AsyncProcessQueue
         workerThread.start();
     }
 
-    public void Enqueue(final Runnable task)
+    /**
+     * Add a new runnable to the container to execute
+     * @param runnable The runnable to execute
+     */
+    public void Enqueue(final Runnable runnable)
     {
-        queue.offer(task);
+        queue.offer(runnable);
     }
 
+    /**
+     * Method executed by the internal Thread as long as this container exist
+     */
     private void ProcessOperationOnQueue()
     {
         try
