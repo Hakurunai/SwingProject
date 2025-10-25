@@ -38,9 +38,9 @@ package view.swing
 
     abstract class SwingDialog
     {
-        # dialog JDialog
+        # dialog : JDialog
 
-        # SwingDialog(frameOwner : JFrame, config, autoShow : boolean)
+        # SwingDialog(frameOwner : JFrame, config, autoShow : boolean, isModal : boolean)
     }
 
     abstract class SwingFrame

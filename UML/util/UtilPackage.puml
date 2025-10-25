@@ -29,6 +29,10 @@ package util
     {
         + {static} log : log4j::Logger
     }
+
+    note right of LoggerHelper
+        Is used everywhere
+    end note
 }
 
 !endif

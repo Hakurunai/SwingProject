@@ -8,6 +8,8 @@ package controller
 {
     class AppController
     {
+        + AppController(database : Database)
+
         + SaveProductToFile(orderPath : String) : OperationResult<String>
         + SaveOrderToFile(orderPath : String) : OperationResult<String>
 
@@ -30,7 +32,25 @@ package controller
 
     class GUIController
     {
+        + EstablishConnection(backApp : BackApp)
 
+        + SaveProductToFile(orderPath : String) : OperationResult<String>
+        + SaveOrderToFile(orderPath : String) : OperationResult<String>
+
+        + CreateNewProduct(data : Product) : OperationResult<String>
+        + ReadProduct(id : String) : OperationResult<Product>
+        + ReadAllProduct() : OperationResult<ArrayList<Product>>
+        + UpdateProduct(data : Product) OperationResult<Void>
+        + DeleteProduct(id : String) OperationResult<Void>
+
+        + CreateNewOrder(data : Order) : OperationResult<String>
+        + ReadOrder(id : String) : OperationResult<Order>
+        + ReadAllOrder() : OperationResult<ArrayList<Product>>
+        + UpdateOrder(data : Order) OperationResult<Void>
+        + DeleteOrder(id : String) OperationResult<Void>
+
+        + SendDeliveredOrderByMail() : OperationResult<Void>
+        + SaveBackViaFTP() : OperationResult<Void>
     }
 
     note right of GUIController
@@ -38,8 +58,8 @@ package controller
         from FrontApp while keeping order
     end note
 
-    GUIController --> AppController
-    AppController --> GUIController
+    GUIController "1" --o AppController
+    AppController "1" --o GUIController
 }
 
 model.dao.ProductDAO "1" --* controller.AppController
@@ -47,6 +67,7 @@ model.dao.OrderDAO "1" --* controller.AppController
 
 controller.AppController --> util.DeliverMailHelper
 controller.AppController --> util.CryptHelper
+
 
 async.AsyncQueue "1" --* controller.GUIController
 

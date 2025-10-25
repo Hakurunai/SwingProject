@@ -8,4 +8,7 @@
 remove model.idGenerator
 remove util
 
+remove controller.GUIController
+remove async
+
 @enduml

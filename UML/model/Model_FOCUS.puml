@@ -6,4 +6,10 @@
 !include ../Common.puml
 !include ModelPackage.puml
 
+remove util.CryptHelper
+remove util.DeliverMailHelper
+
+remove controller.GUIController
+remove async
+
 @enduml

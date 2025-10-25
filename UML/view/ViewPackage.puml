@@ -13,8 +13,9 @@ package view
 
         - homeViewConfig : SwingViewConfig
 
-        + FrontApp(remoteController : AppController)
+        + FrontApp()
         + LaunchApp()
+        + EstablishConnection(backApp : BackApp)
 
         - LoadConfig()
         - LoadCustomConfig() : boolean
@@ -54,13 +55,14 @@ package view
     }
 
 
-    controller.GUIController "1" --* FrontApp
-
     FrontApp "1" ..> HomeFrame
 
     HomeFrame "1" --* FrontApp
     HomeFrame --|> swing.SwingFrame
     HomeFrame --> swing.SwingHelper
 }
+
+controller.GUIController "1" --* view.FrontApp
+
 
 !endif

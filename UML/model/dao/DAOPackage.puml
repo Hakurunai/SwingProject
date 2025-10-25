@@ -28,6 +28,6 @@ package model.dao
     ProductDAO --|> DAO
 }
 
-model.Database "1" ..|> model.dao.DAO
+model.Database "1" ..o model.dao.DAO
 
 !endif

@@ -7,11 +7,19 @@
 
 
 !include ../util/UtilPackage.puml
-
+!include ../controller/ControllerPackage.puml
 
 
 package model
 {
+    class BackApp
+    {
+        + BackApp(database)
+
+        + IsAbleToReceiveNewConnection() : boolean
+        + RequestConnection(GUIController) : AppController
+    }
+
     class Product
     {
         - id : String
@@ -88,8 +96,11 @@ package model
 
     OrderIdGenerator "1" --* "1" Database
     ProductIdGenerator "1" --* "1" Database
+
+    Database "1" --o BackApp
 }
 
 model.Database --> util.SerializerHelper
+controller.AppController "1" --* model.BackApp
 
 !endif
