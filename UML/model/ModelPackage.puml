@@ -1,0 +1,106 @@
+!ifndef MODEL__PUML
+!define MODEL__PUML
+
+
+!include idGenerator/IdGeneratorPackage.puml
+!include dao/DAOPackage.puml
+
+
+!include ../util/UtilPackage.puml
+!include ../controller/ControllerPackage.puml
+
+
+package model
+{
+    class BackApp
+    {
+        + BackApp(database)
+
+        + IsAbleToReceiveNewConnection() : boolean
+        + RequestConnection(GUIController) : AppController
+    }
+
+    class Product
+    {
+        - id : String
+        - name : String
+        - category : String
+        - price : float
+        - storedQuantity : int
+
+        + Product(id, name, category, price)
+        + {static} GenerateProductDTO(name, category, price) : Product
+    }
+
+    class Order
+    {
+        - id : String
+        - creationDate : LocalDate
+        - clientName : String
+        - orderedProduct : ArrayList<Product>
+        - isDelivered : boolean
+        - nonDeliveredExplanation : String
+
+        + Order(id, creationDate, clientName, orderedProduct)
+        + {static} GenerateOrderDTO(creationDate, clientName, orderedProduct) : Order
+    }
+
+    class Database
+    {
+        - productMap : Hashmap<String, Product>
+        - orderMap : Hashmap<String, Order>
+
+        - dataPath : String
+
+        - Init()
+
+        + Database(dataPath : String)
+
+        + SaveProductToFile(orderPath : String) : OperationResult<String>
+        + SaveOrderToFile(orderPath : String) : OperationResult<String>
+
+        + CreateNewProduct(data : Product) : OperationResult<String>
+        + ReadProduct(id : String) : OperationResult<Product>
+        + ReadAllProduct() : OperationResult<ArrayList<Product>>
+        + UpdateProduct(data : Product) OperationResult<Void>
+        + DeleteProduct(id : String) OperationResult<Void>
+
+        + CreateNewOrder(data : Order) : OperationResult<String>
+        + ReadOrder(id : String) : OperationResult<Order>
+        + ReadAllOrder() : OperationResult<ArrayList<Product>>
+        + UpdateOrder(data : Order) OperationResult<Void>
+        + DeleteOrder(id : String) OperationResult<Void>
+    }
+
+    class OperationResult <T>
+    {
+        - data : T
+        - message : final String
+        - success : final boolean
+
+        - OperationResult(data, message, success)
+
+        + Success(message : String, data : T) : OperationResult<T>
+        + Success(message : String) : OperationResult<T>
+        + Failure(message : String) : OperationResult<T>
+
+        + IsSuccess() : boolean
+        + GetMessage() : String
+        + GetData() : T
+    }
+
+    Order "0,n" o-- "1-n" Product
+
+    Order "0-n" --* "1" Database
+    Product "0-n" --* "1" Database
+
+    OrderIdGenerator "1" --* "1" Database
+    ProductIdGenerator "1" --* "1" Database
+
+    Database "1" --o BackApp
+}
+
+model.Database --> util.SerializerHelper
+controller.AppController "1" --* model.BackApp
+
+!endif

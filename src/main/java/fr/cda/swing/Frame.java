@@ -4,26 +4,25 @@ import fr.cda.util.LoggerHelper;
 
 import javax.swing.*;
 
-public abstract class Dialog implements ISwingInterface
+public abstract class Frame implements ISwingInterface
 {
-    protected JDialog dialog;
+    protected JFrame frame;
 
     /**
      * Constructor who will be inherited by all child classes
      * @param title the name of the window
-     * @param frameOwner the JFrame who own this JDialog
      * @param width the size in pixel for the width
      * @param height the size in pixel for the height
      * @param autoShow if true, the constructor will automatically call Display
      */
-    protected Dialog(final String title, JFrame frameOwner, final int width, final int height, final boolean autoShow, final boolean isModal)
+    protected Frame(final String title, final int width, final int height, final boolean autoShow)
     {
-        LoggerHelper.log.info("Creation of a new Dialog named : {}", title);
+        LoggerHelper.log.info("Creation of a new MainScreen named : {}", title);
 
-        dialog = new JDialog(frameOwner, title, isModal);
-        dialog.setSize(width, height);
-        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        dialog.setLocationRelativeTo(dialog.getOwner());
+        frame = new JFrame(title);
+        frame.setSize(width, height);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
 
         Init();
 
@@ -43,8 +42,8 @@ public abstract class Dialog implements ISwingInterface
      */
     public void Display()
     {
-        LoggerHelper.log.info("ACTION set visible Dialog named : {}", dialog.getTitle());
-        dialog.setVisible(true);
+        LoggerHelper.log.info("TRY to set visible Screen named : {}", frame.getTitle());
+        frame.setVisible(true);
     }
 
     /**
@@ -52,7 +51,7 @@ public abstract class Dialog implements ISwingInterface
      */
     public void Hide()
     {
-        LoggerHelper.log.info("ACTION hide Dialog named : {}", dialog.getTitle());
-        dialog.setVisible(false);
+        LoggerHelper.log.info("TRY to hide Screen named : {}", frame.getTitle());
+        frame.setVisible(false);
     }
 }

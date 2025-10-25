@@ -1,0 +1,10 @@
+LIVRE-1;Les Miserables de Victor Hugo ;8.50;6
+LIVRE-2;La Peste de Albert Camus;8.5;4
+VETEMENT-1;Pantalon bleu taille 44 homme;12.0;5
+VETEMENT-2;Pantalon jean femme 48;23.0;4
+VETEMENT-3;T-shirt rose femme 52;30.0;6
+LIVRE-3;Le Père Goriot de Honoré de Balzac;11.0;5
+LIVRE-4;L'étranger de Albert Camus;11.0;5
+LIVRE-5;Voyage au bout de la nuit de Louis-ferdinand Céline;11.0;3
+BD-1;Tintin au Tibet;11.5;2
+BD-2;Spirou et Fantasio;11.5;2

@@ -1,0 +1,10 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!define SWING_FOCUS
+
+!include ../../Common.puml
+!include SwingPackage.puml
+
+
+@enduml

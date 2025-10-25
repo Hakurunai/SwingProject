@@ -1,0 +1,69 @@
+!ifndef SWING__PUML
+!define SWING__PUML
+
+package view.swing
+{
+    interface ISwingInterface
+    {
+        + Display()
+        + Hide()
+    }
+
+    abstract class SwingView
+    {
+        + SwingView(config : SwingViewConfig, autoShow : boolean)
+        # {abstract} Init()
+        - LoadConfig()
+    }
+
+    note left of SwingView::Init
+        Called from the ctor
+        Will serve to create the
+        interface with Swing components
+    end note
+
+    note left of SwingView::LoadConfig
+                Called from the ctor
+    end note
+
+    class SwingViewConfig
+    {
+        - title : String
+        - width : int
+        - height : int
+
+        + SwingViewConfig(title, width, height)
+        + {static} DEFAULT : SiteConfig
+    }
+
+    abstract class SwingDialog
+    {
+        # dialog : JDialog
+
+        # SwingDialog(frameOwner : JFrame, config, autoShow : boolean, isModal : boolean)
+    }
+
+    abstract class SwingFrame
+    {
+        # frame : JFrame
+
+        #Frame(config : SwingInterfaceConfig, autoShow : boolean)
+    }
+
+    abstract SwingHelper
+    {
+        + {static} SetSameSize(JComponent[])
+        + {static} DetermineMaxSize(JComponent[]) : Dimension
+        + {static} AddComponentToPanelWithStruts(JPanel, JComponent[], final int, final int)
+        + {static} CreateNonEditableTextArea() : JTextArea
+    }
+
+    SwingView ..|> ISwingInterface
+    SwingFrame --|> SwingView
+    SwingDialog --|> SwingView
+
+    SwingView "0-n" *-- "1" SwingViewConfig
+}
+
+
+!endif

@@ -1,0 +1,18 @@
+!ifndef ASYNC__PACKAGE
+!define ASYNC__PACKAGE
+
+package async
+{
+    class AsyncQueue
+    {
+        - queue : LinkedBlockingQueue<Runnable>
+        - workerThread : Thread
+
+        + AsyncQueue(threadName : String)
+        + Enqueue(task : Runnable)
+
+        - ProcessOperationOnQueue()
+    }
+}
+
+!endif

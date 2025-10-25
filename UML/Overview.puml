@@ -1,0 +1,17 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!include Common.puml
+
+package fr.cda
+{
+    !include util/UtilPackage.puml
+
+    !include async/AsyncPackage.puml
+
+    !include model/modelPackage.puml
+    !include controller/ControllerPackage.puml
+    !include view/ViewPackage.puml
+}
+
+@enduml

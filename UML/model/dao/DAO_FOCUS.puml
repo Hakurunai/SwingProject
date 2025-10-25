@@ -1,0 +1,14 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+
+!include ../../Common.puml
+!include DAOPackage.puml
+
+remove model.idGenerator
+remove util
+
+remove controller.GUIController
+remove async
+
+@enduml

@@ -1,0 +1,38 @@
+!ifndef UTIL__PUML
+!define UTIL_PUML
+
+package util
+{
+    abstract SerializerHelper
+    {
+        + {static} SerializeProduct(Product)
+        + {static} SerializeProduct(List<Product>)
+
+        + {static} SerializeOrder(Order)
+        + {static} SerializeOrder(List<Order>)
+
+        + {static} DeserializeProduct(File) : List<Product>
+        + {static} DeserializeOrder(File) : List<Order>
+    }
+
+    abstract DeliverMailHelper
+    {
+
+    }
+
+    abstract CryptHelper
+    {
+
+    }
+
+    abstract LoggerHelper
+    {
+        + {static} log : log4j::Logger
+    }
+
+    note right of LoggerHelper
+        Is used everywhere
+    end note
+}
+
+!endif

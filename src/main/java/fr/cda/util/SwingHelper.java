@@ -2,6 +2,7 @@ package fr.cda.util;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 
 public abstract class SwingHelper
 {
@@ -11,6 +12,7 @@ public abstract class SwingHelper
      */
     public static void SetSameSize(JComponent[] components)
     {
+        LoggerHelper.log.info("START redimension of an array of JComponent");
         Dimension commonDim = DetermineMaxSize(components);
 
         //The default font is proportional, so we raise the estimated width here before the real display
@@ -56,6 +58,7 @@ public abstract class SwingHelper
      */
     public static void AddComponentToPanelWithStruts(JPanel targetPanel, JComponent[] components, final int horizontalStrut, final int verticalStrut)
     {
+        LoggerHelper.log.info("START adding an array of JComponent to a JPanel");
         for (int i = 0 ; i < components.length; ++i)
         {
             targetPanel.add(components[i]);
@@ -81,6 +84,7 @@ public abstract class SwingHelper
      */
     public static JTextArea CreateNonEditableTextArea()
     {
+        LoggerHelper.log.info("START creation of a non editable text area");
         JTextArea textArea = new JTextArea();
         textArea.setEditable(false);
         textArea.setFocusable(false);

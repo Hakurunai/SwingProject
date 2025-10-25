@@ -1,0 +1,22 @@
+!ifndef IDGENERATOR__PUML
+!define IDGENERATOR__PUML
+
+
+package model.idGenerator
+{
+    abstract class DataIdGenerator
+        {
+            - currentId : long
+
+            + SetCurrentId(value : long)
+            + GetNextId() : String
+        }
+
+    class OrderIdGenerator
+    class ProductIdGenerator
+
+    OrderIdGenerator --|> DataIdGenerator
+    ProductIdGenerator --|> DataIdGenerator
+}
+
+!endif

@@ -1,0 +1,4 @@
+!ifndef COMMON__H
+!define COMMON__H
+
+skinparam classAttributeIconSize 0
