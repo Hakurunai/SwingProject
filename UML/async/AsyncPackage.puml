@@ -5,13 +5,11 @@ package async
 {
     class AsyncQueue
     {
-        - queue : LinkedBlockingQueue<Runnable>
-        - workerThread : Thread
+        - executor : ExecutorService
 
         + AsyncQueue(threadName : String)
-        + Enqueue(task : Runnable)
-
-        - ProcessOperationOnQueue()
+        + SubmitAsyncOperation <T> ( operation : Supplier<T>, onOperationDone : Consumer<T>)
+        + Shutdown()
     }
 }
 

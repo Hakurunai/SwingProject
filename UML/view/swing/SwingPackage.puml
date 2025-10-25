@@ -1,8 +1,12 @@
 !ifndef SWING__PUML
 !define SWING__PUML
 
+!include async/SwingAsyncPackage.puml
+
+
 package view.swing
 {
+
     interface ISwingInterface
     {
         + Display()

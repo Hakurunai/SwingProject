@@ -11,4 +11,6 @@ remove model.Database
 remove util.SwingHelper
 remove util.SerializerHelper
 
+remove async
+
 @enduml

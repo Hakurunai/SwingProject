@@ -2,7 +2,7 @@
 !define CONTROLLER__PUML
 
 !include ../model/ModelPackage.puml
-!include ../async/AsyncPackage.puml
+!include ../view/swing/async/SwingAsyncPackage.puml
 
 package controller
 {
@@ -68,7 +68,6 @@ model.dao.OrderDAO "1" --* controller.AppController
 controller.AppController --> util.DeliverMailHelper
 controller.AppController --> util.CryptHelper
 
-
-async.AsyncQueue "1" --* controller.GUIController
+view.swing.async.SwingAsyncQueue "1" --* controller.GUIController
 
 !endif
