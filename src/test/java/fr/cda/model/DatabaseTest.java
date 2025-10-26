@@ -211,4 +211,28 @@ class DatabaseTest
                                                                               "The stored update must be a deep copy of the passed reference");
 
     }
+
+    @Test
+    void deleteProduct()
+    {
+        final String DELETE_PRODUCT_TEST_FAIL = "Delete product failed : ";
+
+        var catRes = database.CreateNewProductCategory(categoryToAdd);
+        assertTrue(catRes.HasSucceeded(), DELETE_PRODUCT_TEST_FAIL + "Issue while setting up the category");
+
+        var prodAddRes = database.CreateNewProduct(unknownProduct);
+        assertTrue(prodAddRes.HasSucceeded(), DELETE_PRODUCT_TEST_FAIL + "Issue while setting up the product to read");
+        assertNotNull(prodAddRes.getData(), DELETE_PRODUCT_TEST_FAIL + "Issue while setting up the product to read");
+        Product dataInserted = new Product(prodAddRes.getData(), unknownProduct.getName(), unknownProduct.getCategory(), unknownProduct.getPrice());
+
+        var deletionRes = database.DeleteProduct(dataInserted.getId());
+        assertNotNull(deletionRes, DELETE_PRODUCT_TEST_FAIL + "The deletion has returned a null object");
+        assertNull(deletionRes.getData(), DELETE_PRODUCT_TEST_FAIL + "OperationResult.getData() returned must be null");
+        assertTrue(deletionRes.HasSucceeded(), DELETE_PRODUCT_TEST_FAIL + "OperationResult is marked as FAILED");
+
+        var readRes = database.ReadProduct(dataInserted.getId());
+        assertFalse(readRes.HasSucceeded(), DELETE_PRODUCT_TEST_FAIL + "After a deletion, a read cannot find the object");
+        assertNull(readRes.getData(), DELETE_PRODUCT_TEST_FAIL +
+                                     "After a deletion, a read on a now non stored value must return an OperationResult with null data");
+    }
 }

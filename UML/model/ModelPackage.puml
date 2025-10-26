@@ -80,16 +80,16 @@ package model
 
         + CreateNewProduct(data : Product) : OperationResult<ID>
         + CreateNewProductCategory(category : Category) OperationResult<Void>
-        + ReadProduct(id : String) : OperationResult<Product>
+        + ReadProduct(id : ID) : OperationResult<Product>
         + ReadAllProduct() : OperationResult<Product[]>
         + UpdateProduct(data : Product) OperationResult<Void>
-        + DeleteProduct(id : String) OperationResult<Void>
+        + DeleteProduct(id : ID) OperationResult<Void>
 
         + CreateNewOrder(data : Order) : OperationResult<String>
-        + ReadOrder(id : String) : OperationResult<Order>
-        + ReadAllOrder() : OperationResult<ArrayList<Product>>
+        + ReadOrder(id : ID) : OperationResult<Order>
+        + ReadAllOrder() : OperationResult<Order[]>
         + UpdateOrder(data : Order) OperationResult<Void>
-        + DeleteOrder(id : String) OperationResult<Void>
+        + DeleteOrder(id : ID) OperationResult<Void>
 
         - Init()
         - CheckIfProductCategoryExist(cat : Category) : OperationResult<Void>

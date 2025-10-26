@@ -156,14 +156,30 @@ public class Database
     }
 
     /**
+     * Delete a Product from the Database
+     * @param id The id of the targeted Product
+     * @return An OperationResult able to tell you if the deletion was a success using {@link OperationResult#HasSucceeded()}
+     */
+    public OperationResult<Void> DeleteProduct(final ID id)
+    {
+        OperationResult<Product> checkIfProductExist = ReadProduct(id);
+        if (!checkIfProductExist.HasSucceeded())
+            return OperationResult.FAILURE(checkIfProductExist.getMessage());
+
+        Product copy = checkIfProductExist.getData();
+        productMap.get(copy.getCategory()).remove(copy.getId());
+        return OperationResult.SUCCESS("SUCCESS : deletion of a Product. ID : " + copy.getId());
+    }
+
+    /**
      * Used to determine if a category already exist for the productMap
-     * @param cat The category you want to test
+     * @param category The category you want to test
      * @return An OperationResult able to tell you if the operation was a success via {@link OperationResult#HasSucceeded()}
      */
-    private OperationResult<Void> CheckIfProductCategoryExist(final Category cat)
+    private OperationResult<Void> CheckIfProductCategoryExist(final Category category)
     {
-        if (!productMap.containsKey(cat))
-            return OperationResult.FAILURE(ERROR_UNKNOWN_PRODUCT_CATEGORY + " : " + cat.getCategoryName());
+        if (!productMap.containsKey(category))
+            return OperationResult.FAILURE(ERROR_UNKNOWN_PRODUCT_CATEGORY + " : " + category.getCategoryName());
 
         return OperationResult.SUCCESS("Category exist in database");
     }
