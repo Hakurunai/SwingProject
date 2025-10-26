@@ -93,7 +93,7 @@ package model
         + Success(message : String) : OperationResult<T>
         + Failure(message : String) : OperationResult<T>
 
-        + IsSuccess() : boolean
+        + HasSucceeded() : boolean
         + GetMessage() : String
         + GetData() : T
     }
