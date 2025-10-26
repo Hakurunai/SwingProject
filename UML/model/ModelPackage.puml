@@ -11,6 +11,24 @@
 
 package model
 {
+    class ID
+    {
+        - id : string
+
+        + Id(id)
+        + <<override>> equals(object) : boolean
+        + <<override>> hashCode() : int
+    }
+
+    class Category
+    {
+        - categoryName : string
+
+        + Category(name)
+        + <<override>> equals(object) : boolean
+        + <<override>> hashCode() : int
+    }
+
     class BackApp
     {
         + BackApp(database)
@@ -21,27 +39,24 @@ package model
 
     class Product
     {
-        - id : String
         - name : String
-        - category : String
         - price : float
         - storedQuantity : int
 
-        + Product(id, name, category, price)
-        - Product(name, category, price)
-        + {static} GenerateProductDTO(name, category, price) : Product
+        + Product(id : ID, name, category : Category, price)
+        - Product(name, category : Category, price)
+        + {static} GenerateProductDTO(name, category : Category, price) : Product
     }
 
     class Order
     {
-        - id : String
         - creationDate : LocalDate
         - clientName : String
         - orderedProduct : ArrayList<Product>
         - isDelivered : boolean
         - nonDeliveredExplanation : String
 
-        + Order(id, creationDate, clientName, orderedProduct)
+        + Order(id : ID, creationDate, clientName, orderedProduct)
         - Order(creationDate, clientName, orderedProduct)
 
         + UpdateToNonDeliveredStatus(explanation : String)
@@ -51,19 +66,18 @@ package model
 
     class Database
     {
-        - productMap : Hashmap<String, Hashmap<String, Product>>
-        - orderMap : Hashmap<String, Hashmap<String, Order>>
+        - productMap : Hashmap<Category, Hashmap<ID, Product>>
+        - orderMap : Hashmap<ID, Order>
 
         - dataPath : String
 
-        - Init()
-
         + Database(dataPath : String)
 
-        + SaveProductToFile(orderPath : String) : OperationResult<String>
-        + SaveOrderToFile(orderPath : String) : OperationResult<String>
+        + SaveProductToFile(productPath : String) : OperationResult<Void>
+        + SaveOrderToFile(orderPath : String) : OperationResult<Void>
 
-        + CreateNewProduct(data : Product) : OperationResult<String>
+        + CreateNewProduct(data : Product) : OperationResult<ID>
+        + CreateNewProductCategory(category : Category) OperationResult<Void>
         + ReadProduct(id : String) : OperationResult<Product>
         + ReadAllProduct() : OperationResult<ArrayList<Product>>
         + UpdateProduct(data : Product) OperationResult<Void>
@@ -74,6 +88,10 @@ package model
         + ReadAllOrder() : OperationResult<ArrayList<Product>>
         + UpdateOrder(data : Order) OperationResult<Void>
         + DeleteOrder(id : String) OperationResult<Void>
+
+        - Init()
+        - CheckIfProductCategoryExist(cat : Category) : OperationResult<Void>
+        - SplitProductID(productId : ID) : OperationResult<String[]>
     }
 
     note right of Database::productMap
@@ -105,14 +123,21 @@ package model
         + DataIdGenerator()
         + TryUpdateCurrentId(value : long)
         + GetNextId() : long
+        + GetNextIdAsString() : String
     }
 
     Order "0,n" o-- "1-n" Product
 
-    Order "0-n" --* "1" Database
-    Product "0-n" --* "1" Database
+    Order "0-n" --* Database
+    Product "0-n" --* Database
 
-    DataIdGenerator "1" --* "1" Database
+    ID "1" --* Order
+    ID "1" --* Product
+
+    Category "1" --* Product
+
+
+    DataIdGenerator "2" --* Database
 
     Database "1" --o BackApp
 }
