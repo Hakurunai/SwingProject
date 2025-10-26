@@ -79,7 +79,7 @@ package model
         + CreateNewProduct(data : Product) : OperationResult<ID>
         + CreateNewProductCategory(category : Category) OperationResult<Void>
         + ReadProduct(id : String) : OperationResult<Product>
-        + ReadAllProduct() : OperationResult<ArrayList<Product>>
+        + ReadAllProduct() : OperationResult<Product[]>
         + UpdateProduct(data : Product) OperationResult<Void>
         + DeleteProduct(id : String) OperationResult<Void>
 
