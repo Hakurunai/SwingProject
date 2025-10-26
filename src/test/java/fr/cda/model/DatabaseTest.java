@@ -130,4 +130,35 @@ class DatabaseTest
         badRes = database.ReadProduct(alwaysID_WITH_UNKNOWN_CATEGORY);
         assertFalse(badRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "Trying to read an ID with unknown category must return a FAILED OperationResult");
     }
+
+    @Test
+    void readAllProduct()
+    {
+        final String READ_PRODUCT_TEST_FAIL = "Read all product failed : ";
+        final int NB_TO_INSERT = 10;
+
+        var allProdRes = database.ReadAllProduct();
+        assertNotNull(allProdRes,  READ_PRODUCT_TEST_FAIL + "The method returned a null object");
+        assertNotNull(allProdRes.getData(), READ_PRODUCT_TEST_FAIL + "the returned OperationResult data is null");
+        assertTrue(allProdRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "the returned OperationResult is marked as FAILED");
+        assertEquals(0, allProdRes.getData().length,  READ_PRODUCT_TEST_FAIL
+                                                              + "the returned OperationResult must be empty");
+
+        var catRes = database.CreateNewProductCategory(categoryToAdd);
+        assertTrue(catRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "Issue while setting up the category");
+
+        for (int i = 0 ; i  < NB_TO_INSERT ; i++)
+        {
+            var prodAddRes = database.CreateNewProduct(unknownProduct);
+            assertTrue(prodAddRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "Issue while setting up the product to read");
+            assertNotNull(prodAddRes.getData(), READ_PRODUCT_TEST_FAIL + "Issue while setting up the product to read");
+        }
+
+        allProdRes = database.ReadAllProduct();
+        assertNotNull(allProdRes,  READ_PRODUCT_TEST_FAIL + "The method returned a null object");
+        assertNotNull(allProdRes.getData(), READ_PRODUCT_TEST_FAIL + "the returned OperationResult data is null");
+        assertTrue(allProdRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "the returned OperationResult is marked as FAILED");
+        assertEquals(NB_TO_INSERT, allProdRes.getData().length,  READ_PRODUCT_TEST_FAIL
+                                                 + "the returned OperationResult.getData() must return a non empty array");
+    }
 }

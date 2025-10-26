@@ -2,8 +2,7 @@ package fr.cda.model;
 
 import fr.cda.util.LoggerHelper;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Represent a database in this program, living only in RAM
@@ -90,7 +89,7 @@ public class Database
         if (checkCategoryResult.HasSucceeded())
             return OperationResult.FAILURE("The category is already present in the database : " +  category.getCategoryName());
 
-        productMap.put(category, new HashMap<>());
+        productMap.put(category, new LinkedHashMap<>());
         return OperationResult.SUCCESS("Creation of a new category has been done successfully : " + category.getCategoryName());
     }
 
@@ -119,6 +118,17 @@ public class Database
         return OperationResult.SUCCESS(productMap.get(CATEGORY).get(productId), "Reading of product ID "
                                                                                    + productId.getId()
                                                                                    + " is successful" );
+    }
+
+    public OperationResult<Product[]> ReadAllProduct()
+    {
+        List<Product> allProducts = new ArrayList<>();
+
+        for (Map<ID, Product> map : productMap.values())
+            allProducts.addAll(map.values());
+
+        return OperationResult.SUCCESS(allProducts.toArray(Product[]::new),
+                "SUCCESS : read all Product from databases");
     }
 
     /**
