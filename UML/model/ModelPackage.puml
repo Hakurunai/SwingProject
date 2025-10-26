@@ -2,7 +2,6 @@
 !define MODEL__PUML
 
 
-!include idGenerator/IdGeneratorPackage.puml
 !include dao/DAOPackage.puml
 
 
@@ -29,6 +28,7 @@ package model
         - storedQuantity : int
 
         + Product(id, name, category, price)
+        - Product(name, category, price)
         + {static} GenerateProductDTO(name, category, price) : Product
     }
 
@@ -42,13 +42,17 @@ package model
         - nonDeliveredExplanation : String
 
         + Order(id, creationDate, clientName, orderedProduct)
+        - Order(creationDate, clientName, orderedProduct)
+
+        + UpdateToNonDeliveredStatus(explanation : String)
+        + UpdateToDeliveredStatus()
         + {static} GenerateOrderDTO(creationDate, clientName, orderedProduct) : Order
     }
 
     class Database
     {
-        - productMap : Hashmap<String, Product>
-        - orderMap : Hashmap<String, Order>
+        - productMap : Hashmap<String, Hashmap<String, Product>>
+        - orderMap : Hashmap<String, Hashmap<String, Order>>
 
         - dataPath : String
 
@@ -72,6 +76,11 @@ package model
         + DeleteOrder(id : String) OperationResult<Void>
     }
 
+    note right of Database::productMap
+        First map use category as key
+        Next map use complete id
+    end note
+
     class OperationResult <T>
     {
         - data : T
@@ -89,13 +98,21 @@ package model
         + GetData() : T
     }
 
+    class DataIdGenerator
+    {
+        - currentId : long
+
+        + DataIdGenerator()
+        + TryUpdateCurrentId(value : long)
+        + GetNextId() : long
+    }
+
     Order "0,n" o-- "1-n" Product
 
     Order "0-n" --* "1" Database
     Product "0-n" --* "1" Database
 
-    OrderIdGenerator "1" --* "1" Database
-    ProductIdGenerator "1" --* "1" Database
+    DataIdGenerator "1" --* "1" Database
 
     Database "1" --o BackApp
 }
