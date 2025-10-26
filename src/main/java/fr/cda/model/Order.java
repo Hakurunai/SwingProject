@@ -1,6 +1,7 @@
 package fr.cda.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,6 +31,23 @@ public class Order
     {
         this(creationDate, clientName, orderedProduct);
         this.id = id;
+    }
+
+    /**
+     * Copy ctor, used by the {@link Database} to protect her internal objects
+     * @param other Object from who we want to copy values
+     */
+    public Order(final Order other)
+    {
+        //Immutable (ID is currently immutable in his state)
+        id  = other.id;
+        creationDate = other.creationDate;
+        clientName = other.clientName;
+        nonDeliveredExplanation = other.nonDeliveredExplanation;
+
+        //Copy
+        isDelivered = other.isDelivered;
+        orderedProduct = new ArrayList<>(other.orderedProduct);
     }
 
     /**

@@ -121,6 +121,12 @@ class DatabaseTest
         assertTrue(readRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "the returned OperationResult is marked as FAILED");
         assertEquals(readRes.getData().getId(), prodAddRes.getData());
 
+        readRes.getData().setName("A_NAME_DIFFERENT");
+        var readRes2 = database.ReadProduct(prodAddRes.getData());
+        assertNotEquals(readRes.getData().getName(), readRes2.getData().getName(), READ_PRODUCT_TEST_FAIL +
+                                                             "The returned data must be a deep copy, not a shallow one");
+
+
         var badRes = database.ReadProduct(alwaysBadID);
         assertFalse(badRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "Trying to read a bad ID must return a FAILED OperationResult");
 
@@ -134,31 +140,75 @@ class DatabaseTest
     @Test
     void readAllProduct()
     {
-        final String READ_PRODUCT_TEST_FAIL = "Read all product failed : ";
+        final String READ_ALL_PRODUCT_TEST_FAIL = "Read all product failed : ";
         final int NB_TO_INSERT = 10;
 
         var allProdRes = database.ReadAllProduct();
-        assertNotNull(allProdRes,  READ_PRODUCT_TEST_FAIL + "The method returned a null object");
-        assertNotNull(allProdRes.getData(), READ_PRODUCT_TEST_FAIL + "the returned OperationResult data is null");
-        assertTrue(allProdRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "the returned OperationResult is marked as FAILED");
-        assertEquals(0, allProdRes.getData().length,  READ_PRODUCT_TEST_FAIL
+        assertNotNull(allProdRes,  READ_ALL_PRODUCT_TEST_FAIL + "The method returned a null object");
+        assertNotNull(allProdRes.getData(), READ_ALL_PRODUCT_TEST_FAIL + "the returned OperationResult data is null");
+        assertTrue(allProdRes.HasSucceeded(), READ_ALL_PRODUCT_TEST_FAIL + "the returned OperationResult is marked as FAILED");
+        assertEquals(0, allProdRes.getData().length,  READ_ALL_PRODUCT_TEST_FAIL
                                                               + "the returned OperationResult must be empty");
 
         var catRes = database.CreateNewProductCategory(categoryToAdd);
-        assertTrue(catRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "Issue while setting up the category");
+        assertTrue(catRes.HasSucceeded(), READ_ALL_PRODUCT_TEST_FAIL + "Issue while setting up the category");
 
         for (int i = 0 ; i  < NB_TO_INSERT ; i++)
         {
             var prodAddRes = database.CreateNewProduct(unknownProduct);
-            assertTrue(prodAddRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "Issue while setting up the product to read");
-            assertNotNull(prodAddRes.getData(), READ_PRODUCT_TEST_FAIL + "Issue while setting up the product to read");
+            assertTrue(prodAddRes.HasSucceeded(), READ_ALL_PRODUCT_TEST_FAIL + "Issue while setting up the product to read");
+            assertNotNull(prodAddRes.getData(), READ_ALL_PRODUCT_TEST_FAIL + "Issue while setting up the product to read");
         }
 
         allProdRes = database.ReadAllProduct();
-        assertNotNull(allProdRes,  READ_PRODUCT_TEST_FAIL + "The method returned a null object");
-        assertNotNull(allProdRes.getData(), READ_PRODUCT_TEST_FAIL + "the returned OperationResult data is null");
-        assertTrue(allProdRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "the returned OperationResult is marked as FAILED");
-        assertEquals(NB_TO_INSERT, allProdRes.getData().length,  READ_PRODUCT_TEST_FAIL
+        assertNotNull(allProdRes,  READ_ALL_PRODUCT_TEST_FAIL + "The method returned a null object");
+        assertNotNull(allProdRes.getData(), READ_ALL_PRODUCT_TEST_FAIL + "the returned OperationResult data is null");
+        assertTrue(allProdRes.HasSucceeded(), READ_ALL_PRODUCT_TEST_FAIL + "the returned OperationResult is marked as FAILED");
+        assertEquals(NB_TO_INSERT, allProdRes.getData().length,  READ_ALL_PRODUCT_TEST_FAIL
                                                  + "the returned OperationResult.getData() must return a non empty array");
+
+
+        allProdRes.getData()[0].setName("A_NAME_DIFFERENT");
+        var allProdRes2 = database.ReadAllProduct();
+        assertNotEquals(allProdRes.getData()[0].getName(), allProdRes2.getData()[0].getName(), READ_ALL_PRODUCT_TEST_FAIL +
+                                                           "The returned data must be a deep copy, not a shallow one");
+    }
+
+    @Test
+    void updateProduct()
+    {
+        final String UPDATE_PRODUCT_TEST_FAIL = "Update product failed : ";
+
+        var catRes = database.CreateNewProductCategory(categoryToAdd);
+        assertTrue(catRes.HasSucceeded(), UPDATE_PRODUCT_TEST_FAIL + "Issue while setting up the category");
+
+        var prodAddRes = database.CreateNewProduct(unknownProduct);
+        assertTrue(prodAddRes.HasSucceeded(), UPDATE_PRODUCT_TEST_FAIL + "Issue while setting up the product to read");
+        assertNotNull(prodAddRes.getData(), UPDATE_PRODUCT_TEST_FAIL + "Issue while setting up the product to read");
+
+
+        Product newValue = new Product(prodAddRes.getData(), unknownProduct.getName(), unknownProduct.getCategory(), unknownProduct.getPrice());
+        newValue.setName("A_NAME_DIFFERENT");
+
+        var readRes = database.ReadProduct(newValue.getId());
+        assertTrue(readRes.HasSucceeded(), UPDATE_PRODUCT_TEST_FAIL + "Issue while setting up the product to update");
+        assertNotNull(readRes.getData(), UPDATE_PRODUCT_TEST_FAIL + "Issue while setting up the product to update");
+
+        assertNotEquals(newValue.getName(), readRes.getData().getName(), UPDATE_PRODUCT_TEST_FAIL +
+                                          "Issue while setting up the product to update : the reading must be a deep copy");
+
+        var updateRes = database.UpdateProduct(newValue);
+        assertNotNull(updateRes, UPDATE_PRODUCT_TEST_FAIL + "The update has returned a null object");
+        assertTrue(updateRes.HasSucceeded(), UPDATE_PRODUCT_TEST_FAIL +
+                                                     "The update has returned an OperationResut marked as FAILED");
+        readRes = database.ReadProduct(newValue.getId());
+        assertEquals(newValue.getName(), readRes.getData().getName(), UPDATE_PRODUCT_TEST_FAIL +
+                                                                              "The update must be stored inside the database");
+
+        newValue.setName("NOTHING_TO_DO_WITH_THE_PREVIOUS_ONE");
+        readRes = database.ReadProduct(newValue.getId());
+        assertNotEquals(newValue.getName(), readRes.getData().getName(), UPDATE_PRODUCT_TEST_FAIL +
+                                                                              "The stored update must be a deep copy of the passed reference");
+
     }
 }

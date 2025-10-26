@@ -100,12 +100,12 @@ public class Database
      */
     public OperationResult<Product> ReadProduct(final ID productId)
     {
-        OperationResult<String[]> splitOperation = SplitProductID(productId);
-        if (!splitOperation.HasSucceeded())
-            return OperationResult.FAILURE(splitOperation.getMessage());
+        final OperationResult<String[]> SPLIT_OPERATION = SplitProductID(productId);
+        if (!SPLIT_OPERATION.HasSucceeded())
+            return OperationResult.FAILURE(SPLIT_OPERATION.getMessage());
 
 
-        final Category CATEGORY = new Category(splitOperation.getData()[0]);
+        final Category CATEGORY = new Category(SPLIT_OPERATION.getData()[0]);
         final OperationResult<Void> CHECK_CATEGORY_RESULT = CheckIfProductCategoryExist(CATEGORY);
         if (!CHECK_CATEGORY_RESULT.HasSucceeded())
             return OperationResult.FAILURE(CHECK_CATEGORY_RESULT.getMessage());
@@ -114,21 +114,45 @@ public class Database
         if (!productMap.get(CATEGORY).containsKey(productId))
             return OperationResult.FAILURE(ERROR_UNKNOWN_ID + " : " + productId.getId());
 
-
-        return OperationResult.SUCCESS(productMap.get(CATEGORY).get(productId), "Reading of product ID "
-                                                                                   + productId.getId()
-                                                                                   + " is successful" );
+        return OperationResult.SUCCESS(new Product(productMap.get(CATEGORY).get(productId)),
+                                                        "Found Product in database");
     }
 
+    /**
+     *
+     * @return all Product form the database, sorted by category
+     */
     public OperationResult<Product[]> ReadAllProduct()
     {
         List<Product> allProducts = new ArrayList<>();
 
         for (Map<ID, Product> map : productMap.values())
-            allProducts.addAll(map.values());
+        {
+            for (Product product : map.values())
+            {
+                allProducts.add(new Product(product)); //Deep copy
+            }
+        }
 
         return OperationResult.SUCCESS(allProducts.toArray(Product[]::new),
                 "SUCCESS : read all Product from databases");
+    }
+
+    /**
+     * Allow the possibility to update an internal Product
+     * @param product The product you want to update. His ID will be used to find the internal one,
+     *                his data will then be copied
+     * @return An OperationResult able to tell you if the update was successful via {@link OperationResult#HasSucceeded()}
+     */
+    public OperationResult<Void> UpdateProduct(final Product product)
+    {
+        OperationResult<Product> checkIfProductExist = ReadProduct(product.getId());
+        if (!checkIfProductExist.HasSucceeded())
+            return OperationResult.FAILURE(checkIfProductExist.getMessage());
+
+        Product internalCopy = new Product(product);
+        productMap.get(product.getCategory()).put(product.getId(), internalCopy);
+        return OperationResult.SUCCESS("SUCCESS : update of a Product. ID : " + product.getId());
     }
 
     /**

@@ -28,6 +28,22 @@ public class Product
     }
 
     /**
+     * Copy ctor, used by the {@link Database} to protect her internal objects
+     * @param other Object from who we want to copy values
+     */
+    public Product(final Product other)
+    {
+        //Immutable (currently ID and Category are immutable)
+        this.id = other.id;
+        this.category = other.category;
+        this.name = other.name;
+
+        //Simple copy
+        this.price = other.price;
+        this.storedQuantity = other.storedQuantity;
+    }
+
+    /**
      * Used by {@link #GenerateProductDTO(String, Category, float)} to create a Product with a NULL ID
      * @param name Name of the product
      * @param category Category of the product
