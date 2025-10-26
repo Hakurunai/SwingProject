@@ -95,7 +95,21 @@ class DatabaseTest
     @Test
     void readProduct()
     {
+        final String READ_PRODUCT_TEST_FAIL = "Read product failed : ";
+
+        var catRes = database.CreateNewProductCategory(categoryToAdd);
+        assertTrue(catRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "Issue while setting up the category");
+
+        var prodAddRes = database.CreateNewProduct(unknownProduct);
+        assertTrue(prodAddRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "Issue while setting up the product to read");
+        assertNotNull(prodAddRes.getData(), READ_PRODUCT_TEST_FAIL + "Issue while setting up the product to read");
+
+
+
+        var readRes = database.ReadProduct(prodAddRes.getData());
+        assertNotNull(readRes, READ_PRODUCT_TEST_FAIL + "the method returned a null object");
+        assertNotNull(readRes.getData(), READ_PRODUCT_TEST_FAIL + "the returned OperationResult data is null");
+        assertTrue(readRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "the returned OperationResult is marked as FAILED");
+        assertEquals(readRes.getData().getId(), prodAddRes.getData());
     }
-
-
 }
