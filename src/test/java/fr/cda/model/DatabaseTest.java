@@ -8,10 +8,15 @@ class DatabaseTest
 {
     Database database;
 
-    Product unknownProduct;
-
     Category categoryToAdd;
     Category alwaysUnknownCategory;
+
+    ID alwaysMALFORMED_ID;
+    ID alwaysID_WITH_UNKNOWN_CATEGORY;
+    ID alwaysBadID;
+
+    Product unknownProduct;
+
 
     @BeforeAll
     static void SetUp()
@@ -24,10 +29,14 @@ class DatabaseTest
         database = new Database("");
 
         categoryToAdd = new  Category("Livre");
+        alwaysUnknownCategory = new  Category("UNKNOW");
+
+        alwaysMALFORMED_ID = new ID("55se/okf,q");
+        alwaysID_WITH_UNKNOWN_CATEGORY = new ID("UNKNOWN_CAT-999999");
+        alwaysBadID = new ID("Livre-9999999999");
 
         unknownProduct = Product.GenerateProductDTO("NAME", categoryToAdd, 1f);
 
-        alwaysUnknownCategory = new  Category("UNKNOW");
     }
 
     @AfterEach
@@ -111,5 +120,14 @@ class DatabaseTest
         assertNotNull(readRes.getData(), READ_PRODUCT_TEST_FAIL + "the returned OperationResult data is null");
         assertTrue(readRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "the returned OperationResult is marked as FAILED");
         assertEquals(readRes.getData().getId(), prodAddRes.getData());
+
+        var badRes = database.ReadProduct(alwaysBadID);
+        assertFalse(badRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "Trying to read a bad ID must return a FAILED OperationResult");
+
+        badRes = database.ReadProduct(alwaysMALFORMED_ID);
+        assertFalse(badRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "Trying to read a malformed ID must return a FAILED OperationResult");
+
+        badRes = database.ReadProduct(alwaysID_WITH_UNKNOWN_CATEGORY);
+        assertFalse(badRes.HasSucceeded(), READ_PRODUCT_TEST_FAIL + "Trying to read an ID with unknown category must return a FAILED OperationResult");
     }
 }

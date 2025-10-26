@@ -146,8 +146,8 @@ public class Database
 
         if (idSplit.length != 2)
         {
-            final String SPLIT_FAIL = "The ID of the product seems to be malformed." +
-                                      "Impossible to extract a category and a number from it." +
+            final String SPLIT_FAIL = "The ID of the product seems to be malformed. " +
+                                      "Impossible to extract a category and a number from it. " +
                                       "ID value : " + productId.getId();
             return OperationResult.FAILURE(SPLIT_FAIL);
         }
