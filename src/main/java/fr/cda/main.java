@@ -2,6 +2,9 @@ package fr.cda;
 
 import fr.cda.Site.Site;
 import fr.cda.async.AsyncQueue;
+import fr.cda.model.Category;
+import fr.cda.model.Database;
+import fr.cda.model.Product;
 
 import java.util.Random;
 import java.util.concurrent.*;
@@ -22,29 +25,10 @@ public class main
 
     public static void QuickTest()
     {
-        AsyncQueue q = new AsyncQueue("QuickTest");
+        Database database = new Database("");
 
-        Supplier<Integer> supplier = () -> 10;
-        Consumer<Integer> consumer = (param) ->
-        {
-            for (int i = 1; i <= param; i++)
-            {
-                System.out.println(i);
-            }
-        };
-
-        q.SubmitAsyncOperation(supplier, consumer);
-        q.SubmitAsyncOperation(supplier, consumer);
-        q.SubmitAsyncOperation(supplier, consumer);
-        q.SubmitAsyncOperation(supplier, consumer);
-        q.Shutdown();
-        try
-        {
-            Thread.sleep(1000);
-        } catch (InterruptedException p_e)
-        {
-            throw new RuntimeException(p_e);
-        }
+        var res = database.CreateNewProduct(Product.GenerateProductDTO("NAME", new Category("Livre"), 1f));
+        System.out.println(res.getMessage());
     }
 
 

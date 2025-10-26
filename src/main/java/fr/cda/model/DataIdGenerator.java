@@ -1,5 +1,7 @@
 package fr.cda.model;
 
+import fr.cda.util.LoggerHelper;
+
 public class DataIdGenerator
 {
     private long currentId;
@@ -13,9 +15,19 @@ public class DataIdGenerator
      * Way to generate the new value for an id
      * @return a new id, each call to this method increment the internal count by +1
      */
-    public long GetNextId()
+    public final long GetNextId()
     {
-        return ++currentId;
+        LoggerHelper.log.info("GENERATE : a new id is generated, long value : {}", ++currentId);
+        return currentId;
+    }
+
+    /**
+     * Way to generate the new value for an id
+     * @return a new id in String, each call to this method increment the internal count by +1
+     */
+    public final String GetNextIdAsString()
+    {
+        return String.valueOf(GetNextId());
     }
 
     /**

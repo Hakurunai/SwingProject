@@ -25,7 +25,7 @@ public class OperationResult <T>
      * @return An OperationResult of type T whose {@link #HasSucceeded()} will return true
      * @param <T> The data type of the contained data
      */
-    public static <T> OperationResult<T> Success(final T data, final String message)
+    public static <T> OperationResult<T> SUCCESS(final T data, final String message)
     {
         return new OperationResult<>(data, message, true);
     }
@@ -36,7 +36,7 @@ public class OperationResult <T>
      * @return An OperationResult of type T whose {@link #HasSucceeded()} will return true
      * @param <T> The data type of the contained data, defaulting to null (Void) here
      */
-    public static <T> OperationResult<T> Success(final String message)
+    public static <T> OperationResult<T> SUCCESS(final String message)
     {
         return new OperationResult<>(null, message, true);
     }
@@ -47,7 +47,7 @@ public class OperationResult <T>
      * @return An OperationResult of type T whose {@link #HasSucceeded()} will return false
      * @param <T> The data type of the contained data, defaulting to null (Void) here
      */
-    public static <T> OperationResult<T> Failure(final String message)
+    public static <T> OperationResult<T> FAILURE(final String message)
     {
         return new OperationResult<>(null, message, false);
     }

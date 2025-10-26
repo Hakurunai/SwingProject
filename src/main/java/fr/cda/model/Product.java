@@ -5,22 +5,22 @@ package fr.cda.model;
  */
 public class Product
 {
-    private String id;
+    private ID id;
     private String name;
-    private String category;
+    private Category category;
 
     private float price;
     private int storedQuantity;
 
     /**
      * Complete ctor. If the id is not know when you want
-     * to manipulate a Product, use {@link #GenerateProductDTO(String, String, float)} instead
+     * to manipulate a Product, use {@link #GenerateProductDTO(String, Category, float)} instead
      * @param id Unique id of the product
      * @param name Name of the product
      * @param category Category of the product
      * @param price Price of the product
      */
-    public Product(final String id, final String name, final String category, final float price)
+    public Product(final ID id, final String name, final Category category, final float price)
     {
         this(name, category, price);
         this.id = id;
@@ -28,12 +28,12 @@ public class Product
     }
 
     /**
-     * Used by {@link #GenerateProductDTO(String, String, float)} to create a Product with a NULL ID
+     * Used by {@link #GenerateProductDTO(String, Category, float)} to create a Product with a NULL ID
      * @param name Name of the product
      * @param category Category of the product
      * @param price Price of the product
      */
-    private Product(final String name, final String category, final float price)
+    private Product(final String name, final Category category, final float price)
     {
         this.name = name;
         this.category = category;
@@ -50,13 +50,13 @@ public class Product
      * @param price Price of the product
      * @return a Product with A NULL id
      */
-    public static Product GenerateProductDTO(final String name, final String category, final float price)
+    public static Product GenerateProductDTO(final String name, final Category category, final float price)
     {
         return new Product(name, category, price);
     }
 
 
-    public String getId() { return id; }
+    public ID getId() { return id; }
 
     public String getName()
     {
@@ -68,12 +68,12 @@ public class Product
         name = p_name;
     }
 
-    public String getCategory()
+    public Category getCategory()
     {
         return category;
     }
 
-    public void setCategory(String p_category)
+    public void setCategory(Category p_category)
     {
         category = p_category;
     }

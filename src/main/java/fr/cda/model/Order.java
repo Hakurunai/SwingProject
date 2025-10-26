@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class Order
 {
-    private String id;
+    private ID id;
     private LocalDate creationDate;
     private String clientName;
     private List<Product> orderedProduct;
@@ -26,7 +26,7 @@ public class Order
      * @param clientName Name of the client
      * @param orderedProduct Products contained in the Order
      */
-    public Order(final String id, final LocalDate creationDate, final String clientName, final List<Product> orderedProduct)
+    public Order(final ID id, final LocalDate creationDate, final String clientName, final List<Product> orderedProduct)
     {
         this(creationDate, clientName, orderedProduct);
         this.id = id;
@@ -82,7 +82,7 @@ public class Order
         nonDeliveredExplanation = DEFAULT_NON_DELIVERED_EXPLANATION;
     }
 
-    public String getId()
+    public ID getId()
     {
         return id;
     }
