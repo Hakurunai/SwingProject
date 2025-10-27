@@ -21,12 +21,12 @@ public class main
     public static void RunApp()
     {
         //site = new Site();
-        Database database = new Database("datas");
+        Database database = new Database();
     }
 
     public static void QuickTest()
     {
-        Database database = new Database("");
+        Database database = new Database();
 
         var res = database.CreateNewProduct(Product.GenerateProductDTO("NAME", new Category("Livre"), 1f, 0));
         System.out.println(res.getMessage());

@@ -23,10 +23,14 @@ package model
 
     class BackApp
     {
+        - database : Database
+        - appController : AppController
+        - hasAnActiveConnection : boolean
+
         + BackApp(database)
 
-        + IsAbleToReceiveNewConnection() : boolean
-        + RequestConnection(GUIController) : AppController
+        + HasNoActiveConnection() : boolean
+        + RequestConnection(GUIController) : OperationResult<AppController>
     }
 
     class Product
@@ -152,6 +156,7 @@ package model
 }
 
 model.Database --> util.SerializerHelper
+model.Database --> util.CSVHelper
 controller.AppController "1" --* model.BackApp
 
 !endif

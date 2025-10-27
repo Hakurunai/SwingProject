@@ -1,5 +1,6 @@
 package fr.cda.model;
 
+import fr.cda.Config;
 import fr.cda.util.CSVHelper;
 import fr.cda.util.LoggerHelper;
 
@@ -27,17 +28,13 @@ public class Database
     private final DataIdGenerator productIDGenerator;
     private final DataIdGenerator orderIDGenerator;
 
-    private final String dataPath;
 
     /**
      * Creation of a Database
-     * @param dataPath Path who will be used to retrieve and save the data
      */
-    public Database(final String dataPath)
+    public Database()
     {
-        LoggerHelper.log.info("START : creation of a database who will use this path to find her data : " + dataPath);
-
-        this.dataPath = dataPath;
+        LoggerHelper.log.info("START : creation of a database");
 
         productIDGenerator =  new DataIdGenerator();
         orderIDGenerator = new DataIdGenerator();
@@ -311,10 +308,9 @@ public class Database
     private void InitOrder()
     {
         LoggerHelper.log.info("Start initialization of Order in the database");
-        final String COMPLETE_PATH = dataPath + "/" + ORDER_FILE;
         try
         {
-            final String[] DATA = CSVHelper.ReadCsvFile(COMPLETE_PATH);
+            final String[] DATA = CSVHelper.ReadCsvFile(Config.DB_ORDER_FILE_PATH);
             for (String line : DATA)
             {
                 ExtractAndInsertOrder(line);
@@ -322,7 +318,7 @@ public class Database
         }
         catch (IOException e)
         {
-            LoggerHelper.log.error("An error occurred while reading Order file at path : " + COMPLETE_PATH);
+            LoggerHelper.log.error("An error occurred while reading Order file at path : " + Config.DB_ORDER_FILE_PATH);
             e.printStackTrace();
         }
     }
@@ -397,10 +393,9 @@ public class Database
     private void InitProduct()
     {
         LoggerHelper.log.info("Start initialization of Product in the database");
-        final String COMPLETE_PATH = dataPath + "/" + PRODUCT_FILE;
         try
         {
-            final String[] DATA = CSVHelper.ReadCsvFile(COMPLETE_PATH);
+            final String[] DATA = CSVHelper.ReadCsvFile(Config.DB_PRODUCT_FILE_PATH);
 
             for (String line : DATA)
             {
@@ -409,7 +404,7 @@ public class Database
         }
         catch (IOException e)
         {
-            LoggerHelper.log.error("An error occurred while reading Product file at path : " + COMPLETE_PATH);
+            LoggerHelper.log.error("An error occurred while reading Product file at path : " + Config.DB_PRODUCT_FILE_PATH);
             e.printStackTrace();
         }
     }

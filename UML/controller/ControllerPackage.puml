@@ -10,10 +10,11 @@ package controller
     {
         + AppController(database : Database)
 
-        + SaveProductToFile(orderPath : String) : OperationResult<String>
-        + SaveOrderToFile(orderPath : String) : OperationResult<String>
+        + SaveProductToFile(filePath : String) : OperationResult<String>
+        + SaveOrderToFile(filePath : String) : OperationResult<String>
 
         + CreateNewProduct(data : Product) : OperationResult<String>
+        + CreateNewProductCategory(category : Category) OperationResult<Void>
         + ReadProduct(id : String) : OperationResult<Product>
         + ReadAllProduct() : OperationResult<ArrayList<Product>>
         + UpdateProduct(data : Product) OperationResult<Void>
@@ -29,28 +30,32 @@ package controller
         + SaveBackViaFTP() : OperationResult<Void>
     }
 
-
     class GUIController
     {
-        + EstablishConnection(backApp : BackApp)
+        - appController : AppController
 
-        + SaveProductToFile(orderPath : String) : OperationResult<String>
-        + SaveOrderToFile(orderPath : String) : OperationResult<String>
+        + ConnectToBackApp(backApp : BackApp) : OperationResult<Void>
+        + IsConnected() : OperationResult<Void>
 
-        + CreateNewProduct(data : Product) : OperationResult<String>
-        + ReadProduct(id : String) : OperationResult<Product>
-        + ReadAllProduct() : OperationResult<ArrayList<Product>>
-        + UpdateProduct(data : Product) OperationResult<Void>
-        + DeleteProduct(id : String) OperationResult<Void>
 
-        + CreateNewOrder(data : Order) : OperationResult<String>
-        + ReadOrder(id : String) : OperationResult<Order>
-        + ReadAllOrder() : OperationResult<ArrayList<Product>>
-        + UpdateOrder(data : Order) OperationResult<Void>
-        + DeleteOrder(id : String) OperationResult<Void>
+        + SaveProductToFile(filePath : String, callback : Consumer<OperationResult<String>>)
+        + SaveOrderToFile(filePath : String, callback : Consumer<OperationResult<String>>)
 
-        + SendDeliveredOrderByMail() : OperationResult<Void>
-        + SaveBackViaFTP() : OperationResult<Void>
+        + CreateNewProduct(data : Product, callback : Consumer<OperationResult<ID>>)
+        + CreateNewProductCategory(category : Category, callback : Consumer<OperationResult<Void>>)
+        + ReadProduct(id : ID, callback : Consumer<OperationResult<Product>>)
+        + ReadAllProduct(callback : Consumer<OperationResult<Product[]>>)
+        + UpdateProduct(data : Product, callback : Consumer<OperationResult<Void>>)
+        + DeleteProduct(id : ID, callback : Consumer<OperationResult<Void>>)
+
+        + CreateNewOrder(data : Order, callback : Consumer<OperationResult<ID>>)
+        + ReadOrder(id : ID, callback : Consumer<OperationResult<Order>>)
+        + ReadAllOrder(callback : Consumer<OperationResult<Order[]>>)
+        + UpdateOrder(data : Order, callback : Consumer<OperationResult<Void>>)
+        + DeleteOrder(id : ID, callback : Consumer<OperationResult<Void>>)
+
+        + SendDeliveredOrderByMail(callback : Consumer<OperationResult<Void>>)
+        + SaveBackViaFTP(callback : Consumer<OperationResult<Void>>)
     }
 
     note right of GUIController
@@ -58,7 +63,7 @@ package controller
         from FrontApp while keeping order
     end note
 
-    GUIController "1" --o AppController
+
     AppController "1" --o GUIController
 }
 

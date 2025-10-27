@@ -26,7 +26,7 @@ class DatabaseTest
     @BeforeEach
     void setUp()
     {
-        database = new Database("");
+        database = new Database();
 
         categoryToAdd = new  Category("Livre");
         alwaysUnknownCategory = new  Category("UNKNOW");
@@ -35,7 +35,7 @@ class DatabaseTest
         alwaysID_WITH_UNKNOWN_CATEGORY = new ID("UNKNOWN_CAT-999999");
         alwaysBadID = new ID("Livre-9999999999");
 
-        unknownProduct = Product.GenerateProductDTO("NAME", categoryToAdd, 1f);
+        unknownProduct = Product.GenerateProductDTO("NAME", categoryToAdd, 1f, 4);
 
     }
 
@@ -77,7 +77,7 @@ class DatabaseTest
 
 
 
-        Product prodWithUnknownCategory = Product.GenerateProductDTO("BAD_PRODUCT", alwaysUnknownCategory, 10f);
+        Product prodWithUnknownCategory = Product.GenerateProductDTO("BAD_PRODUCT", alwaysUnknownCategory, 10f, 999);
         var badProdRes = database.CreateNewProduct(prodWithUnknownCategory);
         assertFalse(badProdRes.HasSucceeded(), NEW_PRODUCT_TEST_FAIL + "a product with an unknown category cannot be added");
     }
@@ -187,7 +187,8 @@ class DatabaseTest
         assertNotNull(prodAddRes.getData(), UPDATE_PRODUCT_TEST_FAIL + "Issue while setting up the product to read");
 
 
-        Product newValue = new Product(prodAddRes.getData(), unknownProduct.getName(), unknownProduct.getCategory(), unknownProduct.getPrice());
+        Product newValue = new Product(prodAddRes.getData(), unknownProduct.getName(), unknownProduct.getCategory(), unknownProduct.getPrice()
+        , unknownProduct.getStoredQuantity());
         newValue.setName("A_NAME_DIFFERENT");
 
         var readRes = database.ReadProduct(newValue.getId());
@@ -223,7 +224,8 @@ class DatabaseTest
         var prodAddRes = database.CreateNewProduct(unknownProduct);
         assertTrue(prodAddRes.HasSucceeded(), DELETE_PRODUCT_TEST_FAIL + "Issue while setting up the product to read");
         assertNotNull(prodAddRes.getData(), DELETE_PRODUCT_TEST_FAIL + "Issue while setting up the product to read");
-        Product dataInserted = new Product(prodAddRes.getData(), unknownProduct.getName(), unknownProduct.getCategory(), unknownProduct.getPrice());
+        Product dataInserted = new Product(prodAddRes.getData(), unknownProduct.getName(), unknownProduct.getCategory(), unknownProduct.getPrice()
+        , unknownProduct.getStoredQuantity());
 
         var deletionRes = database.DeleteProduct(dataInserted.getId());
         assertNotNull(deletionRes, DELETE_PRODUCT_TEST_FAIL + "The deletion has returned a null object");
