@@ -1,8 +1,11 @@
 package fr.cda.model;
 
+import fr.cda.util.CSVHelper;
 import fr.cda.util.LoggerHelper;
 
+import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -10,6 +13,9 @@ import java.util.*;
  */
 public class Database
 {
+    private final String ORDER_FILE = "Commandes.txt";
+    private final String PRODUCT_FILE = "Produits.txt";
+
     private static final String ERROR_ID_ALREADY_EXISTING = "The ID used is already present in the database";
     private static final String ERROR_UNKNOWN_ID = "The ID used is unknown from the database";
     private static final String ERROR_UNKNOWN_PRODUCT_CATEGORY = "The Category used is unknown from the database";
@@ -38,6 +44,8 @@ public class Database
 
         productMap = new HashMap<>();
         orderMap = new HashMap<>();
+
+        Init();
     }
 
 
@@ -56,7 +64,7 @@ public class Database
     /**
      * Add a new {@link  Product} to the database
      * @param product a non-complete {@link Product} created via
-     * {@link Product#GenerateProductDTO(String, Category, float)} to add to the database
+     * {@link Product#GenerateProductDTO(String, Category, float, int)} to add to the database
      * @return An OperationResult telling if the operation was a success
      * and containing the newly generated ID for the product added
      */
@@ -74,7 +82,7 @@ public class Database
             return OperationResult.FAILURE(ERROR_ID_ALREADY_EXISTING);
 
 
-        Product newProduct = new Product(newProductID, product.getName(), CATEGORY, product.getPrice());
+        Product newProduct = new Product(newProductID, product.getName(), CATEGORY, product.getPrice(), product.getStoredQuantity());
         productMap.get(CATEGORY).put(newProductID, newProduct);
 
         return OperationResult.SUCCESS(newProduct.getId(), "Creation of a new product has been done successfully");
@@ -89,7 +97,7 @@ public class Database
     {
         OperationResult<Void> checkCategoryResult = CheckIfProductCategoryExist(category);
         if (checkCategoryResult.HasSucceeded())
-            return OperationResult.FAILURE("The category is already present in the database : " +  category.categoryName());
+            return OperationResult.FAILURE("The category is already present in the database : " + category.categoryName());
 
         productMap.put(category, new LinkedHashMap<>());
         return OperationResult.SUCCESS("Creation of a new category has been done successfully : " + category.categoryName());
@@ -287,8 +295,161 @@ public class Database
         return OperationResult.SUCCESS(idSplit, "Product ID was correctly split");
     }
 
+    /**
+     * Use to order the different initialization call needed by the {@link Database}
+     */
     private void Init()
     {
+        LoggerHelper.log.info("Start initialization of the Database");
+        InitProduct();
+        InitOrder();
+    }
 
+    /**
+     * Used internally to read all Orders from the configuration file, called after {@link #InitProduct()}
+     */
+    private void InitOrder()
+    {
+        LoggerHelper.log.info("Start initialization of Order in the database");
+        final String COMPLETE_PATH = dataPath + "/" + ORDER_FILE;
+        try
+        {
+            final String[] DATA = CSVHelper.ReadCsvFile(COMPLETE_PATH);
+            for (String line : DATA)
+            {
+                ExtractAndInsertOrder(line);
+            }
+        }
+        catch (IOException e)
+        {
+            LoggerHelper.log.error("An error occurred while reading Order file at path : " + COMPLETE_PATH);
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Used in {@link #InitOrder()} to create the Orders from the read CSV file
+     * @param line The content of the Order CSV file
+     */
+    private void ExtractAndInsertOrder(final String line)
+    {
+        //Todo : check if content is ill-formed
+
+        //FORMAT : ID ; CreationDate ; ClientName ; ProductRef (ID=Quantity)...
+        //1;21/09/2022;Macron Brigitte;LIVRE-1=1;LIVRE-2=2;...
+
+        final int ORDER_CONTENT_INDEX_START_POSITION = 3;
+
+        String[] dataContent = line.split(";");
+        ID orderID = new ID(dataContent[0]);
+
+        var readRes = ReadOrder(orderID);
+        if (readRes.HasSucceeded())
+        {
+            LoggerHelper.log.warn("CHECK : You tried to initialize an already existing Order in the database" + orderID.id());
+            return;
+        }
+
+        ArrayList<String> orderContentFromFile = new ArrayList<>();
+        for (int i = ORDER_CONTENT_INDEX_START_POSITION ; i < dataContent.length; ++i)
+        {
+            orderContentFromFile.add(dataContent[i]);
+        }
+        List<OrderDetail> orderDetails = ExtractOrderDetails(orderContentFromFile, orderID);
+
+        Order newOrder = new Order(orderID, LocalDate.parse(dataContent[1], DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                dataContent[1], orderDetails);
+        orderMap.put(orderID, newOrder);
+    }
+
+    /**
+     * Use by {@link #ExtractAndInsertOrder(String)} to get all the detail from an Order
+     * @param orderContent All the content from an Order from the read CSV file
+     * @param orderID The ID of the {@link Order} currently processed, used in a logError
+     * @return A List containing all the {@link OrderDetail} of a single {@link Order}
+     */
+    private List<OrderDetail> ExtractOrderDetails(final ArrayList<String> orderContent, final ID orderID)
+    {
+        String[] productDetail;
+        List<OrderDetail> orderDetails = new ArrayList<>();
+        for (int i = 0 ; i < orderContent.size(); ++i)
+        {
+            productDetail = orderContent.get(i).split("=");
+            ID productID = new ID(productDetail[0]);
+
+            if (!ReadProduct(productID).HasSucceeded())
+            {
+                LoggerHelper.log.warn("You are trying to initialize an Order from the file with an unknown Product ID." +
+                                              "Order ID targeted : " + orderID.id());
+                continue;
+            }
+
+            final int productQuantity = Integer.parseInt(productDetail[1]);
+            orderDetails.add(new OrderDetail(productID, productQuantity));
+        }
+
+        return orderDetails;
+    }
+
+    /**
+     * Internally used to Read all the product from the configuration file
+     */
+    private void InitProduct()
+    {
+        LoggerHelper.log.info("Start initialization of Product in the database");
+        final String COMPLETE_PATH = dataPath + "/" + PRODUCT_FILE;
+        try
+        {
+            final String[] DATA = CSVHelper.ReadCsvFile(COMPLETE_PATH);
+
+            for (String line : DATA)
+            {
+                ExtractAndInsertProduct(line);
+            }
+        }
+        catch (IOException e)
+        {
+            LoggerHelper.log.error("An error occurred while reading Product file at path : " + COMPLETE_PATH);
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Used in {@link #InitProduct()} to create the Products from the read CSV file
+     * @param line The content of the Product CSV file
+     */
+    private void ExtractAndInsertProduct(final String line)
+    {
+        //Todo : check if content is ill-formed
+
+        //FORMAT : ID (Category-Number) ; Name ; Price ; Quantity
+        //LIVRE-1;Les Miserables de Victor Hugo ;8.50;6
+        String[] dataContent = line.split(";");
+        final ID readedID = new ID(dataContent[0]);
+
+        String[] splitedId = SplitProductID(readedID).getData();
+        final Category category = new Category(splitedId[0]);
+
+        var res = CheckIfProductCategoryExist(category);
+        if (!res.HasSucceeded())
+        {
+            CreateNewProductCategory(category);
+        }
+        else
+        {
+            var resProd = ReadProduct(readedID);
+            if (resProd.HasSucceeded())
+            {
+                LoggerHelper.log.warn("CHECK : You tried to initialize an already existing Product in the database. ID : "
+                                              + resProd.getData().getId());
+                return;
+            }
+        }
+
+        Product newProduct = new Product(readedID, dataContent[1], category,
+                Float.parseFloat(dataContent[2]),
+                Integer.parseInt(dataContent[3]));
+
+        productMap.get(category).put(newProduct.getId(), newProduct);
     }
 }

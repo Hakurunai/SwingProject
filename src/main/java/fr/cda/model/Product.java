@@ -14,17 +14,16 @@ public class Product
 
     /**
      * Complete ctor. If the id is not know when you want
-     * to manipulate a Product, use {@link #GenerateProductDTO(String, Category, float)} instead
+     * to manipulate a Product, use {@link #GenerateProductDTO(String, Category, float, int)} instead
      * @param id Unique id of the product
      * @param name Name of the product
      * @param category Category of the product
      * @param price Price of the product
      */
-    public Product(final ID id, final String name, final Category category, final float price)
+    public Product(final ID id, final String name, final Category category, final float price, final int storedQuantity)
     {
-        this(name, category, price);
+        this(name, category, price, storedQuantity);
         this.id = id;
-        this.storedQuantity = 0;
     }
 
     /**
@@ -44,18 +43,19 @@ public class Product
     }
 
     /**
-     * Used by {@link #GenerateProductDTO(String, Category, float)} to create a Product with a NULL ID
+     * Used by {@link #GenerateProductDTO(String, Category, float, int)} to create a Product with a NULL ID
      * @param name Name of the product
      * @param category Category of the product
      * @param price Price of the product
+     * @param storedQuantity Quantity of the Product
      */
-    private Product(final String name, final Category category, final float price)
+    private Product(final String name, final Category category, final float price, final int storedQuantity)
     {
         this.name = name;
         this.category = category;
         this.price = price;
         this.id = null;
-        this.storedQuantity = 0;
+        this.storedQuantity = storedQuantity;
     }
 
     /**
@@ -64,11 +64,12 @@ public class Product
      * @param name Name of the product
      * @param category Category of the product
      * @param price Price of the product
+     * @param storedQuantity Quantity of the new Product
      * @return a Product with A NULL id
      */
-    public static Product GenerateProductDTO(final String name, final Category category, final float price)
+    public static Product GenerateProductDTO(final String name, final Category category, final float price, final int storedQuantity)
     {
-        return new Product(name, category, price);
+        return new Product(name, category, price, storedQuantity);
     }
 
 

@@ -12,7 +12,7 @@ public class Order
     private ID id;
     private LocalDate creationDate;
     private String clientName;
-    private List<Product> orderedProduct;
+    private List<OrderDetail> orderedProduct;
 
     private boolean isDelivered = false;
     private String nonDeliveredExplanation;
@@ -27,7 +27,7 @@ public class Order
      * @param clientName Name of the client
      * @param orderedProduct Products contained in the Order
      */
-    public Order(final ID id, final LocalDate creationDate, final String clientName, final List<Product> orderedProduct)
+    public Order(final ID id, final LocalDate creationDate, final String clientName, final List<OrderDetail> orderedProduct)
     {
         this(clientName, orderedProduct);
         this.creationDate = creationDate;
@@ -54,9 +54,9 @@ public class Order
     /**
      * Used by {@link #GenerateOrderDTO(String, List)} to create an Order with a NULL ID
      * @param clientName Name of the client
-     * @param orderedProduct Products contained in the Order
+     * @param orderedProduct ProductDetail contained in the Order
      */
-    private Order(final String clientName, final List<Product> orderedProduct)
+    private Order(final String clientName, final List<OrderDetail> orderedProduct)
     {
         this.clientName = clientName;
         this.orderedProduct = orderedProduct;
@@ -74,7 +74,7 @@ public class Order
      * @param orderedProduct Products contained in the Order
      * @return
      */
-    public static Order GenerateOrderDTO(final String clientName, final List<Product> orderedProduct)
+    public static Order GenerateOrderDTO(final String clientName, final List<OrderDetail> orderedProduct)
     {
         return new Order(clientName, orderedProduct);
     }
@@ -124,12 +124,12 @@ public class Order
         clientName = p_clientName;
     }
 
-    public List<Product> getOrderedProduct()
+    public List<OrderDetail> getOrderedProduct()
     {
         return orderedProduct;
     }
 
-    public void setOrderedProduct(List<Product> p_orderedProduct)
+    public void setOrderedProduct(List<OrderDetail> p_orderedProduct)
     {
         orderedProduct = p_orderedProduct;
     }

@@ -14,20 +14,21 @@ import java.util.function.Supplier;
 
 public class main
 {
-    public final static boolean RUN_APP = false;
+    public final static boolean RUN_APP = true;
 
     private static Site site;
 
     public static void RunApp()
     {
-        site = new Site();
+        //site = new Site();
+        Database database = new Database("datas");
     }
 
     public static void QuickTest()
     {
         Database database = new Database("");
 
-        var res = database.CreateNewProduct(Product.GenerateProductDTO("NAME", new Category("Livre"), 1f));
+        var res = database.CreateNewProduct(Product.GenerateProductDTO("NAME", new Category("Livre"), 1f, 0));
         System.out.println(res.getMessage());
     }
 

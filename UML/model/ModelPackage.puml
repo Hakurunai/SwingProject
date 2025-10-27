@@ -101,9 +101,9 @@ package model
 
         - OperationResult(data, message, success)
 
-        + Success(message : String, data : T) : OperationResult<T>
-        + Success(message : String) : OperationResult<T>
-        + Failure(message : String) : OperationResult<T>
+        + {static} Success(message : String, data : T) : OperationResult<T>
+        + {static} Success(message : String) : OperationResult<T>
+        + {static} Failure(message : String) : OperationResult<T>
 
         + HasSucceeded() : boolean
         + GetMessage() : String
