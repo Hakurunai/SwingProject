@@ -7,22 +7,25 @@ package model.dao
 {
     abstract DAO<T>
     {
-        - Database
+        # Database
 
         + DAO(database)
 
-        + CreateNewData(data : T) : OperationResult<String>
-        + ReadData(id : String) : OperationResult<T>
-        + ReadAllData() : OperationResult<ArrayList<T>>
-        + UpdateData(data : T) : OperationResult<Void>
-        + DeleteData(id : String) : OperationResult<Void>
+        + {abstract} CreateNewData(data : T) : OperationResult<ID>
+        + {abstract} ReadData(id : ID) : OperationResult<T>
+        + {abstract} ReadAllData() : OperationResult<T[]>
+        + {abstract} UpdateData(data : T) : OperationResult<Void>
+        + {abstract} DeleteData(id : ID) : OperationResult<Void>
 
-        + SaveDataToFile(path : String) : OperationResult<String>
+        + SaveDataToFile(path : String) : OperationResult<Void>
     }
 
     class OrderDAO <Order> <<final>>
 
     class ProductDAO <Product> <<final>>
+    {
+        + CreateNewProductCategory(category : Category) :
+    }
 
     OrderDAO --|> DAO
     ProductDAO --|> DAO

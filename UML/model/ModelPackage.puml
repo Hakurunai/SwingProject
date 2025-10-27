@@ -45,7 +45,7 @@ package model
     {
         - creationDate : LocalDate
         - clientName : String
-        - orderedProduct : ArrayList<Product>
+        - orderedProduct : ArrayList<OrderDetail>
         - isDelivered : boolean
         - nonDeliveredExplanation : String
 
@@ -56,6 +56,12 @@ package model
         + UpdateToNonDeliveredStatus(explanation : String)
         + UpdateToDeliveredStatus()
         + {static} GenerateOrderDTO(creationDate, clientName, orderedProduct) : Order
+    }
+
+    class OrderDetail <<record>>
+    {
+        + productID : ID
+        + productQuantity : int
     }
 
     class Database
@@ -84,7 +90,13 @@ package model
         + DeleteOrder(id : ID) OperationResult<Void>
 
         - Init()
-        - CheckIfProductCategoryExist(cat : Category) : OperationResult<Void>
+        - InitOrder()
+        - InitProduct()
+        - ExtractAndInsertOrder(line : String)
+        - ExtractOrderDetail(orderContent : ArrayList<String>, orderID) : List<OrderDetail>
+        - ExtractAndInsertProduct(line : String)
+
+        - CheckIfProductCategoryExist(category) : OperationResult<Void>
         - SplitProductID(productId : ID) : OperationResult<String[]>
     }
 
@@ -122,11 +134,14 @@ package model
 
     Order "0,n" o-- "1-n" Product
 
+    OrderDetail "1-n" --* Order
+
     Order "0-n" --* Database
     Product "0-n" --* Database
 
     ID "1" --* Order
     ID "1" --* Product
+    ID "1" --* OrderDetail
 
     Category "1" --* Product
 
