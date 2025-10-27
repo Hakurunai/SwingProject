@@ -21,7 +21,7 @@ public class Order
 
     /**
      * Complete ctor. If the id is not know when you want
-     * to manipulate an Order, use {@link #GenerateOrderDTO(LocalDate, String, List)} instead
+     * to manipulate an Order, use {@link #GenerateOrderDTO(String, List)} instead
      * @param id Unique id of the Order
      * @param creationDate Date of creation
      * @param clientName Name of the client
@@ -29,7 +29,8 @@ public class Order
      */
     public Order(final ID id, final LocalDate creationDate, final String clientName, final List<Product> orderedProduct)
     {
-        this(creationDate, clientName, orderedProduct);
+        this(clientName, orderedProduct);
+        this.creationDate = creationDate;
         this.id = id;
     }
 
@@ -51,17 +52,16 @@ public class Order
     }
 
     /**
-     * Used by {@link #GenerateOrderDTO(LocalDate, String, List)} to create an Order with a NULL ID
-     * @param creationDate Date of creation
+     * Used by {@link #GenerateOrderDTO(String, List)} to create an Order with a NULL ID
      * @param clientName Name of the client
      * @param orderedProduct Products contained in the Order
      */
-    private Order(final LocalDate creationDate, final String clientName, final List<Product> orderedProduct)
+    private Order(final String clientName, final List<Product> orderedProduct)
     {
-        this.creationDate = creationDate;
         this.clientName = clientName;
         this.orderedProduct = orderedProduct;
 
+        this.creationDate = null;
         this.id = null;
         this.isDelivered = false;
         this.nonDeliveredExplanation = DEFAULT_NON_DELIVERED_EXPLANATION;
@@ -70,14 +70,13 @@ public class Order
     /**
      * Generate an Order without an id. Used to transfer the data
      * as a temporary format non-yet-integrated in the {@link Database}
-     * @param creationDate Date of creation
      * @param clientName Name of the client
      * @param orderedProduct Products contained in the Order
      * @return
      */
-    public static Order GenerateOrderDTO(final LocalDate creationDate, final String clientName, final List<Product> orderedProduct)
+    public static Order GenerateOrderDTO(final String clientName, final List<Product> orderedProduct)
     {
-        return new Order(creationDate, clientName, orderedProduct);
+        return new Order(clientName, orderedProduct);
     }
 
     /**

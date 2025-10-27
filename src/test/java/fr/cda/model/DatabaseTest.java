@@ -65,10 +65,10 @@ class DatabaseTest
         assertTrue(prodRes.HasSucceeded(), NEW_PRODUCT_TEST_FAIL + "the returned OperationResult is marked" +
                                                                             "as failed");
 
-        assertTrue(prodRes.getData().getId().contains(categoryToAdd.getCategoryName() + "-"), NEW_PRODUCT_TEST_FAIL +
+        assertTrue(prodRes.getData().id().contains(categoryToAdd.categoryName() + "-"), NEW_PRODUCT_TEST_FAIL +
                     "the returned ID is malformed : it doesn't start by 'categoryName-'");
 
-        String idNumber = prodRes.getData().getId().split("-")[1];
+        String idNumber = prodRes.getData().id().split("-")[1];
         assertDoesNotThrow(() -> Long.parseLong(idNumber), NEW_PRODUCT_TEST_FAIL +
                                   "the returned ID is malformed : it doesn't end by a long");
 

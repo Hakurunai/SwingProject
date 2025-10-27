@@ -2,6 +2,7 @@ package fr.cda.model;
 
 import fr.cda.util.LoggerHelper;
 
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -53,8 +54,9 @@ public class Database
     }
 
     /**
-     * Add a new Product to the database
-     * @param product a non-complete {@link Product} to add to the database
+     * Add a new {@link  Product} to the database
+     * @param product a non-complete {@link Product} created via
+     * {@link Product#GenerateProductDTO(String, Category, float)} to add to the database
      * @return An OperationResult telling if the operation was a success
      * and containing the newly generated ID for the product added
      */
@@ -67,7 +69,7 @@ public class Database
             return OperationResult.FAILURE(CHECK_CATEGORY_RESULT.getMessage());
 
 
-        final ID newProductID = new ID(CATEGORY.getCategoryName() + "-" + productIDGenerator.GetNextIdAsString());
+        final ID newProductID = new ID(CATEGORY.categoryName() + "-" + productIDGenerator.GetNextIdAsString());
         if (productMap.get(CATEGORY).containsKey(newProductID))
             return OperationResult.FAILURE(ERROR_ID_ALREADY_EXISTING);
 
@@ -87,10 +89,10 @@ public class Database
     {
         OperationResult<Void> checkCategoryResult = CheckIfProductCategoryExist(category);
         if (checkCategoryResult.HasSucceeded())
-            return OperationResult.FAILURE("The category is already present in the database : " +  category.getCategoryName());
+            return OperationResult.FAILURE("The category is already present in the database : " +  category.categoryName());
 
         productMap.put(category, new LinkedHashMap<>());
-        return OperationResult.SUCCESS("Creation of a new category has been done successfully : " + category.getCategoryName());
+        return OperationResult.SUCCESS("Creation of a new category has been done successfully : " + category.categoryName());
     }
 
     /**
@@ -112,7 +114,7 @@ public class Database
 
 
         if (!productMap.get(CATEGORY).containsKey(productId))
-            return OperationResult.FAILURE(ERROR_UNKNOWN_ID + " : " + productId.getId());
+            return OperationResult.FAILURE(ERROR_UNKNOWN_ID + " : " + productId.id());
 
         return OperationResult.SUCCESS(new Product(productMap.get(CATEGORY).get(productId)),
                                                         "Found Product in database");
@@ -120,7 +122,7 @@ public class Database
 
     /**
      *
-     * @return all Product form the database, sorted by category
+     * @return all Product from the database, sorted by category
      */
     public OperationResult<Product[]> ReadAllProduct()
     {
@@ -172,6 +174,86 @@ public class Database
     }
 
     /**
+     * Add a new {@link  Order} in the Database
+     * @param order A non complete {@link Order} created via {@link Order#GenerateOrderDTO(String, List)}
+     * @return An {@link OperationResult} containing in case of success the generated ID for the Order inserted
+     */
+    public OperationResult<ID> CreateNewOrder(final Order order)
+    {
+        final ID newProductID = new ID(orderIDGenerator.GetNextIdAsString());
+
+        var internalData = ReadOrder(newProductID);
+        if (internalData.HasSucceeded())
+            return OperationResult.FAILURE("New generated ID is already in Database : " + newProductID.id());
+
+        Order newOrder = new Order(newProductID, LocalDate.now(), order.getClientName(), order.getOrderedProduct());
+        orderMap.put(newProductID, newOrder);
+
+        return OperationResult.SUCCESS(newOrder.getId(), "Creation of a new order has been done successfully");
+    }
+
+    /**
+     * Read the data of an internal {@link Order}
+     * @param orderId The {@link ID} of the targeted Order
+     * @return An {@link OperationResult} containing in case of success a copy of the internal {@link Order}
+     */
+    public OperationResult<Order> ReadOrder(final ID orderId)
+    {
+        if (!orderMap.containsKey(orderId))
+            return OperationResult.FAILURE(ERROR_UNKNOWN_ID + " : " + orderId.id());
+
+        return OperationResult.SUCCESS(new Order(orderMap.get(orderId)), "Found order in Database");
+    }
+
+    /**
+     *
+     * @return all the {@link Order} from the {@link Database}
+     */
+    public OperationResult<Order[]> ReadAllOrder()
+    {
+        List<Order> allOrders = new ArrayList<>();
+
+        for(Order order : orderMap.values())
+        {
+            allOrders.add(new Order(order));
+        }
+        return OperationResult.SUCCESS(allOrders.toArray(Order[]::new), "SUCCESS : read all Order from databases");
+    }
+
+    /**
+     * Allow to update values in an internal Order
+     * @param order An {@link Order} containing the new values AND the targeted {@link ID}
+     * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     */
+    public OperationResult<Void> UpdateOrder(final Order order)
+    {
+        OperationResult<Order> checkIfOrderExist = ReadOrder(order.getId());
+        if (!checkIfOrderExist.HasSucceeded())
+            return OperationResult.FAILURE(checkIfOrderExist.getMessage());
+
+        Order internalCopy = new Order(order);
+        orderMap.put(order.getId(), internalCopy);
+        return OperationResult.SUCCESS("SUCCESS : update of an Order. ID : " + order.getId());
+    }
+
+    /**
+     * This method allow you to remove an Order from the {@link Database}
+     * @param orderId The {@link ID} of the targeted {@link Order}
+     * @return An {@link OperationResult} able to tell you if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     */
+    public OperationResult<Void> DeleteOrder(final ID orderId)
+    {
+        OperationResult<Order> checkIfOrderExist = ReadOrder(orderId);
+        if (!checkIfOrderExist.HasSucceeded())
+            return OperationResult.FAILURE(checkIfOrderExist.getMessage());
+
+        Order copy = checkIfOrderExist.getData();
+        orderMap.remove(copy.getId());
+        return OperationResult.SUCCESS("SUCCESS : deletion of a Product. ID : " + orderId.id());
+    }
+
+
+    /**
      * Used to determine if a category already exist for the productMap
      * @param category The category you want to test
      * @return An OperationResult able to tell you if the operation was a success via {@link OperationResult#HasSucceeded()}
@@ -179,7 +261,7 @@ public class Database
     private OperationResult<Void> CheckIfProductCategoryExist(final Category category)
     {
         if (!productMap.containsKey(category))
-            return OperationResult.FAILURE(ERROR_UNKNOWN_PRODUCT_CATEGORY + " : " + category.getCategoryName());
+            return OperationResult.FAILURE(ERROR_UNKNOWN_PRODUCT_CATEGORY + " : " + category.categoryName());
 
         return OperationResult.SUCCESS("Category exist in database");
     }
@@ -192,13 +274,13 @@ public class Database
     private OperationResult<String[]> SplitProductID(final ID productId)
     {
         //A product id follow this format : "CATEGORY-NUMBER"
-        String[] idSplit = productId.getId().split("-", 2);
+        String[] idSplit = productId.id().split("-", 2);
 
         if (idSplit.length != 2)
         {
             final String SPLIT_FAIL = "The ID of the product seems to be malformed. " +
                                       "Impossible to extract a category and a number from it. " +
-                                      "ID value : " + productId.getId();
+                                      "ID value : " + productId.id();
             return OperationResult.FAILURE(SPLIT_FAIL);
         }
 
