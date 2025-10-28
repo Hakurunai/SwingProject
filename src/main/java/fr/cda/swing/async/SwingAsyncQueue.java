@@ -21,7 +21,7 @@ public class SwingAsyncQueue extends AsyncQueue
      * @param operation a supplier who will be executed first
      * @param onOperationDone a Consumer acting as a callback WHO WILL BE WRAPPED WITH SwingUtilities.invokeLater
      *                        who will use the returned value from the supplier as a parameter
-     * @param <T>
+     * @param <T> a type expected to be sequentially use by the Supplier then the Consumer
      */
     @Override
     public <T> void SubmitAsyncOperation(Supplier<T> operation, Consumer<T> onOperationDone)

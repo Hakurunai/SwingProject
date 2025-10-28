@@ -58,6 +58,8 @@ package controller
         + SaveBackViaFTP(callback : Consumer<OperationResult<Void>>)
     }
 
+    class DatabaseConnectionException
+
     note right of GUIController
         Use his own thread to treat demands
         from FrontApp while keeping order
