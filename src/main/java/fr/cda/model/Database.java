@@ -140,7 +140,7 @@ public class Database
         }
 
         return OperationResult.SUCCESS(allProducts.toArray(Product[]::new),
-                "SUCCESS : read all Product from databases");
+                "SUCCESS : read all Product from database");
     }
 
     /**

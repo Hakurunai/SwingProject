@@ -1,4 +1,4 @@
-package fr.cda.swing;
+package fr.cda.view.swing;
 
 public interface ISwingInterface
 {

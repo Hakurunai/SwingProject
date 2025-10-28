@@ -1,36 +1,33 @@
-package fr.cda.swing;
+package fr.cda.view.swing;
 
+import fr.cda.controller.GUIController;
 import fr.cda.util.LoggerHelper;
 
 import javax.swing.*;
 
-public abstract class Dialog implements ISwingInterface
+public abstract class SwingDialog extends SwingView
 {
     protected JDialog dialog;
 
     /**
-     * Constructor who will be inherited by all child classes
-     * @param title the name of the window
-     * @param frameOwner the JFrame who own this JDialog
-     * @param width the size in pixel for the width
-     * @param height the size in pixel for the height
-     * @param autoShow if true, the constructor will automatically call Display
+     *
+     * @param config The initial configuration of the {@link JDialog}
+     * @param frameOwner The {@link JFrame} owning the internal {@link JDialog}
+     * @param isModal Use to determine if the {@link JDialog} will be modal
+     * @param autoShow If true, the {@link JDialog} will be displayed at the end of the construction
      */
-    protected Dialog(final String title, JFrame frameOwner, final int width, final int height, final boolean autoShow, final boolean isModal)
+    public SwingDialog(SwingViewConfig config, GUIController controller, JFrame frameOwner, boolean isModal, boolean autoShow)
     {
-        LoggerHelper.log.info("Creation of a new Dialog named : {}", title);
+        super(config, controller);
+        LoggerHelper.log.info("Creation of a new Dialog named : {}", config.getTitle());
 
-        dialog = new JDialog(frameOwner, title, isModal);
-        dialog.setSize(width, height);
+        dialog = new JDialog(frameOwner, config.getTitle(), isModal);
+        dialog.setSize(config.getWidth(), config.getHeight());
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setLocationRelativeTo(dialog.getOwner());
 
         Init();
-
-        if (autoShow)
-        {
-            Display();
-        }
+        AutoShow(autoShow);
     }
 
     /**

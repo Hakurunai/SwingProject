@@ -1,4 +1,4 @@
-package fr.cda.swing.async;
+package fr.cda.view.swing.async;
 
 import fr.cda.async.AsyncQueue;
 

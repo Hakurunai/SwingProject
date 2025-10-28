@@ -1,14 +1,16 @@
 package fr.cda.view;
 
-import fr.cda.swing.Frame;
+import fr.cda.controller.GUIController;
+import fr.cda.view.swing.SwingFrame;
 import fr.cda.util.LoggerHelper;
 import fr.cda.util.SwingHelper;
+import fr.cda.view.swing.SwingViewConfig;
 
 import javax.swing.*;
 import java.awt.*;
 
 
-public final class MainApp extends Frame
+public final class HomeFrame extends SwingFrame
 {
     private JTextArea infoArea;
     private JTextArea productDetailArea;
@@ -23,16 +25,17 @@ public final class MainApp extends Frame
 
     private static final int PANEL_BORDER_SIZE = 10;
 
-    /**
-     * Constructor constrained by the inherited class Screen
-     * @param title the name of the window
-     * @param width the size in pixel for the width
-     * @param height the size in pixel for the height
-     * @param autoShow if true, the constructor will automatically call Display
-     */
-    public MainApp(String title, int width, int height, boolean autoShow)
+
+    public HomeFrame(SwingViewConfig config, GUIController controller, boolean autoShow)
     {
-        super(title, width, height, autoShow);
+        super(config, controller, autoShow);
+    }
+
+    public void ReadDataFromBase()
+    {
+        controller.ReadAllProduct(
+                result -> infoArea.setText(result.getMessage())
+        );
     }
 
     /**

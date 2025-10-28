@@ -14,14 +14,23 @@ public class BackApp
         appController = new AppController(database);
     }
 
-    public boolean HasNoActiveConnection()
+    /**
+     * Call to know if the BackApp is already linked to something using her {@link AppController}
+     * @return True if no one has ever requested a connection, false otherwise
+     */
+    public boolean HasAnActiveConnection()
     {
         return hasAnActiveConnection;
     }
 
+    /**
+     * Use to retrieve the internal {@link AppController}
+     * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     * and containing, in case of success, the internal {@link AppController}
+     * */
     public OperationResult<AppController> RequestNewConnection()
     {
-        if (HasNoActiveConnection())
+        if (HasAnActiveConnection())
             return OperationResult.FAILURE("The connection is not accessible");
 
         hasAnActiveConnection = true;

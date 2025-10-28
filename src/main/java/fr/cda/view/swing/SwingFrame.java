@@ -1,35 +1,26 @@
-package fr.cda.swing;
+package fr.cda.view.swing;
 
+import fr.cda.controller.GUIController;
 import fr.cda.util.LoggerHelper;
 
 import javax.swing.*;
 
-public abstract class Frame implements ISwingInterface
+public abstract class SwingFrame extends SwingView
 {
     protected JFrame frame;
 
-    /**
-     * Constructor who will be inherited by all child classes
-     * @param title the name of the window
-     * @param width the size in pixel for the width
-     * @param height the size in pixel for the height
-     * @param autoShow if true, the constructor will automatically call Display
-     */
-    protected Frame(final String title, final int width, final int height, final boolean autoShow)
+    public SwingFrame(SwingViewConfig config, GUIController controller, boolean autoShow)
     {
-        LoggerHelper.log.info("Creation of a new MainScreen named : {}", title);
+        super(config, controller);
+        LoggerHelper.log.info("Creation of a new MainScreen named : {}", config.getTitle());
 
-        frame = new JFrame(title);
-        frame.setSize(width, height);
+        frame = new JFrame(config.getTitle());
+        frame.setSize(config.getWidth(), config.getHeight());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
 
         Init();
-
-        if (autoShow)
-        {
-            Display();
-        }
+        AutoShow(autoShow);
     }
 
     /**

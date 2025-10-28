@@ -14,7 +14,7 @@ package view
         - homeViewConfig : SwingViewConfig
 
         + FrontApp()
-        + LaunchApp()
+        - LaunchApp()
         + EstablishConnection(backApp : BackApp)
 
         - LoadConfig()

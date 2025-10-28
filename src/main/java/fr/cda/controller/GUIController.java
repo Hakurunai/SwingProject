@@ -1,7 +1,7 @@
 package fr.cda.controller;
 
 import fr.cda.model.*;
-import fr.cda.swing.async.SwingAsyncQueue;
+import fr.cda.view.swing.async.SwingAsyncQueue;
 import fr.cda.util.LoggerHelper;
 
 import java.util.function.Consumer;
@@ -10,6 +10,11 @@ public class GUIController
 {
     private AppController appController;
     private SwingAsyncQueue swingAsyncQueue;
+
+    public GUIController()
+    {
+        swingAsyncQueue = new SwingAsyncQueue("AsyncQueue");
+    }
 
     /**
      * Action used to get the {@link AppController} owned by the {@link BackApp}
@@ -21,7 +26,7 @@ public class GUIController
         LoggerHelper.log.info("TRY to connect the GUIController to the BackApp");
         swingAsyncQueue = new SwingAsyncQueue("GUIControllerThread");
 
-        if (backApp.HasNoActiveConnection())
+        if (backApp.HasAnActiveConnection())
             return OperationResult.FAILURE("Connection failed : No active connection available");
 
         OperationResult<AppController> connectionResult = backApp.RequestNewConnection();

@@ -17,17 +17,13 @@ package view.swing
     {
         + SwingView(config : SwingViewConfig, autoShow : boolean)
         # {abstract} Init()
-        - LoadConfig()
+        # Autoshow(autoshow : boolean)
     }
 
     note left of SwingView::Init
         Called from the ctor
         Will serve to create the
         interface with Swing components
-    end note
-
-    note left of SwingView::LoadConfig
-                Called from the ctor
     end note
 
     class SwingViewConfig
@@ -44,7 +40,9 @@ package view.swing
     {
         # dialog : JDialog
 
-        # SwingDialog(frameOwner : JFrame, config, autoShow : boolean, isModal : boolean)
+        # SwingDialog(config : SwingViewConfig, frameOwner : JFrame, isModal : boolean, autoShow : boolean)
+        + Display()
+        + Hide()
     }
 
     abstract class SwingFrame
@@ -52,6 +50,8 @@ package view.swing
         # frame : JFrame
 
         #Frame(config : SwingInterfaceConfig, autoShow : boolean)
+        + Display()
+        + Hide()
     }
 
     abstract SwingHelper
