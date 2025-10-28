@@ -1,15 +1,12 @@
 package fr.cda;
 
 import fr.cda.Site.Site;
-import fr.cda.async.AsyncQueue;
+import fr.cda.model.BackApp;
 import fr.cda.model.Category;
 import fr.cda.model.Database;
 import fr.cda.model.Product;
 
-import java.util.Random;
 import java.util.concurrent.*;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 
 public class main
@@ -22,6 +19,7 @@ public class main
     {
         //site = new Site();
         Database database = new Database();
+        BackApp backApp = new BackApp(database);
     }
 
     public static void QuickTest()

@@ -10,6 +10,8 @@ remove util.CryptHelper
 remove util.DeliverMailHelper
 
 remove controller.GUIController
+remove controller.DatabaseConnectionException
+
 remove async
 
 @enduml

@@ -147,8 +147,7 @@ class DatabaseTest
         assertNotNull(allProdRes,  READ_ALL_PRODUCT_TEST_FAIL + "The method returned a null object");
         assertNotNull(allProdRes.getData(), READ_ALL_PRODUCT_TEST_FAIL + "the returned OperationResult data is null");
         assertTrue(allProdRes.HasSucceeded(), READ_ALL_PRODUCT_TEST_FAIL + "the returned OperationResult is marked as FAILED");
-        assertEquals(0, allProdRes.getData().length,  READ_ALL_PRODUCT_TEST_FAIL
-                                                              + "the returned OperationResult must be empty");
+        final int initialDataNumber = allProdRes.getData().length;
 
         var catRes = database.CreateNewProductCategory(categoryToAdd);
         assertTrue(catRes.HasSucceeded(), READ_ALL_PRODUCT_TEST_FAIL + "Issue while setting up the category");
@@ -164,7 +163,7 @@ class DatabaseTest
         assertNotNull(allProdRes,  READ_ALL_PRODUCT_TEST_FAIL + "The method returned a null object");
         assertNotNull(allProdRes.getData(), READ_ALL_PRODUCT_TEST_FAIL + "the returned OperationResult data is null");
         assertTrue(allProdRes.HasSucceeded(), READ_ALL_PRODUCT_TEST_FAIL + "the returned OperationResult is marked as FAILED");
-        assertEquals(NB_TO_INSERT, allProdRes.getData().length,  READ_ALL_PRODUCT_TEST_FAIL
+        assertEquals(initialDataNumber + NB_TO_INSERT, allProdRes.getData().length,  READ_ALL_PRODUCT_TEST_FAIL
                                                  + "the returned OperationResult.getData() must return a non empty array");
 
 

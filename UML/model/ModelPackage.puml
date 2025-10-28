@@ -68,6 +68,16 @@ package model
         + productQuantity : int
     }
 
+    class ProductCategoryMap
+    {
+        - categoryIDGenerator : DataIdGenerator
+        - productMap : Map<ID, Product>
+
+        + ProductCategoryMap()
+        + GetNextCategoryIdAsString() : String
+        + TryUpdateCategoryID(value : long)
+    }
+
     class Database
     {
         - productMap : Hashmap<Category, Hashmap<ID, Product>>
@@ -99,6 +109,8 @@ package model
         - ExtractAndInsertOrder(line : String)
         - ExtractOrderDetail(orderContent : ArrayList<String>, orderID) : List<OrderDetail>
         - ExtractAndInsertProduct(line : String)
+        - UpdateOrderIdGenerator(orderID : ID)
+        - UpdateProductIdGenerator(productId : ID, category : Category)
 
         - CheckIfProductCategoryExist(category) : OperationResult<Void>
         - SplitProductID(productId : ID) : OperationResult<String[]>
@@ -148,9 +160,13 @@ package model
     ID "1" --* OrderDetail
 
     Category "1" --* Product
+    Category "1" --* ProductCategoryMap
 
 
-    DataIdGenerator "2" --* Database
+    DataIdGenerator "1" --* Database
+    DataIdGenerator "1" --* ProductCategoryMap
+
+    ProductCategoryMap "n" --* Database
 
     Database "1" --o BackApp
 }

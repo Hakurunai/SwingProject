@@ -22,12 +22,11 @@ public class Database
     private static final String ERROR_UNKNOWN_PRODUCT_CATEGORY = "The Category used is unknown from the database";
 
 
-    private final Map<Category, Map<ID, Product>> productMap;
+    private final Map<Category, ProductCategoryMap> productMap;
+    //private final Map<Category, Map<ID, Product>> productMap;
     private final Map<ID, Order> orderMap;
 
-    private final DataIdGenerator productIDGenerator;
-    private final DataIdGenerator orderIDGenerator;
-
+    private DataIdGenerator orderIDGenerator;
 
     /**
      * Creation of a Database
@@ -36,7 +35,6 @@ public class Database
     {
         LoggerHelper.log.info("START : creation of a database");
 
-        productIDGenerator =  new DataIdGenerator();
         orderIDGenerator = new DataIdGenerator();
 
         productMap = new HashMap<>();
@@ -74,13 +72,13 @@ public class Database
             return OperationResult.FAILURE(CHECK_CATEGORY_RESULT.getMessage());
 
 
-        final ID newProductID = new ID(CATEGORY.categoryName() + "-" + productIDGenerator.GetNextIdAsString());
-        if (productMap.get(CATEGORY).containsKey(newProductID))
+        final ID newProductID = new ID(CATEGORY.categoryName() + "-" + productMap.get(CATEGORY).GetNextCategoryIdAsString());
+        if (productMap.get(CATEGORY).getProductMap().containsKey(newProductID))
             return OperationResult.FAILURE(ERROR_ID_ALREADY_EXISTING);
 
 
         Product newProduct = new Product(newProductID, product.getName(), CATEGORY, product.getPrice(), product.getStoredQuantity());
-        productMap.get(CATEGORY).put(newProductID, newProduct);
+        productMap.get(CATEGORY).getProductMap().put(newProductID, newProduct);
 
         return OperationResult.SUCCESS(newProduct.getId(), "Creation of a new product has been done successfully");
     }
@@ -96,7 +94,7 @@ public class Database
         if (checkCategoryResult.HasSucceeded())
             return OperationResult.FAILURE("The category is already present in the database : " + category.categoryName());
 
-        productMap.put(category, new LinkedHashMap<>());
+        productMap.put(category, new ProductCategoryMap());
         return OperationResult.SUCCESS("Creation of a new category has been done successfully : " + category.categoryName());
     }
 
@@ -118,10 +116,10 @@ public class Database
             return OperationResult.FAILURE(CHECK_CATEGORY_RESULT.getMessage());
 
 
-        if (!productMap.get(CATEGORY).containsKey(productId))
+        if (!productMap.get(CATEGORY).getProductMap().containsKey(productId))
             return OperationResult.FAILURE(ERROR_UNKNOWN_ID + " : " + productId.id());
 
-        return OperationResult.SUCCESS(new Product(productMap.get(CATEGORY).get(productId)),
+        return OperationResult.SUCCESS(new Product(productMap.get(CATEGORY).getProductMap().get(productId)),
                                                         "Found Product in database");
     }
 
@@ -133,9 +131,9 @@ public class Database
     {
         List<Product> allProducts = new ArrayList<>();
 
-        for (Map<ID, Product> map : productMap.values())
+        for (ProductCategoryMap map : productMap.values())
         {
-            for (Product product : map.values())
+            for (Product product : map.getProductMap().values())
             {
                 allProducts.add(new Product(product)); //Deep copy
             }
@@ -158,7 +156,7 @@ public class Database
             return OperationResult.FAILURE(checkIfProductExist.getMessage());
 
         Product internalCopy = new Product(product);
-        productMap.get(product.getCategory()).put(product.getId(), internalCopy);
+        productMap.get(product.getCategory()).getProductMap().put(product.getId(), internalCopy);
         return OperationResult.SUCCESS("SUCCESS : update of a Product. ID : " + product.getId());
     }
 
@@ -174,7 +172,7 @@ public class Database
             return OperationResult.FAILURE(checkIfProductExist.getMessage());
 
         Product copy = checkIfProductExist.getData();
-        productMap.get(copy.getCategory()).remove(copy.getId());
+        productMap.get(copy.getCategory()).getProductMap().remove(copy.getId());
         return OperationResult.SUCCESS("SUCCESS : deletion of a Product. ID : " + copy.getId());
     }
 
@@ -366,6 +364,9 @@ public class Database
      */
     private List<OrderDetail> ExtractOrderDetails(final ArrayList<String> orderContent, final ID orderID)
     {
+        UpdateOrderIdGenerator(orderID);
+
+        //OrderContent Format for each String : ID(Name-Number)=Quantity
         String[] productDetail;
         List<OrderDetail> orderDetails = new ArrayList<>();
         for (int i = 0 ; i < orderContent.size(); ++i)
@@ -441,10 +442,37 @@ public class Database
             }
         }
 
+        UpdateProductIdGenerator(readedID, category);
         Product newProduct = new Product(readedID, dataContent[1], category,
                 Float.parseFloat(dataContent[2]),
                 Integer.parseInt(dataContent[3]));
 
-        productMap.get(category).put(newProduct.getId(), newProduct);
+        productMap.get(category).getProductMap().put(newProduct.getId(), newProduct);
+    }
+
+    /**
+     * Update the internal {@link DataIdGenerator} specific to a {@link Category} of {@link Product}
+     * during the initialisation of the {@link Database}
+     * @param productId The {@link ID} currently in insertion
+     * @param category The {@link Category} owning the targeted {@link Product}
+     */
+    private void UpdateProductIdGenerator(final ID productId, final Category category)
+    {
+        //todo : check if the id is malformed
+        //Product ID Format : Category-Number
+        String id = productId.id();
+        long idValue = Long.parseLong(id.split("-")[1]);
+        productMap.get(category).TryUpdateCategoryID(idValue);
+    }
+
+    /**
+     * Update the internal {@link DataIdGenerator} {@link #orderIDGenerator} during the initialisation of the {@link Database}
+     * @param orderID The {@link ID} currently in insertion
+     */
+    private void UpdateOrderIdGenerator(final ID orderID)
+    {
+        //Order ID Format : Number
+        long idValue = Long.parseLong(orderID.id());
+        orderIDGenerator.TryUpdateCurrentId(idValue);
     }
 }
