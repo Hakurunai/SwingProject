@@ -1,10 +1,9 @@
 package fr.cda;
 
+import fr.cda.event.EventBus;
 import fr.cda.view.FrontApp;
 import fr.cda.model.BackApp;
-import fr.cda.model.Category;
 import fr.cda.model.Database;
-import fr.cda.model.Product;
 
 
 public class main
@@ -22,10 +21,12 @@ public class main
 
     public static void QuickTest()
     {
-        Database database = new Database();
-
-        var res = database.CreateNewProduct(Product.GenerateProductDTO("NAME", new Category("Livre"), 1f, 0));
-        System.out.println(res.getMessage());
+//        TestReceiver testReceiver = new TestReceiver();
+//        EventBus bus = new EventBus();
+//        bus.Subscribe(String.class, testReceiver);
+//        bus.Subscribe(Integer.class, testReceiver.integerListener);
+//
+//        bus.Publish(10);
     }
 
 

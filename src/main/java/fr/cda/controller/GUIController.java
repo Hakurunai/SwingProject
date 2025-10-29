@@ -1,5 +1,6 @@
 package fr.cda.controller;
 
+import fr.cda.event.EventBus;
 import fr.cda.model.*;
 import fr.cda.view.swing.async.SwingAsyncQueue;
 import fr.cda.util.LoggerHelper;
@@ -11,9 +12,12 @@ public class GUIController
     private AppController appController;
     private SwingAsyncQueue swingAsyncQueue;
 
+    public final EventBus eventBus;
+
     public GUIController()
     {
         swingAsyncQueue = new SwingAsyncQueue("AsyncQueue");
+        eventBus = new EventBus();
     }
 
     /**
@@ -34,6 +38,8 @@ public class GUIController
             return OperationResult.FAILURE(connectionResult.getMessage());
 
         appController = connectionResult.getData();
+        eventBus.Publish(new DatabaseConnectionEvent("Connected  to backApp", true));
+
         return OperationResult.SUCCESS("Connected to Back App");
     }
 

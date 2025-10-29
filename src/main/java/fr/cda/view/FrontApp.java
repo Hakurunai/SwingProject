@@ -33,12 +33,6 @@ public class FrontApp
             return;
         }
         controller.ConnectToBackApp(back);
-        GetDataFromDatabase();
-    }
-
-    private void GetDataFromDatabase()
-    {
-        mainApp.ReadDataFromBase();
     }
 
     /**

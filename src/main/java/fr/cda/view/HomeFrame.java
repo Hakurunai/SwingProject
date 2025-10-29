@@ -1,19 +1,30 @@
 package fr.cda.view;
 
+import fr.cda.controller.DatabaseConnectionEvent;
 import fr.cda.controller.GUIController;
+import fr.cda.event.IEventListener;
+import fr.cda.model.OperationResult;
+import fr.cda.model.Order;
+import fr.cda.model.Product;
+import fr.cda.view.cellRenderer.ProductOrderListCellRenderer;
 import fr.cda.view.swing.SwingFrame;
 import fr.cda.util.LoggerHelper;
 import fr.cda.util.SwingHelper;
 import fr.cda.view.swing.SwingViewConfig;
 
 import javax.swing.*;
+import javax.swing.text.DefaultCaret;
 import java.awt.*;
+
+import java.util.Arrays;
 
 
 public final class HomeFrame extends SwingFrame
 {
     private JTextArea infoArea;
     private JTextArea productDetailArea;
+
+    private DefaultListModel<Object> dataList;
 
     private JButton buttonShowStorage;
     private JButton buttonShowOrder;
@@ -25,17 +36,16 @@ public final class HomeFrame extends SwingFrame
 
     private static final int PANEL_BORDER_SIZE = 10;
 
+    IEventListener<DatabaseConnectionEvent> databaseConnectionEventListener =res ->
+    {
+        ShowMessage(res.message());
+    };
 
     public HomeFrame(SwingViewConfig config, GUIController controller, boolean autoShow)
     {
         super(config, controller, autoShow);
-    }
 
-    public void ReadDataFromBase()
-    {
-        controller.ReadAllProduct(
-                result -> infoArea.setText(result.getMessage())
-        );
+        controller.eventBus.Subscribe(DatabaseConnectionEvent.class, databaseConnectionEventListener);
     }
 
     /**
@@ -55,6 +65,11 @@ public final class HomeFrame extends SwingFrame
 
         frame.add(panelMain);
         LoggerHelper.log.info("END Initialisation of the Main App named : {}", frame.getTitle());
+    }
+
+    private void ShowMessage(String message)
+    {
+        infoArea.append(message + "\n");
     }
 
     /**
@@ -87,6 +102,11 @@ public final class HomeFrame extends SwingFrame
     private JPanel CreateInfoArea()
     {
         infoArea = SwingHelper.CreateNonEditableTextArea();
+
+        //Automatic scroll
+        DefaultCaret caret = (DefaultCaret) infoArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
         JScrollPane scrollPane = new JScrollPane(infoArea);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -101,15 +121,16 @@ public final class HomeFrame extends SwingFrame
      */
     private JPanel CreateListAndDescriptionPanel()
     {
-        //Todo : replace demo code
-        //Todo: ===========================
-        JList<String> listProducts = new JList<>(new String[]{"Produit 1", "Produit 2", "Produit 3"});
+        dataList = new DefaultListModel<>();
+        JList<Object> listProducts = new JList<>(dataList);
+        listProducts.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        listProducts.setCellRenderer(new ProductOrderListCellRenderer());
+
         JScrollPane scrollList = new JScrollPane(listProducts);
 
         // Détails du produit
         productDetailArea = SwingHelper.CreateNonEditableTextArea();
         JScrollPane scrollDetails = new JScrollPane(productDetailArea);
-        //Todo: ===========================
 
 
         final int DIVIDER_LOCATION_PARAM = 100;
@@ -137,7 +158,11 @@ public final class HomeFrame extends SwingFrame
         panelButtons.setBorder(BorderFactory.createEmptyBorder(PANEL_BORDER_SIZE, PANEL_BORDER_SIZE, PANEL_BORDER_SIZE, PANEL_BORDER_SIZE));
 
         buttonShowStorage = new JButton("Show storage");
+        buttonShowStorage.addActionListener(e ->controller.ReadAllProduct(this::ReadAllProductCallback));
+
         buttonShowOrder = new JButton("Show all order");
+        buttonShowOrder.addActionListener(e ->controller.ReadAllOrder(this::ReadAllOrderCallback));
+
         buttonShowSpecificOrder = new JButton("Show order");
         buttonMakeDeliveries = new JButton("Make deliveries");
         buttonComputeProfit = new JButton("Compute profit");
@@ -155,5 +180,25 @@ public final class HomeFrame extends SwingFrame
         SwingHelper.AddComponentToPanelWithStruts(panelButtons, buttonArray, BUTTON_HORIZONTAL_STRUT, BUTTON_VERTICAL_STRUT);
 
         return panelButtons;
+    }
+
+    private void ReadAllProductCallback(final OperationResult<Product[]> result)
+    {
+        ShowMessage(result.getMessage());
+        if (!result.HasSucceeded() || result.getData().length == 0)
+            return;
+
+        dataList.clear();
+        dataList.addAll(Arrays.asList(result.getData()));
+    }
+
+    private void ReadAllOrderCallback(final OperationResult<Order[]> result)
+    {
+        ShowMessage(result.getMessage());
+        if (!result.HasSucceeded() || result.getData().length == 0)
+            return;
+
+        dataList.clear();
+        dataList.addAll(Arrays.asList(result.getData()));
     }
 }
