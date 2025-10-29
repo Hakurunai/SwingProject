@@ -13,18 +13,21 @@ import fr.cda.util.SwingHelper;
 import fr.cda.view.swing.SwingViewConfig;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
 
+import java.util.List;
 import java.util.Arrays;
 
 
 public final class HomeFrame extends SwingFrame
 {
     private JTextArea infoArea;
-    private JTextArea productDetailArea;
+    private JTextArea detailArea;
 
     private DefaultListModel<Object> dataList;
+    private JList<Object> dataListView;
 
     private JButton buttonShowStorage;
     private JButton buttonShowOrder;
@@ -122,15 +125,17 @@ public final class HomeFrame extends SwingFrame
     private JPanel CreateListAndDescriptionPanel()
     {
         dataList = new DefaultListModel<>();
-        JList<Object> listProducts = new JList<>(dataList);
-        listProducts.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        listProducts.setCellRenderer(new ProductOrderListCellRenderer());
+        dataListView = new JList<>(dataList);
+        dataListView.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        dataListView.setCellRenderer(new ProductOrderListCellRenderer());
+        dataListView.addListSelectionListener(this::OnDataListSelectionChanged);
 
-        JScrollPane scrollList = new JScrollPane(listProducts);
+        JScrollPane scrollList = new JScrollPane(dataListView);
 
         // Détails du produit
-        productDetailArea = SwingHelper.CreateNonEditableTextArea();
-        JScrollPane scrollDetails = new JScrollPane(productDetailArea);
+        detailArea = SwingHelper.CreateNonEditableTextArea();
+        detailArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        JScrollPane scrollDetails = new JScrollPane(detailArea);
 
 
         final int DIVIDER_LOCATION_PARAM = 100;
@@ -188,8 +193,7 @@ public final class HomeFrame extends SwingFrame
         if (!result.HasSucceeded() || result.getData().length == 0)
             return;
 
-        dataList.clear();
-        dataList.addAll(Arrays.asList(result.getData()));
+        DisplayDataListView(result.getData());
     }
 
     private void ReadAllOrderCallback(final OperationResult<Order[]> result)
@@ -198,7 +202,104 @@ public final class HomeFrame extends SwingFrame
         if (!result.HasSucceeded() || result.getData().length == 0)
             return;
 
+        DisplayDataListView(result.getData());
+    }
+
+    private <T> void DisplayDataListView(T[] result)
+    {
         dataList.clear();
-        dataList.addAll(Arrays.asList(result.getData()));
+        dataList.addAll(Arrays.asList(result));
+        dataListView.setSelectionInterval(0, dataList.getSize() - 1);
+    }
+
+    private void OnDataListSelectionChanged(final ListSelectionEvent event)
+    {
+        if (!event.getValueIsAdjusting())
+        {
+            List<Object> selectedItems = dataListView.getSelectedValuesList();
+            if (selectedItems.size() <= 0)
+                return;
+
+            Object first = selectedItems.getFirst();
+            if (first instanceof Order) {
+                List<Order> orders = selectedItems.stream()
+                                             .filter(Order.class::isInstance)
+                                             .map(Order.class::cast)
+                                             .toList();
+                DisplayOrderDetails(orders);
+            }
+            else if (first instanceof Product)
+            {
+                List<Product> products = selectedItems.stream()
+                                                 .filter(Product.class::isInstance)
+                                                 .map(Product.class::cast)
+                                                 .toList();
+                DisplayProductDetail(products);
+            }
+        }
+    }
+
+    private void DisplayOrderDetails(final List<Order> selected)
+    {
+        //todo
+    }
+
+    private void DisplayProductDetail(final List<Product> selected)
+    {
+        //Generate format by column
+        String[] headers = {"ID", "NAME", "PRICE", "QUANTITY"};
+        String format = GenerateProductStringFormat(selected, headers);
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(String.format(format, (Object[])headers));
+
+        for (Product product : selected)
+        {
+            String[] colProd = ExtractProductDataAsColumn(product);
+            builder.append(String.format(format, (Object[])colProd));
+        }
+        detailArea.setText(builder.toString());
+    }
+
+    private String GenerateProductStringFormat(final List<Product> selected, final String[] headers)
+    {
+        int[] columnWidths = new int[headers.length];
+        for (int i = 0; i < headers.length; i++)
+        {
+            columnWidths[i] = headers[i].length();
+        }
+
+        for (Product product : selected)
+        {
+            String[] colProd = ExtractProductDataAsColumn(product);
+            for (int i = 0; i < headers.length ; ++i)
+            {
+                columnWidths[i] = Math.max(columnWidths[i], colProd[i].length());
+            }
+        }
+
+        StringBuilder formatBuilder =  new StringBuilder();
+        for (int i = 0 ; i < columnWidths.length ; ++i)
+        {
+            //+2 to get some space between columns
+            formatBuilder.append("%-").append(columnWidths[i] + 2).append("s");
+            if (i < columnWidths.length - 1)
+            {
+                formatBuilder.append(" ");
+            }
+        }
+        formatBuilder.append("%n");
+        return formatBuilder.toString();
+    }
+
+    private String[] ExtractProductDataAsColumn(final Product product)
+    {
+        return new String[]
+        {
+          product.getId().id(),
+          product.getName(),
+          String.format("%.2f€", product.getPrice()),
+          String.valueOf(product.getStoredQuantity())
+        };
     }
 }
