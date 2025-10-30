@@ -12,8 +12,8 @@ public class SwingViewConfig
     {
         SwingViewConfig conf = new SwingViewConfig();
         conf.title = "defaultName";
-        conf.width = 720;
-        conf.height = 400;
+        conf.width = 1066;
+        conf.height = 600;
         DEFAULT = conf;
     }
 

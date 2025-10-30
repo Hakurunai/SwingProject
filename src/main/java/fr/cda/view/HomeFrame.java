@@ -5,6 +5,7 @@ import fr.cda.controller.GUIController;
 import fr.cda.event.IEventListener;
 import fr.cda.model.OperationResult;
 import fr.cda.model.Order;
+import fr.cda.model.OrderDetail;
 import fr.cda.model.Product;
 import fr.cda.view.cellRenderer.ProductOrderListCellRenderer;
 import fr.cda.view.swing.SwingFrame;
@@ -31,7 +32,8 @@ public final class HomeFrame extends SwingFrame
 
     private JButton buttonShowStorage;
     private JButton buttonShowOrder;
-    private JButton buttonShowSpecificOrder;
+    private JButton buttonCreateNewProduct;
+    private JButton buttonCreateNewOrder;
     private JButton buttonMakeDeliveries;
     private JButton buttonComputeProfit;
     private JButton buttonSendMailData;
@@ -87,7 +89,7 @@ public final class HomeFrame extends SwingFrame
 
         JPanel southPanel = CreateInfoArea();
 
-        final int DIVIDER_LOCATION_PARAM = 150;
+        final int DIVIDER_LOCATION_PARAM = 400;
         JSplitPane verticalPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, northPanel, southPanel);
         verticalPane.setDividerLocation(DIVIDER_LOCATION_PARAM);
 
@@ -168,7 +170,6 @@ public final class HomeFrame extends SwingFrame
         buttonShowOrder = new JButton("Show all order");
         buttonShowOrder.addActionListener(e ->controller.ReadAllOrder(this::ReadAllOrderCallback));
 
-        buttonShowSpecificOrder = new JButton("Show order");
         buttonMakeDeliveries = new JButton("Make deliveries");
         buttonComputeProfit = new JButton("Compute profit");
         buttonSendMailData = new JButton("Send data to mail");
@@ -177,9 +178,8 @@ public final class HomeFrame extends SwingFrame
         //Todo: Add listener to the buttons
 
         JButton[] buttonArray =
-                { buttonShowStorage, buttonShowOrder, buttonShowSpecificOrder,
-                buttonMakeDeliveries, buttonComputeProfit, buttonSendMailData,
-                buttonGenerateBackUp };
+                { buttonShowStorage, buttonShowOrder, buttonMakeDeliveries,
+                  buttonComputeProfit, buttonSendMailData, buttonGenerateBackUp };
 
         SwingHelper.SetSameSize(buttonArray);
         SwingHelper.AddComponentToPanelWithStruts(panelButtons, buttonArray, BUTTON_HORIZONTAL_STRUT, BUTTON_VERTICAL_STRUT);
@@ -241,7 +241,23 @@ public final class HomeFrame extends SwingFrame
 
     private void DisplayOrderDetails(final List<Order> selected)
     {
-        //todo
+        StringBuilder builder = new StringBuilder();
+        final String CHANGE_LINE = "\n";
+        final String END_ORDER = "--------------------------\n\n";
+        for (Order order : selected)
+        {
+            builder.append("Order Number : ").append(order.getId().id()).append(CHANGE_LINE)
+                    .append("Date : ").append(order.getCreationDate()).append(CHANGE_LINE)
+                    .append("Client : ").append(order.getClientName()).append(CHANGE_LINE);
+
+            for (OrderDetail product : order.getOrderedProduct())
+            {
+                builder.append(product.productID().id())
+                        .append(" : ").append(product.productQuantity()).append(CHANGE_LINE);
+            }
+            builder.append(END_ORDER);
+        }
+        detailArea.setText(builder.toString());
     }
 
     private void DisplayProductDetail(final List<Product> selected)
