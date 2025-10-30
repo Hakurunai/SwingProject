@@ -171,6 +171,8 @@ public final class HomeFrame extends SwingFrame
         buttonShowOrder.addActionListener(e ->controller.ReadAllOrder(this::ReadAllOrderCallback));
 
         buttonMakeDeliveries = new JButton("Make deliveries");
+        //buttonMakeDeliveries.addActionListener(e -> controller);
+
         buttonComputeProfit = new JButton("Compute profit");
         buttonSendMailData = new JButton("Send data to mail");
         buttonGenerateBackUp = new JButton("Generate back up");

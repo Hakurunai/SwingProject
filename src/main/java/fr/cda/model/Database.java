@@ -105,12 +105,12 @@ public class Database
      */
     public OperationResult<Product> ReadProduct(final ID productId)
     {
-        final OperationResult<String[]> SPLIT_OPERATION = SplitProductID(productId);
-        if (!SPLIT_OPERATION.HasSucceeded())
-            return OperationResult.FAILURE(SPLIT_OPERATION.getMessage());
+        final var CATEGORY_OPERATION = ExtractProductCategoryFromID(productId);
+        if (!CATEGORY_OPERATION.HasSucceeded())
+            return OperationResult.FAILURE(CATEGORY_OPERATION.getMessage());
 
 
-        final Category CATEGORY = new Category(SPLIT_OPERATION.getData()[0]);
+        final Category CATEGORY = CATEGORY_OPERATION.getData();
         final OperationResult<Void> CHECK_CATEGORY_RESULT = CheckIfProductCategoryExist(CATEGORY);
         if (!CHECK_CATEGORY_RESULT.HasSucceeded())
             return OperationResult.FAILURE(CHECK_CATEGORY_RESULT.getMessage());
@@ -119,8 +119,60 @@ public class Database
         if (!productMap.get(CATEGORY).getProductMap().containsKey(productId))
             return OperationResult.FAILURE(ERROR_UNKNOWN_ID + " : " + productId.id());
 
+
         return OperationResult.SUCCESS(new Product(productMap.get(CATEGORY).getProductMap().get(productId)),
                                                         "Found Product in database");
+    }
+
+    public OperationResult<Order[]> MakeAllDeliveries()
+    {
+        var orders = orderMap.values();
+
+        for (Order order : orders)
+        {
+            if (CheckIfOrderIsDoable(order))
+            {
+                //todo : réaliser l'order, décrémenter les stocks
+                FulfillOrder(order);
+            }
+            else
+            {
+                //todo : ajouter l'order dans une liste des order non faisable
+            }
+        }
+
+        //todo : boucler sur les order non faite pour assigner le message selon les produits manquants
+        return null;
+
+    }
+
+    /**
+     * Decrement the stored {@link Product} listed in the {@link Order} by the amount in the {@link OrderDetail}
+     * @param p_order The {@link Order} to fulfill
+     * @return
+     */
+    private OperationResult<Void> FulfillOrder(final Order p_order)
+    {
+        return null;
+    }
+
+    /**
+     * Return true if the storage is in capacity to provide an Order with all the desired content
+     * @param p_order The {@link Order} you want to check
+     * @return True if the storage has enough of each desired {@link Product}, false otherwise
+     */
+    private boolean CheckIfOrderIsDoable(final Order p_order)
+    {
+        for (OrderDetail detail : p_order.getOrderedProduct())
+        {
+            OperationResult<Product> res = ReadProduct(detail.productID());
+            if (!res.HasSucceeded())
+                return false;
+
+            if (res.getData().getStoredQuantity() < detail.productQuantity())
+                return false;
+        }
+        return true;
     }
 
     /**
@@ -423,8 +475,7 @@ public class Database
         String[] dataContent = line.split(";");
         final ID readedID = new ID(dataContent[0]);
 
-        String[] splitedId = SplitProductID(readedID).getData();
-        final Category category = new Category(splitedId[0]);
+        final Category category = ExtractProductCategoryFromID(readedID);
 
         var res = CheckIfProductCategoryExist(category);
         if (!res.HasSucceeded())
@@ -448,6 +499,16 @@ public class Database
                 Integer.parseInt(dataContent[3]));
 
         productMap.get(category).getProductMap().put(newProduct.getId(), newProduct);
+    }
+
+    private OperationResult<Category> ExtractProductCategoryFromID(final ID p_readedID)
+    {
+        final var SPLIT_OPERATION = SplitProductID(p_readedID);
+        if (!SPLIT_OPERATION.HasSucceeded())
+            return OperationResult.FAILURE(SPLIT_OPERATION.getMessage());
+
+        String[] splitedId = SPLIT_OPERATION.getData();
+        return OperationResult.SUCCESS(new Category(splitedId[0]), "Category extracted");
     }
 
     /**

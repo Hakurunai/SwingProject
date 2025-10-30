@@ -28,7 +28,6 @@ public class GUIController
     public OperationResult<Void> ConnectToBackApp(BackApp backApp)
     {
         LoggerHelper.log.info("TRY to connect the GUIController to the BackApp");
-        swingAsyncQueue = new SwingAsyncQueue("GUIControllerThread");
 
         if (backApp.HasAnActiveConnection())
             return OperationResult.FAILURE("Connection failed : No active connection available");
@@ -63,6 +62,15 @@ public class GUIController
     public void SaveOrderToFile(final String filePath, final Consumer<OperationResult<String>> callback)
     {
         //todo : implement
+    }
+
+    public void MakeDeliveries()
+    {
+        VerifyConnection();
+
+//        swingAsyncQueue.SubmitAsyncOperation(
+//                () -> appController.ReadAllOrder(),
+//                callback);
     }
 
     /**
