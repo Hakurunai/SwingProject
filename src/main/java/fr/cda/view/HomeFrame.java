@@ -26,6 +26,7 @@ import java.util.Arrays;
 
 public final class HomeFrame extends SwingFrame
 {
+    //region SWING_ATTRIBUTE
     private JTextArea infoArea;
     private JTextArea detailArea;
 
@@ -39,12 +40,16 @@ public final class HomeFrame extends SwingFrame
     private JButton buttonComputeProfit;
     private JButton buttonSendMailData;
     private JButton buttonGenerateBackUp;
+    //endregion SWING_ATTRIBUTE
 
     private static final int PANEL_BORDER_SIZE = 10;
 
+    //region IEventListener
     IEventListener<DatabaseConnectionEvent> databaseConnectionEventListener = this::OnDatabaseConnectionEvent;
     IEventListener<DatabaseOperationEndedEvent> databaseOperationEndedEventListener = this::OnDatabaseOperationEnded;
+    //endregion IEventListener
 
+    //region CTOR
     public HomeFrame(SwingViewConfig config, GUIController controller)
     {
         super(config, controller);
@@ -52,44 +57,9 @@ public final class HomeFrame extends SwingFrame
         controller.eventBus.Subscribe(DatabaseConnectionEvent.class, databaseConnectionEventListener);
         controller.eventBus.Subscribe(DatabaseOperationEndedEvent.class, databaseOperationEndedEventListener);
     }
+    //endregion CTOR
 
-    private void OnAddItemButton(ActionEvent e)
-    {
-        if (dataList.isEmpty())
-            return;
-
-        LoggerHelper.log.info("TRIGGER HomeFrame::OnAddItemButton");
-        Object item = dataList.getElementAt(0);
-        if (item instanceof Product)
-        {
-            OpenCreateNewProductDialog();
-        }
-        else if (item instanceof Order)
-        {
-            OpenCreateNewOrderDialog();
-        }
-    }
-
-    private void OpenCreateNewOrderDialog()
-    {
-        //todo
-    }
-
-    private void OpenCreateNewProductDialog()
-    {
-        SwingViewConfig config = new SwingViewConfig("Add new Product", 600, 400);
-        CreateProductDialog createProductDialog = new CreateProductDialog(config, controller, frame, this::OnNewProductCreated);
-        createProductDialog.Display();
-    }
-
-    private void OnNewProductCreated( OperationResult<Product> result)
-    {
-        if (result.HasSucceeded())
-        {
-            dataList.addElement(result.getData());
-        }
-    }
-
+    //region INIT_PHASE
     /**
      * Implementation of the inherited Init method from Screen class. Used to generate the JFrame and his components
      */
@@ -107,11 +77,6 @@ public final class HomeFrame extends SwingFrame
 
         frame.add(panelMain);
         LoggerHelper.log.info("END Initialisation of the Main App named : {}", frame.getTitle());
-    }
-
-    private void ShowMessage(String message)
-    {
-        infoArea.append(message + "\n");
     }
 
     /**
@@ -225,14 +190,62 @@ public final class HomeFrame extends SwingFrame
 
         JButton[] buttonArray =
                 { buttonShowStorage, buttonShowOrder, buttonMakeDeliveries,
-                  buttonComputeProfit, buttonSendMailData, buttonGenerateBackUp };
+                        buttonComputeProfit, buttonSendMailData, buttonGenerateBackUp };
 
         SwingHelper.SetSameSize(buttonArray);
         SwingHelper.AddComponentToPanelWithStruts(panelButtons, buttonArray, BUTTON_HORIZONTAL_STRUT, BUTTON_VERTICAL_STRUT);
 
         return panelButtons;
     }
+    //endregion INIT_PHASE
 
+    //region PUBLIC_METHODS
+
+    //endregion PUBLIC_METHODS
+
+    //region PRIVATE_METHODS
+
+    //region Event
+
+    /**
+     * Callback called when a user click on the AddItemButton. This will create a new Dialog to fill the data of the new entry
+     * @param e The event sent by the button
+     */
+    private void OnAddItemButton(ActionEvent e)
+    {
+        if (dataList.isEmpty())
+            return;
+
+        LoggerHelper.log.info("TRIGGER HomeFrame::OnAddItemButton");
+        Object item = dataList.getElementAt(0);
+        if (item instanceof Product)
+        {
+            OpenCreateNewProductDialog();
+        }
+        else if (item instanceof Order)
+        {
+            OpenCreateNewOrderDialog();
+        }
+    }
+
+    /**
+     * Callback called when a new Product is created from an {@link CreateProductDialog} to add it to the view
+     * @param result An {@link OperationResult} able to tell if the operation was succeeded via {@link OperationResult#HasSucceeded()}
+     * and, in case of success, containing the {@link Product} newly created
+     */
+    private void OnNewProductCreated( OperationResult<Product> result)
+    {
+        if (result.HasSucceeded())
+        {
+            dataList.addElement(result.getData());
+        }
+    }
+
+    /**
+     * Callback called after the operation sent to the Database by the associated button
+     * Retrieve the data and ask to display them
+     * @param result The {@link OperationResult} from the {@link fr.cda.model.Database}
+     */
     private void ReadAllProductCallback(final OperationResult<Product[]> result)
     {
         if (!result.HasSucceeded() || result.getData().length == 0)
@@ -241,6 +254,11 @@ public final class HomeFrame extends SwingFrame
         DisplayDataListView(result.getData());
     }
 
+    /**
+     * Callback called after the operation sent to the Database by the associated button
+     * Retrieve the data and ask to display them
+     * @param result The {@link OperationResult} from the {@link fr.cda.model.Database}
+     */
     private void ReadAllOrderCallback(final OperationResult<Order[]> result)
     {
         if (!result.HasSucceeded() || result.getData().length == 0)
@@ -249,16 +267,11 @@ public final class HomeFrame extends SwingFrame
         DisplayDataListView(result.getData());
     }
 
-    private <T> void DisplayDataListView(T[] result)
-    {
-        dataList.clear();
-        dataList.ensureCapacity(result.length);
-        dataList.addAll(Arrays.asList(result));
-        dataListView.setSelectionInterval(0, dataList.getSize() - 1);
-
-        SetAddItemButtonVisibility(dataList.getSize() > 0);
-    }
-
+    /**
+     * Callback called when the {@link #dataListView} selection change
+     * Is used to determine the type of object to display and how the data are formatted
+     * @param event The event from the ListView
+     */
     private void OnDataListSelectionChanged(final ListSelectionEvent event)
     {
         if (!event.getValueIsAdjusting())
@@ -286,6 +299,71 @@ public final class HomeFrame extends SwingFrame
         }
     }
 
+    /**
+     * Callback linked to the {@link GUIController#eventBus} to get the message in case of a Connection Event. Messages
+     * are displayed in the {@link #infoArea}
+     * @param databaseConnectionEvent The event sent by the controller
+     */
+    private void OnDatabaseConnectionEvent(final DatabaseConnectionEvent databaseConnectionEvent)
+    {
+        ShowMessage(databaseConnectionEvent.message());
+    }
+
+    /**
+     * Callback linked to the {@link GUIController#eventBus} to get the messages sent by the {@link fr.cda.model.Database}
+     * each time we need to access her. Messages are displayed in the {@link #infoArea}
+     * @param event The event sent by the controller
+     */
+    private void OnDatabaseOperationEnded(final DatabaseOperationEndedEvent event)
+    {
+        ShowMessage(event.message());
+    }
+    //endregion Event
+
+    //todo : the doc
+    private void OpenCreateNewOrderDialog()
+    {
+        //todo
+    }
+
+    /**
+     * Called to open a new {@link CreateProductDialog}. This object is then linked to it by the callback {@link #OnNewProductCreated(OperationResult)}
+     */
+    private void OpenCreateNewProductDialog()
+    {
+        SwingViewConfig config = new SwingViewConfig("Add new Product", 500, 200);
+        CreateProductDialog createProductDialog = new CreateProductDialog(config, controller, frame, this::OnNewProductCreated);
+        createProductDialog.Display();
+    }
+
+    /**
+     * Called to add a message to the {@link #infoArea} of this frame
+     * @param message The message to display
+     */
+    private void ShowMessage(String message)
+    {
+        infoArea.append(message + "\n");
+    }
+
+    /**
+     * Method to update the content of the ListPanel, update the visibility of the AddItemButton
+     * @param result The content to display
+     * @param <T> The type of the content to display
+     */
+    private <T> void DisplayDataListView(T[] result)
+    {
+        dataList.clear();
+        dataList.ensureCapacity(result.length);
+        dataList.addAll(Arrays.asList(result));
+        dataListView.setSelectionInterval(0, dataList.getSize() - 1);
+
+        SetAddItemButtonVisibility(dataList.getSize() > 0);
+    }
+
+    /**
+     * A method called to format and display a list of {@link Order} object in the list area
+     * @param selected The currently selected Orders we need to display
+     */
     private void DisplayOrderDetails(final List<Order> selected)
     {
         StringBuilder builder = new StringBuilder();
@@ -316,6 +394,10 @@ public final class HomeFrame extends SwingFrame
         detailArea.setText(builder.toString());
     }
 
+    /**
+     * A method called to format and display a list of {@link Product} object in the {@link #detailArea}
+     * @param selected The currently selected Products we need to display
+     */
     private void DisplayProductDetail(final List<Product> selected)
     {
         //Generate format by column
@@ -333,6 +415,13 @@ public final class HomeFrame extends SwingFrame
         detailArea.setText(builder.toString());
     }
 
+    /**
+     * A method specifically designed to format in String the content of a List of {@link Product}
+     * for the {@link #detailArea}
+     * @param selected The Products to format
+     * @param headers A header to place first
+     * @return A unique String containing the result of the concatenation of all the data
+     */
     private String GenerateProductStringFormat(final List<Product> selected, final String[] headers)
     {
         int[] columnWidths = new int[headers.length];
@@ -364,17 +453,27 @@ public final class HomeFrame extends SwingFrame
         return formatBuilder.toString();
     }
 
+    /**
+     * Call to format the data of one {@link Product} in column
+     * @param product The targeted Product
+     * @return An array containing an entry for each column
+     */
     private String[] ExtractProductDataAsColumn(final Product product)
     {
         return new String[]
-        {
-          product.getId().id(),
-          product.getName(),
-          String.format("%.2f€", product.getPrice()),
-          String.valueOf(product.getStoredQuantity())
-        };
+                       {
+                               product.getId().id(),
+                               product.getName(),
+                               String.format("%.2f€", product.getPrice()),
+                               String.valueOf(product.getStoredQuantity())
+                       };
     }
 
+    /**
+     * Update the visibility of the {@link #buttonCreateNewItem} button and force the interface to be updated accordingly
+     * in space and in drawing
+     * @param newVisibilityLevel True if the button need to be visible, false otherwise
+     */
     private void SetAddItemButtonVisibility(final boolean newVisibilityLevel)
     {
         if (buttonCreateNewItem != null && buttonCreateNewItem.isVisible() != newVisibilityLevel)
@@ -384,15 +483,5 @@ public final class HomeFrame extends SwingFrame
             buttonCreateNewItem.getParent().repaint(); //Redraw the parent
         }
     }
-
-    private void OnDatabaseConnectionEvent(final DatabaseConnectionEvent databaseConnectionEvent)
-    {
-        ShowMessage(databaseConnectionEvent.message());
-    }
-
-    private void OnDatabaseOperationEnded(final DatabaseOperationEndedEvent event)
-    {
-        ShowMessage(event.message());
-    }
-
+    //endregion PRIVATE_METHODS
 }
