@@ -86,7 +86,7 @@ public class Database
         Product newProduct = new Product(newProductID, product.getName(), CATEGORY, product.getPrice(), product.getStoredQuantity());
         productMap.get(CATEGORY).getProductMap().put(newProductID, newProduct);
 
-        return OperationResult.SUCCESS(newProduct.getId(), "SUCCESS : Creation of a new product has been done successfully"
+        return OperationResult.SUCCESS(newProduct.getId(), "SUCCESS : Creation of a new product has been done successfully. ID : "
                                                                     + newProductID.id());
     }
 

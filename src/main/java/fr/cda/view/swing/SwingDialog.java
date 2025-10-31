@@ -1,16 +1,13 @@
 package fr.cda.view.swing;
 
 import fr.cda.controller.GUIController;
-import fr.cda.model.Product;
 import fr.cda.util.LoggerHelper;
 
 import javax.swing.*;
-import java.util.function.Consumer;
 
-public abstract class SwingDialog <T> extends SwingView
+public abstract class SwingDialog extends SwingView
 {
     protected JDialog dialog;
-    protected final Consumer<T> OnDialogAchieveTask;
 
     /**
      * @param config     The initial configuration of the {@link JDialog}
@@ -19,12 +16,11 @@ public abstract class SwingDialog <T> extends SwingView
      * @param isModal    Use to determine if the {@link JDialog} will be modal
      */
     public SwingDialog(SwingViewConfig config, GUIController controller, JFrame frameOwner,
-                       final Consumer<T> consumer, boolean isModal)
+                       boolean isModal)
     {
         super(config, controller);
         LoggerHelper.log.info("Creation of a new Dialog named : {}", config.getTitle());
 
-        OnDialogAchieveTask = consumer;
 
         dialog = new JDialog(frameOwner, config.getTitle(), isModal);
         dialog.setSize(config.getWidth(), config.getHeight());
