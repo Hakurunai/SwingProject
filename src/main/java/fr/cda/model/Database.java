@@ -10,7 +10,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
- * Represent a database in this program, living only in RAM
+ * Represent a database in this program, living only in RAM, and containing all the data for our {@link Product} and {@link Order}
+ * The data came from read CSV files
  */
 public class Database
 {
@@ -23,11 +24,11 @@ public class Database
 
 
     private final Map<Category, ProductCategoryMap> productMap;
-    //private final Map<Category, Map<ID, Product>> productMap;
     private final Map<ID, Order> orderMap;
 
     private DataIdGenerator orderIDGenerator;
 
+    //region Ctor
     /**
      * Creation of a Database
      */
@@ -42,8 +43,9 @@ public class Database
 
         Init();
     }
+    //endregion Ctor
 
-
+    //region PUBLIC_METHODS
     public OperationResult<Void> SaveProductToFile(final String productPath)
     {
         //Todo : Implement
@@ -55,6 +57,10 @@ public class Database
         //Todo : Implement
         return null;
     }
+
+    //region CRUD OPERATION
+
+    //region Product_Crud
 
     /**
      * Add a new {@link  Product} to the database
@@ -99,9 +105,9 @@ public class Database
     }
 
     /**
-     * Read the data of a specific Product own internally
-     * @param productId The key to find the correct Product
-     * @return An OperationResult with the complete Product targeted
+     * Read the data of a specific {@link Product} own internally
+     * @param productId The {@link ID} to find the correct {@link Product}
+     * @return An {@link OperationResult} with the complete {@link Product} targeted
      */
     public OperationResult<Product> ReadProduct(final ID productId)
     {
@@ -124,60 +130,9 @@ public class Database
                                                         "Found Product in database");
     }
 
-    public OperationResult<Order[]> MakeAllDeliveries()
-    {
-        var orders = orderMap.values();
-
-        for (Order order : orders)
-        {
-            if (CheckIfOrderIsDoable(order))
-            {
-                //todo : réaliser l'order, décrémenter les stocks
-                FulfillOrder(order);
-            }
-            else
-            {
-                //todo : ajouter l'order dans une liste des order non faisable
-            }
-        }
-
-        //todo : boucler sur les order non faite pour assigner le message selon les produits manquants
-        return null;
-
-    }
-
-    /**
-     * Decrement the stored {@link Product} listed in the {@link Order} by the amount in the {@link OrderDetail}
-     * @param p_order The {@link Order} to fulfill
-     * @return
-     */
-    private OperationResult<Void> FulfillOrder(final Order p_order)
-    {
-        return null;
-    }
-
-    /**
-     * Return true if the storage is in capacity to provide an Order with all the desired content
-     * @param p_order The {@link Order} you want to check
-     * @return True if the storage has enough of each desired {@link Product}, false otherwise
-     */
-    private boolean CheckIfOrderIsDoable(final Order p_order)
-    {
-        for (OrderDetail detail : p_order.getOrderedProduct())
-        {
-            OperationResult<Product> res = ReadProduct(detail.productID());
-            if (!res.HasSucceeded())
-                return false;
-
-            if (res.getData().getStoredQuantity() < detail.productQuantity())
-                return false;
-        }
-        return true;
-    }
-
     /**
      *
-     * @return all Product from the database, sorted by category
+     * @return all {@link Product} from the database, sorted by {@link Category}
      */
     public OperationResult<Product[]> ReadAllProduct()
     {
@@ -196,10 +151,10 @@ public class Database
     }
 
     /**
-     * Allow the possibility to update an internal Product
+     * Allow the possibility to update an internal {@link Product}
      * @param product The product you want to update. His ID will be used to find the internal one,
      *                his data will then be copied
-     * @return An OperationResult able to tell you if the update was successful via {@link OperationResult#HasSucceeded()}
+     * @return An {@link OperationResult} able to tell you if the update was successful via {@link OperationResult#HasSucceeded()}
      */
     public OperationResult<Void> UpdateProduct(final Product product)
     {
@@ -213,9 +168,9 @@ public class Database
     }
 
     /**
-     * Delete a Product from the Database
+     * Delete a {@link Product} from the Database
      * @param id The id of the targeted Product
-     * @return An OperationResult able to tell you if the deletion was a success using {@link OperationResult#HasSucceeded()}
+     * @return An {@link OperationResult} able to tell you if the deletion was a success using {@link OperationResult#HasSucceeded()}
      */
     public OperationResult<Void> DeleteProduct(final ID id)
     {
@@ -227,7 +182,9 @@ public class Database
         productMap.get(copy.getCategory()).getProductMap().remove(copy.getId());
         return OperationResult.SUCCESS("SUCCESS : deletion of a Product. ID : " + copy.getId());
     }
+    //endregion Product_Crud
 
+    //region Order_Crud
     /**
      * Add a new {@link  Order} in the Database
      * @param order A non complete {@link Order} created via {@link Order#GenerateOrderDTO(String, List)}
@@ -306,42 +263,39 @@ public class Database
         orderMap.remove(copy.getId());
         return OperationResult.SUCCESS("SUCCESS : deletion of a Product. ID : " + orderId.id());
     }
-
-
-    /**
-     * Used to determine if a category already exist for the productMap
-     * @param category The category you want to test
-     * @return An OperationResult able to tell you if the operation was a success via {@link OperationResult#HasSucceeded()}
-     */
-    private OperationResult<Void> CheckIfProductCategoryExist(final Category category)
-    {
-        if (!productMap.containsKey(category))
-            return OperationResult.FAILURE(ERROR_UNKNOWN_PRODUCT_CATEGORY + " : " + category.categoryName());
-
-        return OperationResult.SUCCESS("Category exist in database");
-    }
+    //endregion Order_Crud
+    //endregion CRUD_OPERATION
 
     /**
-     * Used to split an id From a product in his two parts : CategoryName and a Number
-     * @param productId The id you want to split
-     * @return An OperationResult containing, in case of success, a String[] with 2 elements : CategoryName and then a number
+     * Operation to call to "delivered" the {@link Order} based on the status of the internal storage
+     * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     * and, in case of success, containing the array of {@link Order} that we cannot fulfill, with an explanation set on each one of them
      */
-    private OperationResult<String[]> SplitProductID(final ID productId)
+    public OperationResult<Order[]> MakeAllDeliveries()
     {
-        //A product id follow this format : "CATEGORY-NUMBER"
-        String[] idSplit = productId.id().split("-", 2);
+        var orders = orderMap.values();
+        List<Order> impossibleOrderToFulfill = new ArrayList<>();
 
-        if (idSplit.length != 2)
+        for (Order order : orders)
         {
-            final String SPLIT_FAIL = "The ID of the product seems to be malformed. " +
-                                      "Impossible to extract a category and a number from it. " +
-                                      "ID value : " + productId.id();
-            return OperationResult.FAILURE(SPLIT_FAIL);
+            if (CheckIfOrderIsDoable(order))
+                FulfillOrder(order);
+            else
+                impossibleOrderToFulfill.add(order);
         }
 
-        return OperationResult.SUCCESS(idSplit, "Product ID was correctly split");
+        for (Order order : impossibleOrderToFulfill)
+        {
+            SetNonDoableOrderReason(order);
+        }
+        return OperationResult.SUCCESS(impossibleOrderToFulfill.stream().toArray(Order[]::new),
+                "SUCCESS : All possible deliveries has been made. Here are the one impossible to fulfill right now");
     }
+    //endregion PUBLIC_METHODS
 
+    //region PRIVATE_METHODS
+
+    //region INIT
     /**
      * Use to order the different initialization call needed by the {@link Database}
      */
@@ -363,7 +317,7 @@ public class Database
             final String[] DATA = CSVHelper.ReadCsvFile(Config.DB_ORDER_FILE_PATH);
             for (String line : DATA)
             {
-                ExtractAndInsertOrder(line);
+                ExtractFromFileAndInsertOrder(line);
             }
         }
         catch (IOException e)
@@ -375,9 +329,9 @@ public class Database
 
     /**
      * Used in {@link #InitOrder()} to create the Orders from the read CSV file
-     * @param line The content of the Order CSV file
+     * @param line The content of the {@link Order} CSV file
      */
-    private void ExtractAndInsertOrder(final String line)
+    private void ExtractFromFileAndInsertOrder(final String line)
     {
         //Todo : check if content is ill-formed
 
@@ -409,7 +363,208 @@ public class Database
     }
 
     /**
-     * Use by {@link #ExtractAndInsertOrder(String)} to get all the detail from an Order
+     * Internally used to Read all the {@link Product} from the configuration file
+     */
+    private void InitProduct()
+    {
+        LoggerHelper.log.info("Start initialization of Product in the database");
+        try
+        {
+            final String[] DATA = CSVHelper.ReadCsvFile(Config.DB_PRODUCT_FILE_PATH);
+
+            for (String line : DATA)
+            {
+                ExtractFromFileAndInsertProduct(line);
+            }
+        }
+        catch (IOException e)
+        {
+            LoggerHelper.log.error("An error occurred while reading Product file at path : " + Config.DB_PRODUCT_FILE_PATH);
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Used in {@link #InitProduct()} to create the Products from the read CSV file
+     * @param line The content of the {@link Product} CSV file
+     */
+    private void ExtractFromFileAndInsertProduct(final String line)
+    {
+        //Todo : check if content is ill-formed
+
+        //FORMAT : ID (Category-Number) ; Name ; Price ; Quantity
+        //LIVRE-1;Les Miserables de Victor Hugo ;8.50;6
+        String[] dataContent = line.split(";");
+        final ID readedID = new ID(dataContent[0]);
+
+        OperationResult<Category> extractedCategoryOperation = ExtractProductCategoryFromID(readedID);
+        if (!extractedCategoryOperation.HasSucceeded())
+        {
+            LoggerHelper.log.warn("CHECK : {}", extractedCategoryOperation.getMessage());
+            return;
+        }
+        final Category category = extractedCategoryOperation.getData();
+
+        var res = CheckIfProductCategoryExist(category);
+        if (!res.HasSucceeded())
+        {
+            CreateNewProductCategory(category);
+        }
+        else
+        {
+            var resProd = ReadProduct(readedID);
+            if (resProd.HasSucceeded())
+            {
+                LoggerHelper.log.warn("CHECK : You tried to initialize an already existing Product in the database. ID : "
+                                              + resProd.getData().getId());
+                return;
+            }
+        }
+
+        UpdateProductIdGenerator(readedID, category);
+        Product newProduct = new Product(readedID, dataContent[1], category,
+                Float.parseFloat(dataContent[2]),
+                Integer.parseInt(dataContent[3]));
+
+        productMap.get(category).getProductMap().put(newProduct.getId(), newProduct);
+    }
+    //endregion INIT
+
+    //region Product_Methods
+
+    /**
+     * Used to split an id From a product in his two parts : CategoryName and a Number
+     * @param productId The id you want to split
+     * @return An {@link OperationResult} containing, in case of success, a String[] with 2 elements : CategoryName and then a number
+     */
+    private OperationResult<String[]> SplitProductID(final ID productId)
+    {
+        //A product id follow this format : "CATEGORY-NUMBER"
+        String[] idSplit = productId.id().split("-", 2);
+
+        if (idSplit.length != 2)
+        {
+            final String SPLIT_FAIL = "The ID of the product seems to be malformed. " +
+                                              "Impossible to extract a category and a number from it. " +
+                                              "ID value : " + productId.id();
+            return OperationResult.FAILURE(SPLIT_FAIL);
+        }
+
+        return OperationResult.SUCCESS(idSplit, "Product ID was correctly split");
+    }
+
+    /**
+     * Extract and generate a {@link Category} from a {@link Product} {@link ID}
+     * @param readedID The {@link ID} you want to extract a {@link Category} from
+     * @return An {@link OperationResult} able to tell you if the update was successful via {@link OperationResult#HasSucceeded()}
+     * and in case of success, containing the {@link Category} extracted
+     */
+    private OperationResult<Category> ExtractProductCategoryFromID(final ID readedID)
+    {
+        final var SPLIT_OPERATION = SplitProductID(readedID);
+        if (!SPLIT_OPERATION.HasSucceeded())
+            return OperationResult.FAILURE(SPLIT_OPERATION.getMessage());
+
+        String[] splitedId = SPLIT_OPERATION.getData();
+        return OperationResult.SUCCESS(new Category(splitedId[0]), "Category extracted");
+    }
+
+    /**
+     * Used to determine if a category already exist for the productMap
+     * @param category The category you want to test
+     * @return An {@link OperationResult} able to tell you if the operation was a success via {@link OperationResult#HasSucceeded()}
+     */
+    private OperationResult<Void> CheckIfProductCategoryExist(final Category category)
+    {
+        if (!productMap.containsKey(category))
+            return OperationResult.FAILURE(ERROR_UNKNOWN_PRODUCT_CATEGORY + " : " + category.categoryName());
+
+        return OperationResult.SUCCESS("Category exist in database");
+    }
+
+    /**
+     * Update the internal {@link DataIdGenerator} specific to a {@link Category} of {@link Product}
+     * during the initialisation of the {@link Database}
+     * @param productId The {@link ID} currently in insertion
+     * @param category The {@link Category} owning the targeted {@link Product}
+     */
+    private void UpdateProductIdGenerator(final ID productId, final Category category)
+    {
+        //todo : check if the id is malformed
+        //Product ID Format : Category-Number
+        String id = productId.id();
+        long idValue = Long.parseLong(id.split("-")[1]);
+        productMap.get(category).TryUpdateCategoryID(idValue);
+    }
+    //endregion Product_Methods
+
+    //region Order_Methods
+    /**
+     * Return true if the storage is in capacity to provide an {@link Order} with all the desired content
+     * @param order The {@link Order} you want to check
+     * @return True if the storage has enough of each desired {@link Product}, false otherwise
+     */
+    private boolean CheckIfOrderIsDoable(final Order order)
+    {
+        for (OrderDetail detail : order.getOrderedProduct())
+        {
+            OperationResult<Product> res = ReadProduct(detail.productID());
+            if (!res.HasSucceeded())
+                return false;
+
+            if (res.getData().getStoredQuantity() < detail.productQuantity())
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * Decrement the stored {@link Product} listed in the {@link Order} by the amount in the {@link OrderDetail}
+     * @param order The {@link Order} to fulfill
+     */
+    private void FulfillOrder(final Order order)
+    {
+        for (OrderDetail detail : order.getOrderedProduct())
+        {
+            Product product = ReadProduct(detail.productID()).getData();
+            product.setStoredQuantity(product.getStoredQuantity() - detail.productQuantity());
+        }
+        order.UpdateToDeliveredStatus();
+    }
+
+    /**
+     * Check for each {@link Product} on the {@link Order} if it exists in the {@link Database} and if the stock are sufficient
+     * to fulfill the order. It then set a message in the {@link Order} to explain the reason
+     * @param order The {@link Order} you want to set on non Delivered status
+     */
+    private void SetNonDoableOrderReason(final Order order)
+    {
+        StringBuilder builder = new StringBuilder();
+
+        for (OrderDetail detail : order.getOrderedProduct())
+        {
+            OperationResult<Product> res = ReadProduct(detail.productID());
+            if (!res.HasSucceeded())
+            {
+                builder.append(res.getMessage()).append("\n");
+                continue;
+            }
+
+            Product product = res.getData();
+            if (product.getStoredQuantity() < detail.productQuantity())
+            {
+                final int MISSING_QUANTITY = detail.productQuantity() - product.getStoredQuantity();
+                builder.append(MISSING_QUANTITY)
+                        .append(" ").append(detail.productID().id())
+                        .append(" are missing from our storage\n");
+            }
+        }
+        order.UpdateToNonDeliveredStatus(builder.toString());
+    }
+
+
+    /**
+     * Use by {@link #ExtractFromFileAndInsertOrder(String)} to get all the detail from an Order
      * @param orderContent All the content from an Order from the read CSV file
      * @param orderID The ID of the {@link Order} currently processed, used in a logError
      * @return A List containing all the {@link OrderDetail} of a single {@link Order}
@@ -441,92 +596,6 @@ public class Database
     }
 
     /**
-     * Internally used to Read all the product from the configuration file
-     */
-    private void InitProduct()
-    {
-        LoggerHelper.log.info("Start initialization of Product in the database");
-        try
-        {
-            final String[] DATA = CSVHelper.ReadCsvFile(Config.DB_PRODUCT_FILE_PATH);
-
-            for (String line : DATA)
-            {
-                ExtractAndInsertProduct(line);
-            }
-        }
-        catch (IOException e)
-        {
-            LoggerHelper.log.error("An error occurred while reading Product file at path : " + Config.DB_PRODUCT_FILE_PATH);
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Used in {@link #InitProduct()} to create the Products from the read CSV file
-     * @param line The content of the Product CSV file
-     */
-    private void ExtractAndInsertProduct(final String line)
-    {
-        //Todo : check if content is ill-formed
-
-        //FORMAT : ID (Category-Number) ; Name ; Price ; Quantity
-        //LIVRE-1;Les Miserables de Victor Hugo ;8.50;6
-        String[] dataContent = line.split(";");
-        final ID readedID = new ID(dataContent[0]);
-
-        final Category category = ExtractProductCategoryFromID(readedID);
-
-        var res = CheckIfProductCategoryExist(category);
-        if (!res.HasSucceeded())
-        {
-            CreateNewProductCategory(category);
-        }
-        else
-        {
-            var resProd = ReadProduct(readedID);
-            if (resProd.HasSucceeded())
-            {
-                LoggerHelper.log.warn("CHECK : You tried to initialize an already existing Product in the database. ID : "
-                                              + resProd.getData().getId());
-                return;
-            }
-        }
-
-        UpdateProductIdGenerator(readedID, category);
-        Product newProduct = new Product(readedID, dataContent[1], category,
-                Float.parseFloat(dataContent[2]),
-                Integer.parseInt(dataContent[3]));
-
-        productMap.get(category).getProductMap().put(newProduct.getId(), newProduct);
-    }
-
-    private OperationResult<Category> ExtractProductCategoryFromID(final ID p_readedID)
-    {
-        final var SPLIT_OPERATION = SplitProductID(p_readedID);
-        if (!SPLIT_OPERATION.HasSucceeded())
-            return OperationResult.FAILURE(SPLIT_OPERATION.getMessage());
-
-        String[] splitedId = SPLIT_OPERATION.getData();
-        return OperationResult.SUCCESS(new Category(splitedId[0]), "Category extracted");
-    }
-
-    /**
-     * Update the internal {@link DataIdGenerator} specific to a {@link Category} of {@link Product}
-     * during the initialisation of the {@link Database}
-     * @param productId The {@link ID} currently in insertion
-     * @param category The {@link Category} owning the targeted {@link Product}
-     */
-    private void UpdateProductIdGenerator(final ID productId, final Category category)
-    {
-        //todo : check if the id is malformed
-        //Product ID Format : Category-Number
-        String id = productId.id();
-        long idValue = Long.parseLong(id.split("-")[1]);
-        productMap.get(category).TryUpdateCategoryID(idValue);
-    }
-
-    /**
      * Update the internal {@link DataIdGenerator} {@link #orderIDGenerator} during the initialisation of the {@link Database}
      * @param orderID The {@link ID} currently in insertion
      */
@@ -536,4 +605,7 @@ public class Database
         long idValue = Long.parseLong(orderID.id());
         orderIDGenerator.TryUpdateCurrentId(idValue);
     }
+    //endregion Order_Methods
+
+    //endregion PRIVATE_METHODS
 }

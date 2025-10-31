@@ -139,14 +139,10 @@ public class Order
         return isDelivered;
     }
 
-
     public String getNonDeliveredExplanation()
     {
         return nonDeliveredExplanation;
     }
 
-    public void setNonDeliveredExplanation(String p_nonDeliveredExplanation)
-    {
-        nonDeliveredExplanation = p_nonDeliveredExplanation;
-    }
+    public void setNonDeliveredExplanation(String p_nonDeliveredExplanation) {nonDeliveredExplanation = p_nonDeliveredExplanation;}
 }

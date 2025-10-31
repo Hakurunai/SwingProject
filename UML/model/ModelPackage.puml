@@ -103,17 +103,24 @@ package model
         + UpdateOrder(data : Order) OperationResult<Void>
         + DeleteOrder(id : ID) OperationResult<Void>
 
+        + MakeAllDeliveries() : OperationResult<Order[]>
+
         - Init()
         - InitOrder()
         - InitProduct()
-        - ExtractAndInsertOrder(line : String)
-        - ExtractOrderDetail(orderContent : ArrayList<String>, orderID) : List<OrderDetail>
-        - ExtractAndInsertProduct(line : String)
-        - UpdateOrderIdGenerator(orderID : ID)
-        - UpdateProductIdGenerator(productId : ID, category : Category)
+        - ExtractFromFileAndInsertOrder(line : String)
+        - ExtractFromFileAndInsertProduct(line : String)
 
-        - CheckIfProductCategoryExist(category) : OperationResult<Void>
         - SplitProductID(productId : ID) : OperationResult<String[]>
+        - ExtractProductCategoryFromID(readedID) : OperationResult<Category>
+        - CheckIfProductCategoryExist(category) : OperationResult<Void>
+        - UpdateOrderIdGenerator(orderID : ID)
+
+        - CheckIfOrderIsDoable(order) : boolean
+        - FulfillOrder(order)
+        - SetNonDoableOrderReason(order)
+        - ExtractOrderDetail(orderContent : ArrayList<String>, orderID) : List<OrderDetail>
+        - UpdateProductIdGenerator(productId : ID, category : Category)
     }
 
     note right of Database::productMap
