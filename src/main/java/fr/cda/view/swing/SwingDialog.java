@@ -40,7 +40,7 @@ public abstract class SwingDialog extends SwingView
     {
         if (dialog != null)
         {
-            LoggerHelper.log.info("Closing Dialog named: {}", dialog.getTitle());
+            LoggerHelper.log.info("Closing Dialog named : {}", dialog.getTitle());
             dialog.dispose();
         }
     }

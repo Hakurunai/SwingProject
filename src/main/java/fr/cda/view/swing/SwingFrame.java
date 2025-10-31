@@ -32,7 +32,7 @@ public abstract class SwingFrame extends SwingView
     {
         if (frame != null)
         {
-            LoggerHelper.log.info("Closing Frame named: {}", frame.getTitle());
+            LoggerHelper.log.info("Closing Frame named : {}", frame.getTitle());
             frame.dispose();
         }
     }

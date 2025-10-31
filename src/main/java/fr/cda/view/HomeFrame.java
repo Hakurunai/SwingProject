@@ -20,6 +20,8 @@ import javax.swing.text.DefaultCaret;
 import java.awt.*;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Arrays;
 
@@ -139,6 +141,14 @@ public final class HomeFrame extends SwingFrame
         dataListView.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         dataListView.setCellRenderer(new ProductOrderListCellRenderer());
         dataListView.addListSelectionListener(this::OnDataListSelectionChanged);
+        dataListView.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                OnListDoubleClic(e);
+            }
+        });
 
         JScrollPane scrollList = new JScrollPane(dataListView);
         westPanel.add(scrollList, BorderLayout.CENTER);
@@ -199,9 +209,6 @@ public final class HomeFrame extends SwingFrame
     }
     //endregion INIT_PHASE
 
-    //region PUBLIC_METHODS
-
-    //endregion PUBLIC_METHODS
 
     //region PRIVATE_METHODS
 
@@ -242,6 +249,16 @@ public final class HomeFrame extends SwingFrame
     }
 
     /**
+     * Callback called when a Product is updated from a {@link UpdateProductDialog} to update the view
+     * @param productOperationResult An {@link OperationResult} able to tell if the operation was succeeded via {@link OperationResult#HasSucceeded()}
+     * and, in case of success, containing the {@link Product} newly updated
+     */
+    private void OnProductUpdated(OperationResult<Product> productOperationResult)
+    {
+        //todo
+    }
+
+    /**
      * Callback called after the operation sent to the Database by the associated button
      * Retrieve the data and ask to display them
      * @param result The {@link OperationResult} from the {@link fr.cda.model.Database}
@@ -252,6 +269,19 @@ public final class HomeFrame extends SwingFrame
             return;
 
         DisplayDataListView(result.getData());
+    }
+
+    /**
+     * Callback called when a new Product is created from an {@link CreateOrderDialog} to add it to the view
+     * @param result An {@link OperationResult} able to tell if the operation was succeeded via {@link OperationResult#HasSucceeded()}
+     * and, in case of success, containing the {@link Order} newly created
+     */
+    private void OnNewOrderCreated( OperationResult<Order> result)
+    {
+        if (result.HasSucceeded())
+        {
+            dataList.addElement(result.getData());
+        }
     }
 
     /**
@@ -300,6 +330,37 @@ public final class HomeFrame extends SwingFrame
     }
 
     /**
+     * Callback when user clic on an element from the {@link #dataListView}
+     * @param e The event sent by the JList
+     */
+    private void OnListDoubleClic(MouseEvent e)
+    {
+        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e))
+        {
+            final int INDEX = dataListView.locationToIndex(e.getPoint());
+            if (INDEX < 0)
+                return;
+
+            var item = dataListView.getModel().getElementAt(INDEX);
+            if (item instanceof Product)
+            {
+                OpenUpdateProductDialog((Product)item);
+            }
+            else if (item instanceof Order)
+            {
+                Order order = (Order)item;
+                if (order.isDelivered())
+                {
+                    JOptionPane.showMessageDialog(frame, "Impossible to update an already delivered Order",
+                            "Update Order Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                OpenUpdateOrderDialog((Order)item);
+            }
+        }
+    }
+
+    /**
      * Callback linked to the {@link GUIController#eventBus} to get the message in case of a Connection Event. Messages
      * are displayed in the {@link #infoArea}
      * @param databaseConnectionEvent The event sent by the controller
@@ -320,14 +381,16 @@ public final class HomeFrame extends SwingFrame
     }
     //endregion Event
 
-    //todo : the doc
+    /**
+     * Called to open a new {@link CreateOrderDialog}. This object is then linked to the new Dialog by the callback {@link #OnNewOrderCreated(OperationResult)}
+     */
     private void OpenCreateNewOrderDialog()
     {
-        //todo
+        //todo : implement
     }
 
     /**
-     * Called to open a new {@link CreateProductDialog}. This object is then linked to it by the callback {@link #OnNewProductCreated(OperationResult)}
+     * Called to open a new {@link CreateProductDialog}. This object is then linked to the new Dialog by the callback {@link #OnNewProductCreated(OperationResult)}
      */
     private void OpenCreateNewProductDialog()
     {
@@ -335,6 +398,19 @@ public final class HomeFrame extends SwingFrame
         CreateProductDialog createProductDialog = new CreateProductDialog(config, controller, frame, this::OnNewProductCreated);
         createProductDialog.Display();
     }
+
+    private void OpenUpdateOrderDialog(Order p_item)
+    {
+        //todo
+    }
+
+    private void OpenUpdateProductDialog(Product p_item)
+    {
+        SwingViewConfig config = new SwingViewConfig("Update Product", 500, 200);
+        UpdateProductDialog updateProductDialog = new UpdateProductDialog(config, controller, frame, this::OnProductUpdated);
+        updateProductDialog.Display();
+    }
+
 
     /**
      * Called to add a message to the {@link #infoArea} of this frame

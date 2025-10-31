@@ -54,7 +54,7 @@ public abstract class ProductDialog extends SwingDialog
     @Override
     protected void Init()
     {
-        LoggerHelper.log.info("START : initialisation of a CreateProductDialog window");
+        LoggerHelper.log.info("START : initialisation of a ProductDialog window");
 
         //mainPanel
         JPanel mainPanel = new JPanel();
