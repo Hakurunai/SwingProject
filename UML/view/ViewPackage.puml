@@ -1,7 +1,9 @@
 !ifndef VIEW__PUML
 !define VIEW__PUML
 
+!include cellRenderer/CellRendererPackage.puml
 !include swing/SwingPackage.puml
+
 !include ../controller/ControllerPackage.puml
 
 package view
@@ -60,6 +62,7 @@ package view
     HomeFrame "1" --* FrontApp
     HomeFrame --|> swing.SwingFrame
     HomeFrame --> swing.SwingHelper
+    HomeFrame --> cellRenderer.ProductOrderListRenderer
 }
 
 controller.GUIController "1" --* view.FrontApp

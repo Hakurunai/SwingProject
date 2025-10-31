@@ -11,14 +11,14 @@
 
 package model
 {
-    class ID <<record>>
+    record ID
     {
-        - id : string
+        + ID(id : String)
     }
 
-    class Category <<record>>
+    record Category
     {
-        - categoryName : string
+        + Category(categoryName : String)
     }
 
     class BackApp
@@ -62,10 +62,9 @@ package model
         + {static} GenerateOrderDTO(creationDate, clientName, orderedProduct) : Order
     }
 
-    class OrderDetail <<record>>
+    record OrderDetail
     {
-        + productID : ID
-        + productQuantity : int
+        + OrderDetail(productID : ID, productQuantity : int)
     }
 
     class ProductCategoryMap

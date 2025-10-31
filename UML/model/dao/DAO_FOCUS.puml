@@ -5,10 +5,19 @@
 !include ../../Common.puml
 !include DAOPackage.puml
 
-remove model.idGenerator
+remove model.DataIdGenerator
+remove model.ProductCategoryMap
+remove model.BackApp
+
+
 remove util
 
 remove controller.GUIController
+remove controller.DatabaseConnectionEvent
+remove controller.DatabaseConnectionException
+
+remove event
+remove view
 remove async
 
 @enduml

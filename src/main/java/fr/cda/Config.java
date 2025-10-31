@@ -2,7 +2,7 @@ package fr.cda;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
-public class Config
+public abstract class Config
 {
     private final static Dotenv dotenv;
 

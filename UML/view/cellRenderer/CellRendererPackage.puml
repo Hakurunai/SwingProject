@@ -1,0 +1,15 @@
+!ifndef CELLRENDERER__PUML
+!define CELLRENDERER__PUML
+
+package view.cellRenderer
+{
+    class ProductOrderListRenderer
+    {
+        + getListCellRendererComponent(list : JList<?>, value : Object, index : int, isSelected : boolean, cellHasFocus : boolean)
+        + ProductRenderer(list : JList<?>, product : Product, isSelected : boolean)
+        + OrderRenderer(list : JList<?>, order : Order, isSelected : boolean)
+        + SetBackGroundLabelColor(color : awt.Color, label : JLabel)
+    }
+}
+
+!endif

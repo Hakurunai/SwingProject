@@ -3,6 +3,7 @@
 
 !include ../model/ModelPackage.puml
 !include ../view/swing/async/SwingAsyncPackage.puml
+!include ../event/EventPackage.puml
 
 package controller
 {
@@ -26,12 +27,15 @@ package controller
         + UpdateOrder(data : Order) OperationResult<Void>
         + DeleteOrder(id : String) OperationResult<Void>
 
+        + MakeAllDeliveries() : OperationResult<Order[]>
+
         + SendDeliveredOrderByMail() : OperationResult<Void>
         + SaveBackViaFTP() : OperationResult<Void>
     }
 
     class GUIController
     {
+        + eventBus : EventBus
         - appController : AppController
 
         + ConnectToBackApp(backApp : BackApp) : OperationResult<Void>
@@ -53,12 +57,18 @@ package controller
         + ReadAllOrder(callback : Consumer<OperationResult<Order[]>>)
         + UpdateOrder(data : Order, callback : Consumer<OperationResult<Void>>)
         + DeleteOrder(id : ID, callback : Consumer<OperationResult<Void>>)
+        + MakeDeliveries(callback : Consumer<OperationResult<Order[]>>)
 
         + SendDeliveredOrderByMail(callback : Consumer<OperationResult<Void>>)
         + SaveBackViaFTP(callback : Consumer<OperationResult<Void>>)
     }
 
-    class DatabaseConnectionException
+    exception DatabaseConnectionException
+
+    record DatabaseConnectionEvent
+    {
+        + DatabaseConnectionEvent(message : String, isConnected : boolean)
+    }
 
     note right of GUIController
         Use his own thread to treat demands
@@ -76,5 +86,7 @@ controller.AppController --> util.DeliverMailHelper
 controller.AppController --> util.CryptHelper
 
 view.swing.async.SwingAsyncQueue "1" --* controller.GUIController
+
+event.EventBus "1" --* controller.GUIController
 
 !endif

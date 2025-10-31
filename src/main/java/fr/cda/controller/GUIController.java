@@ -4,7 +4,9 @@ import fr.cda.event.EventBus;
 import fr.cda.model.*;
 import fr.cda.view.swing.async.SwingAsyncQueue;
 import fr.cda.util.LoggerHelper;
+import jdk.dynalink.Operation;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public class GUIController
@@ -14,11 +16,197 @@ public class GUIController
 
     public final EventBus eventBus;
 
+    //region CTOR
     public GUIController()
     {
         swingAsyncQueue = new SwingAsyncQueue("AsyncQueue");
         eventBus = new EventBus();
     }
+    //endregion CTOR
+
+    //region PUBLIC_METHODS
+
+    //region CRUD_OPERATION
+
+    //region Product_Crud
+    /**
+     * Action used to insert a new {@link Product} in the {@link Database}. A callback is then used on the {@link OperationResult}
+     * returned by the {@link Database}
+     * @param data The {@link Product} you want to insert generated via {@link Product#GenerateProductDTO(String, Category, float, int)}
+     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
+     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
+     */
+    public void CreateNewProduct(final Product data, final Consumer<OperationResult<ID>> callback) throws DatabaseConnectionException
+    {
+        VerifyConnection();
+
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.CreateNewProduct(data),
+                callback);
+    }
+
+    /**
+     * Action used to insert a new product {@link Category} in the {@link Database}. A callback is then used on the {@link OperationResult}
+     * returned by the {@link Database}
+     * @param category The {@link Category} you want to insert
+     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
+     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
+     */
+    public void CreateNewProductCategory(final Category category, final Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
+    {
+        VerifyConnection();
+
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.CreateNewProductCategory(category),
+                callback);
+    }
+
+    /**
+     * Action used to get the data of a {@link Product} from the {@link Database}. A callback is then used on the {@link OperationResult}
+     * returned by the {@link Database}
+     * @param id The {@link ID} of the targeted {@link Product}
+     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
+     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
+     */
+    public void ReadProduct(final ID id, final Consumer<OperationResult<Product>> callback) throws DatabaseConnectionException
+    {
+        VerifyConnection();
+
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.ReadProduct(id),
+                callback);
+    }
+
+    /**
+     * Action used to read get the data of all {@link Product} from the {@link Database}. A callback is then used on the {@link OperationResult}
+     * returned by the {@link Database}
+     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
+     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
+     */
+    public void ReadAllProduct(final Consumer<OperationResult<Product[]>> callback) throws DatabaseConnectionException
+    {
+        VerifyConnection();
+
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.ReadAllProduct(),
+                callback);
+    }
+
+    /**
+     * Action used to update the data of a {@link Product} from the {@link Database}. A callback is then used on the {@link OperationResult}
+     * returned by the {@link Database}
+     * @param product A {@link Product} containing all the updated data AND the corresponding {@link ID}
+     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
+     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
+     */
+    public void UpdateProduct(final Product product, final Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
+    {
+        VerifyConnection();
+
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.UpdateProduct(product),
+                callback);
+    }
+
+    /**
+     * Action used to delete a {@link Product} from the {@link Database}. A callback is then used on the {@link OperationResult}
+     * returned by the {@link Database}
+     * @param id The {@link ID} of the targeted {@link Product}
+     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
+     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
+     */
+    public void DeleteProduct(final ID id, Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
+    {
+        VerifyConnection();
+
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.DeleteProduct(id),
+                callback);
+    }
+    //endregion Product_Crud
+
+    //region Order_Crud
+    /**
+     * Action used to insert a new {@link Order} in the {@link Database}. A callback is then used on the {@link OperationResult}
+     * returned by the {@link Database}
+     * @param data The {@link Order} you want to insert generated via {@link Order#GenerateOrderDTO(String, List)}
+     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
+     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
+     */
+    public void CreateNewOrder(final Order data, final Consumer<OperationResult<ID>> callback) throws DatabaseConnectionException
+    {
+        VerifyConnection();
+
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.CreateNewOrder(data),
+                callback);
+    }
+
+    /**
+     * Action used to get the data of an {@link Order} in the {@link Database}. A callback is then used on the {@link OperationResult}
+     * returned by the {@link Database}
+     * @param id The {@link ID} of the targeted {@link Order}
+     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
+     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
+     */
+    public void ReadOrder(final ID id, final Consumer<OperationResult<Order>> callback) throws DatabaseConnectionException
+    {
+        VerifyConnection();
+
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.ReadOrder(id),
+                callback);
+    }
+
+    /**
+     * Action used to get the data of all {@link Order} in the {@link Database}. A callback is then used on the {@link OperationResult}
+     * returned by the {@link Database}
+     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
+     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
+     */
+    public void ReadAllOrder(final Consumer<OperationResult<Order[]>> callback) throws DatabaseConnectionException
+    {
+        VerifyConnection();
+
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.ReadAllOrder(),
+                callback);
+    }
+
+    /**
+     * Action used to update the data of an {@link Order} in the {@link Database}. A callback is then used on the {@link OperationResult}
+     * returned by the {@link Database}
+     * @param order A {@link Order} containing all the updated data AND the corresponding {@link ID}
+     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
+     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
+     */
+    public void UpdateOrder(final Order order, final Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
+    {
+        VerifyConnection();
+
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.UpdateOrder(order),
+                callback);
+    }
+
+    /**
+     * Action used to delete an {@link Order} in the {@link Database}. A callback is then used on the {@link OperationResult}
+     * returned by the {@link Database}
+     * @param id The {@link ID} of the targeted {@link Order}
+     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
+     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
+     */
+    public void DeleteOrder(final ID id, final Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
+    {
+        VerifyConnection();
+
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.DeleteOrder(id),
+                callback);
+    }
+    //endregion Order_Crud
+
+    //endregion CRUD_OPERATION
 
     /**
      * Action used to get the {@link AppController} owned by the {@link BackApp}
@@ -64,149 +252,13 @@ public class GUIController
         //todo : implement
     }
 
-    public void MakeDeliveries()
-    {
-        VerifyConnection();
-
-//        swingAsyncQueue.SubmitAsyncOperation(
-//                () -> appController.ReadAllOrder(),
-//                callback);
-    }
 
     /**
-     * Action used to insert a new {@link Product} in the {@link Database}. A callback is then used on the {@link OperationResult}
-     * returned by the {@link Database}
-     * @param data The {@link Product} you want to insert
+     * Method to call to ask the linked {@link Database} to perform {@link Database#MakeAllDeliveries()} through a Chain of Responsibility
      * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
      * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
      */
-    public void CreateNewProduct(final Product data, final Consumer<OperationResult<ID>> callback) throws DatabaseConnectionException
-    {
-        VerifyConnection();
-
-        swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.CreateNewProduct(data),
-                callback);
-    }
-
-    /**
-     * Action used to insert a new product {@link Category} in the {@link Database}. A callback is then used on the {@link OperationResult}
-     * returned by the {@link Database}
-     * @param category
-     * @param callback
-     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
-     */
-    public void CreateNewProductCategory(final Category category, final Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
-    {
-        VerifyConnection();
-
-        swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.CreateNewProductCategory(category),
-                callback);
-    }
-
-    /**
-     * Action used to get the data of a {@link Product} from the {@link Database}. A callback is then used on the {@link OperationResult}
-     * returned by the {@link Database}
-     * @param id
-     * @param consumer
-     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
-     */
-    public void ReadProduct(final ID id, final Consumer<OperationResult<Product>> consumer) throws DatabaseConnectionException
-    {
-        VerifyConnection();
-
-        swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.ReadProduct(id),
-                consumer);
-    }
-
-    /**
-     * Action used to read get the data of all {@link Product} from the {@link Database}. A callback is then used on the {@link OperationResult}
-     * returned by the {@link Database}
-     * @param callback
-     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
-     */
-    public void ReadAllProduct(final Consumer<OperationResult<Product[]>> callback) throws DatabaseConnectionException
-    {
-        VerifyConnection();
-
-        swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.ReadAllProduct(),
-                callback);
-    }
-
-    /**
-     * Action used to update the data of a {@link Product} from the {@link Database}. A callback is then used on the {@link OperationResult}
-     * returned by the {@link Database}
-     * @param product
-     * @param callback
-     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
-     */
-    public void UpdateProduct(final Product product, final Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
-    {
-        VerifyConnection();
-
-        swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.UpdateProduct(product),
-                callback);
-    }
-
-    /**
-     * Action used to delete a {@link Product} from the {@link Database}. A callback is then used on the {@link OperationResult}
-     * returned by the {@link Database}
-     * @param id
-     * @param callback
-     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
-     */
-    public void DeleteProduct(final ID id, Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
-    {
-        VerifyConnection();
-
-        swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.DeleteProduct(id),
-                callback);
-    }
-
-    /**
-     * Action used to insert a new {@link Order} in the {@link Database}. A callback is then used on the {@link OperationResult}
-     * returned by the {@link Database}
-     * @param data
-     * @param callback
-     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
-     */
-    public void CreateNewOrder(final Order data, final Consumer<OperationResult<ID>> callback) throws DatabaseConnectionException
-    {
-        VerifyConnection();
-
-        swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.CreateNewOrder(data),
-                callback);
-    }
-
-    /**
-     * Action used to get the data of an {@link Order} in the {@link Database}. A callback is then used on the {@link OperationResult}
-     * returned by the {@link Database}
-     * @param id
-     * @param callback
-     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
-     */
-    public void ReadOrder(final ID id, final Consumer<OperationResult<Order>> callback) throws DatabaseConnectionException
-    {
-        VerifyConnection();
-
-        swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.ReadOrder(id),
-                callback);
-    }
-
-    /**
-     * Action used to get the data of all {@link Order} in the {@link Database}. A callback is then used on the {@link OperationResult}
-     * returned by the {@link Database}
-     * @param callback
-     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
-     */
-    public void ReadAllOrder(final Consumer<OperationResult<Order[]>> callback) throws DatabaseConnectionException
+    public void MakeDeliveries(final Consumer<OperationResult<Order[]>> callback) throws DatabaseConnectionException
     {
         VerifyConnection();
 
@@ -216,41 +268,9 @@ public class GUIController
     }
 
     /**
-     * Action used to update the data of an {@link Order} in the {@link Database}. A callback is then used on the {@link OperationResult}
-     * returned by the {@link Database}
-     * @param order
-     * @param callback
-     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
-     */
-    public void UpdateOrder(final Order order, final Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
-    {
-        VerifyConnection();
-
-        swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.UpdateOrder(order),
-                callback);
-    }
-
-    /**
-     * Action used to delete an {@link Order} in the {@link Database}. A callback is then used on the {@link OperationResult}
-     * returned by the {@link Database}
-     * @param id
-     * @param callback
-     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
-     */
-    public void DeleteOrder(final ID id, final Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
-    {
-        VerifyConnection();
-
-        swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.DeleteOrder(id),
-                callback);
-    }
-
-    /**
      * Action used to send the data of the deliverer order by mail. A callback is then used on the {@link OperationResult}
      * returned by the {@link Database}
-     * @param callback
+     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
      * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
      */
     public void SendDeliveredOrderByMail(final Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
@@ -265,7 +285,7 @@ public class GUIController
     /**
      * Action used to save the data in the {@link Database} on a server via FTP protocol. A callback is then used on the {@link OperationResult}
      * returned by the {@link Database}
-     * @param callback
+     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
      * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
      */
     public void SaveBackViaFTP(final Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
@@ -276,7 +296,9 @@ public class GUIController
                 () -> appController.SaveBackViaFTP(),
                 callback);
     }
+    //endregion PUBLIC_METHODS
 
+    //region PRIVATE_METHODS
     /**
      * Internal method used to throw a {@link DatabaseConnectionException} if the internal {@link AppController} reference
      * of the linked {@link Database} is not valid. This method is called before each operation on the linked {@link Database}
@@ -287,4 +309,5 @@ public class GUIController
         if (!IsConnected().HasSucceeded())
             throw new DatabaseConnectionException("App Controller is not connected");
     }
+    //endregion PRIVATE_METHODS
 }

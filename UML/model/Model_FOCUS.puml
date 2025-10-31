@@ -11,7 +11,12 @@ remove util.DeliverMailHelper
 
 remove controller.GUIController
 remove controller.DatabaseConnectionException
+remove controller.DatabaseConnectionEvent
+
+remove view
 
 remove async
+
+remove event
 
 @enduml

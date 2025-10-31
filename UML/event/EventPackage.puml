@@ -1,0 +1,22 @@
+!ifndef EVENT__PUML
+!define EVENT__PUML
+
+package event
+{
+    interface IEventListener<T>
+    {
+        + OnEvent(T event)
+    }
+
+    class EventBus
+    {
+        - subscribers : Map<Class<?>, List<IEventListener<?>>>
+
+        + Subscribe(eventType : Class<T>, listener : IEventListener<T>)
+        + Publish(eventType : T)
+    }
+
+    IEventListener "0-n" --o EventBus
+}
+
+!endif

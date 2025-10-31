@@ -142,6 +142,16 @@ public class AppController
         return orderDAO.DeleteData(id);
     }
 
+    /**
+     * Used to call {@link OrderDAO#MakeAllDeliveries()} on the linked {@link OrderDAO}
+     * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     * and, in case of success, containing the array of {@link Order} that we cannot fulfill, with an explanation set on each one of them
+     */
+    public OperationResult<Order[]> MakeAllDeliveries()
+    {
+        return orderDAO.MakeAllDeliveries();
+    }
+
     public OperationResult<Void> SendDeliveredOrderByMail()
     {
         //todo : implement

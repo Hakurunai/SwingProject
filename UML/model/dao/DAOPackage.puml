@@ -21,6 +21,9 @@ package model.dao
     }
 
     class OrderDAO <Order> <<final>>
+    {
+        + MakeAllDeliveries() : OperationResult<Order[]>
+    }
 
     class ProductDAO <Product> <<final>>
     {

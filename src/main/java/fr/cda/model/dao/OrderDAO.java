@@ -4,6 +4,7 @@ import fr.cda.model.Database;
 import fr.cda.model.ID;
 import fr.cda.model.OperationResult;
 import fr.cda.model.Order;
+import jdk.dynalink.Operation;
 
 
 /**
@@ -77,5 +78,15 @@ public class OrderDAO extends DAO<Order>
     public OperationResult<Void> SaveDataToFile(String pathFile)
     {
         return database.SaveOrderToFile(pathFile);
+    }
+
+    /**
+     * Used to call {@link Database#MakeAllDeliveries()} on the linked {@link Database}
+     * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     * and, in case of success, containing the array of {@link Order} that we cannot fulfill, with an explanation set on each one of them
+     */
+    public OperationResult<Order[]> MakeAllDeliveries()
+    {
+        return database.MakeAllDeliveries();
     }
 }
