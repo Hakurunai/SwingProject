@@ -72,6 +72,16 @@ public class AppController
     }
 
     /**
+     * Retrieve all the categories already inserted in the database
+     * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     * and containing, in case of success, an array of {@link Category} corresponding to all the categories in the database
+     */
+    public OperationResult<Category[]> ReadAllProductCategories()
+    {
+        return productDAO.ReadAllProductCategories();
+    }
+
+    /**
      * Action to call if you want to update the data of a {@link Product} in the {@link Database}
      * @param product A {@link Product} containing the updated data AND a valid {@link ID}
      * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}

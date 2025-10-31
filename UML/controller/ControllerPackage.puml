@@ -57,7 +57,7 @@ package controller
         + ReadAllOrder(callback : Consumer<OperationResult<Order[]>>)
         + UpdateOrder(data : Order, callback : Consumer<OperationResult<Void>>)
         + DeleteOrder(id : ID, callback : Consumer<OperationResult<Void>>)
-        + MakeDeliveries(callback : Consumer<OperationResult<Order[]>>)
+        + MakeAllDeliveries(callback : Consumer<OperationResult<Order[]>>)
 
         + SendDeliveredOrderByMail(callback : Consumer<OperationResult<Void>>)
         + SaveBackViaFTP(callback : Consumer<OperationResult<Void>>)

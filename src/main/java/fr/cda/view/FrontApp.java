@@ -82,7 +82,8 @@ public class FrontApp
         {
             SwingUtilities.invokeAndWait(() ->
             {
-                mainApp = new HomeFrame(siteConfig, controller, true);
+                mainApp = new HomeFrame(siteConfig, controller);
+                mainApp.Display();
             });
         } catch (InterruptedException e)
         {

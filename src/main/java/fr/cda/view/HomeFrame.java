@@ -1,6 +1,7 @@
 package fr.cda.view;
 
 import fr.cda.controller.DatabaseConnectionEvent;
+import fr.cda.controller.DatabaseOperationEndedEvent;
 import fr.cda.controller.GUIController;
 import fr.cda.event.IEventListener;
 import fr.cda.model.OperationResult;
@@ -18,6 +19,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
 
+import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.Arrays;
 
@@ -32,8 +34,7 @@ public final class HomeFrame extends SwingFrame
 
     private JButton buttonShowStorage;
     private JButton buttonShowOrder;
-    private JButton buttonCreateNewProduct;
-    private JButton buttonCreateNewOrder;
+    private JButton buttonCreateNewItem;
     private JButton buttonMakeDeliveries;
     private JButton buttonComputeProfit;
     private JButton buttonSendMailData;
@@ -41,16 +42,52 @@ public final class HomeFrame extends SwingFrame
 
     private static final int PANEL_BORDER_SIZE = 10;
 
-    IEventListener<DatabaseConnectionEvent> databaseConnectionEventListener =res ->
-    {
-        ShowMessage(res.message());
-    };
+    IEventListener<DatabaseConnectionEvent> databaseConnectionEventListener = this::OnDatabaseConnectionEvent;
+    IEventListener<DatabaseOperationEndedEvent> databaseOperationEndedEventListener = this::OnDatabaseOperationEnded;
 
-    public HomeFrame(SwingViewConfig config, GUIController controller, boolean autoShow)
+    public HomeFrame(SwingViewConfig config, GUIController controller)
     {
-        super(config, controller, autoShow);
+        super(config, controller);
 
         controller.eventBus.Subscribe(DatabaseConnectionEvent.class, databaseConnectionEventListener);
+        controller.eventBus.Subscribe(DatabaseOperationEndedEvent.class, databaseOperationEndedEventListener);
+    }
+
+    private void OnAddItemButton(ActionEvent e)
+    {
+        if (dataList.isEmpty())
+            return;
+
+        LoggerHelper.log.info("TRIGGER HomeFrame::OnAddItemButton");
+        Object item = dataList.getElementAt(0);
+        if (item instanceof Product)
+        {
+            OpenCreateNewProductDialog();
+        }
+        else if (item instanceof Order)
+        {
+            OpenCreateNewOrderDialog();
+        }
+    }
+
+    private void OpenCreateNewOrderDialog()
+    {
+        //todo
+    }
+
+    private void OpenCreateNewProductDialog()
+    {
+        SwingViewConfig config = new SwingViewConfig("Add new Product", 600, 400);
+        CreateProductDialog createProductDialog = new CreateProductDialog(config, controller, frame, this::OnNewProductCreated);
+        createProductDialog.Display();
+    }
+
+    private void OnNewProductCreated( OperationResult<Product> result)
+    {
+        if (result.HasSucceeded())
+        {
+            dataList.addElement(result.getData());
+        }
     }
 
     /**
@@ -83,8 +120,6 @@ public final class HomeFrame extends SwingFrame
      */
     private JPanel CreateCenterPanel()
     {
-        LoggerHelper.log.info("START Initialisation of the Main App named : {}", frame.getTitle());
-
         JPanel northPanel = CreateListAndDescriptionPanel();
 
         JPanel southPanel = CreateInfoArea();
@@ -126,6 +161,14 @@ public final class HomeFrame extends SwingFrame
      */
     private JPanel CreateListAndDescriptionPanel()
     {
+        buttonCreateNewItem = new JButton("+");
+        buttonCreateNewItem.setToolTipText("Create New Item");
+        buttonCreateNewItem.setVisible(false);
+        buttonCreateNewItem.addActionListener(this::OnAddItemButton);
+
+        JPanel westPanel = new JPanel(new BorderLayout());
+        westPanel.add(buttonCreateNewItem, BorderLayout.NORTH);
+
         dataList = new DefaultListModel<>();
         dataListView = new JList<>(dataList);
         dataListView.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -133,6 +176,7 @@ public final class HomeFrame extends SwingFrame
         dataListView.addListSelectionListener(this::OnDataListSelectionChanged);
 
         JScrollPane scrollList = new JScrollPane(dataListView);
+        westPanel.add(scrollList, BorderLayout.CENTER);
 
         // Détails du produit
         detailArea = SwingHelper.CreateNonEditableTextArea();
@@ -141,7 +185,7 @@ public final class HomeFrame extends SwingFrame
 
 
         final int DIVIDER_LOCATION_PARAM = 100;
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollList, scrollDetails);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, westPanel, scrollDetails);
         splitPane.setDividerLocation(DIVIDER_LOCATION_PARAM);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -171,7 +215,7 @@ public final class HomeFrame extends SwingFrame
         buttonShowOrder.addActionListener(e ->controller.ReadAllOrder(this::ReadAllOrderCallback));
 
         buttonMakeDeliveries = new JButton("Make deliveries");
-        //buttonMakeDeliveries.addActionListener(e -> controller);
+        buttonMakeDeliveries.addActionListener(e -> controller.MakeAllDeliveries(this::ReadAllOrderCallback));
 
         buttonComputeProfit = new JButton("Compute profit");
         buttonSendMailData = new JButton("Send data to mail");
@@ -191,7 +235,6 @@ public final class HomeFrame extends SwingFrame
 
     private void ReadAllProductCallback(final OperationResult<Product[]> result)
     {
-        ShowMessage(result.getMessage());
         if (!result.HasSucceeded() || result.getData().length == 0)
             return;
 
@@ -200,7 +243,6 @@ public final class HomeFrame extends SwingFrame
 
     private void ReadAllOrderCallback(final OperationResult<Order[]> result)
     {
-        ShowMessage(result.getMessage());
         if (!result.HasSucceeded() || result.getData().length == 0)
             return;
 
@@ -210,8 +252,11 @@ public final class HomeFrame extends SwingFrame
     private <T> void DisplayDataListView(T[] result)
     {
         dataList.clear();
+        dataList.ensureCapacity(result.length);
         dataList.addAll(Arrays.asList(result));
         dataListView.setSelectionInterval(0, dataList.getSize() - 1);
+
+        SetAddItemButtonVisibility(dataList.getSize() > 0);
     }
 
     private void OnDataListSelectionChanged(final ListSelectionEvent event)
@@ -245,18 +290,27 @@ public final class HomeFrame extends SwingFrame
     {
         StringBuilder builder = new StringBuilder();
         final String CHANGE_LINE = "\n";
-        final String END_ORDER = "--------------------------\n\n";
+        final String TABULATION = "\t";
+        final String END_ORDER = "\n------------------------------------------------\n\n";
         for (Order order : selected)
         {
             builder.append("Order Number : ").append(order.getId().id()).append(CHANGE_LINE)
                     .append("Date : ").append(order.getCreationDate()).append(CHANGE_LINE)
-                    .append("Client : ").append(order.getClientName()).append(CHANGE_LINE);
+                    .append("Client : ").append(order.getClientName()).append(CHANGE_LINE)
+                    .append("Ref Products : ").append(CHANGE_LINE);
 
             for (OrderDetail product : order.getOrderedProduct())
             {
-                builder.append(product.productID().id())
-                        .append(" : ").append(product.productQuantity()).append(CHANGE_LINE);
+                builder.append(TABULATION)
+                        .append(product.productID().id())
+                        .append(" : ").append(product.productQuantity())
+                        .append(CHANGE_LINE);
             }
+            builder.append("Status : ").append(order.isDelivered() ? "Delivered" : "Not delivered").append(CHANGE_LINE);
+            if (!order.isDelivered())
+                builder.append("Non delivered explanation :").append(CHANGE_LINE)
+                        .append(order.getNonDeliveredExplanation()).append(CHANGE_LINE);
+
             builder.append(END_ORDER);
         }
         detailArea.setText(builder.toString());
@@ -320,4 +374,25 @@ public final class HomeFrame extends SwingFrame
           String.valueOf(product.getStoredQuantity())
         };
     }
+
+    private void SetAddItemButtonVisibility(final boolean newVisibilityLevel)
+    {
+        if (buttonCreateNewItem != null && buttonCreateNewItem.isVisible() != newVisibilityLevel)
+        {
+            buttonCreateNewItem.setVisible(newVisibilityLevel);
+            buttonCreateNewItem.getParent().revalidate(); //Recompute the size of the parent
+            buttonCreateNewItem.getParent().repaint(); //Redraw the parent
+        }
+    }
+
+    private void OnDatabaseConnectionEvent(final DatabaseConnectionEvent databaseConnectionEvent)
+    {
+        ShowMessage(databaseConnectionEvent.message());
+    }
+
+    private void OnDatabaseOperationEnded(final DatabaseOperationEndedEvent event)
+    {
+        ShowMessage(event.message());
+    }
+
 }

@@ -9,7 +9,7 @@ public abstract class SwingFrame extends SwingView
 {
     protected JFrame frame;
 
-    public SwingFrame(SwingViewConfig config, GUIController controller, boolean autoShow)
+    public SwingFrame(SwingViewConfig config, GUIController controller)
     {
         super(config, controller);
         LoggerHelper.log.info("Creation of a new MainScreen named : {}", config.getTitle());
@@ -20,13 +20,22 @@ public abstract class SwingFrame extends SwingView
         frame.setLocationRelativeTo(null);
 
         Init();
-        AutoShow(autoShow);
     }
 
     /**
      * A method called internally in the constructor to generate the interface
      */
     protected abstract void Init();
+
+    @Override
+    protected void InternalClose()
+    {
+        if (frame != null)
+        {
+            LoggerHelper.log.info("Closing Frame named: {}", frame.getTitle());
+            frame.dispose();
+        }
+    }
 
     /**
      * Implementation of ISwingInterface used to show the interface on screen

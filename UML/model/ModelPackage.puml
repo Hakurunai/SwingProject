@@ -110,11 +110,13 @@ package model
         - ExtractFromFileAndInsertOrder(line : String)
         - ExtractFromFileAndInsertProduct(line : String)
 
+        - ReadProductInternal(id : ID) : OperationResult<Product>
         - SplitProductID(productId : ID) : OperationResult<String[]>
         - ExtractProductCategoryFromID(readedID) : OperationResult<Category>
         - CheckIfProductCategoryExist(category) : OperationResult<Void>
         - UpdateOrderIdGenerator(orderID : ID)
 
+        - ReadOrderInternal(id : ID) : OperationResult<Order>
         - CheckIfOrderIsDoable(order) : boolean
         - FulfillOrder(order)
         - SetNonDoableOrderReason(order)

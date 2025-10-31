@@ -6,15 +6,18 @@ public class SwingViewConfig
     private int width;
     private int height;
 
+    public SwingViewConfig(final String title, final int width, final int height)
+    {
+        this.title = title;
+        this.width = width;
+        this.height = height;
+    }
+
     public static final SwingViewConfig DEFAULT;
 
     static
     {
-        SwingViewConfig conf = new SwingViewConfig();
-        conf.title = "defaultName";
-        conf.width = 1066;
-        conf.height = 600;
-        DEFAULT = conf;
+        DEFAULT = new SwingViewConfig("defaultName", 1066, 600);
     }
 
     public String getTitle()

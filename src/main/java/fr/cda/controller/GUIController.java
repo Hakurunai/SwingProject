@@ -4,7 +4,6 @@ import fr.cda.event.EventBus;
 import fr.cda.model.*;
 import fr.cda.view.swing.async.SwingAsyncQueue;
 import fr.cda.util.LoggerHelper;
-import jdk.dynalink.Operation;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -42,7 +41,7 @@ public class GUIController
 
         swingAsyncQueue.SubmitAsyncOperation(
                 () -> appController.CreateNewProduct(data),
-                callback);
+                DatabaseOperationCallbackWrapper(callback));
     }
 
     /**
@@ -58,7 +57,7 @@ public class GUIController
 
         swingAsyncQueue.SubmitAsyncOperation(
                 () -> appController.CreateNewProductCategory(category),
-                callback);
+                DatabaseOperationCallbackWrapper(callback));
     }
 
     /**
@@ -74,7 +73,7 @@ public class GUIController
 
         swingAsyncQueue.SubmitAsyncOperation(
                 () -> appController.ReadProduct(id),
-                callback);
+                DatabaseOperationCallbackWrapper(callback));
     }
 
     /**
@@ -89,7 +88,22 @@ public class GUIController
 
         swingAsyncQueue.SubmitAsyncOperation(
                 () -> appController.ReadAllProduct(),
-                callback);
+                DatabaseOperationCallbackWrapper(callback));
+    }
+
+
+    /**
+     * Retrieve all the categories already inserted in the database
+     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
+     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
+     */
+    public void ReadAllProductCategory(final Consumer<OperationResult<Category[]>> callback) throws DatabaseConnectionException
+    {
+        VerifyConnection();
+
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.ReadAllProductCategories(),
+                DatabaseOperationCallbackWrapper(callback));
     }
 
     /**
@@ -105,7 +119,7 @@ public class GUIController
 
         swingAsyncQueue.SubmitAsyncOperation(
                 () -> appController.UpdateProduct(product),
-                callback);
+                DatabaseOperationCallbackWrapper(callback));
     }
 
     /**
@@ -121,7 +135,7 @@ public class GUIController
 
         swingAsyncQueue.SubmitAsyncOperation(
                 () -> appController.DeleteProduct(id),
-                callback);
+                DatabaseOperationCallbackWrapper(callback));
     }
     //endregion Product_Crud
 
@@ -170,7 +184,7 @@ public class GUIController
 
         swingAsyncQueue.SubmitAsyncOperation(
                 () -> appController.ReadAllOrder(),
-                callback);
+                DatabaseOperationCallbackWrapper(callback));
     }
 
     /**
@@ -258,13 +272,13 @@ public class GUIController
      * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
      * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
      */
-    public void MakeDeliveries(final Consumer<OperationResult<Order[]>> callback) throws DatabaseConnectionException
+    public void MakeAllDeliveries(final Consumer<OperationResult<Order[]>> callback) throws DatabaseConnectionException
     {
         VerifyConnection();
 
         swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.ReadAllOrder(),
-                callback);
+                () -> appController.MakeAllDeliveries(),
+                DatabaseOperationCallbackWrapper(callback));
     }
 
     /**
@@ -279,7 +293,7 @@ public class GUIController
 
         swingAsyncQueue.SubmitAsyncOperation(
                 () -> appController.SendDeliveredOrderByMail(),
-                callback);
+                DatabaseOperationCallbackWrapper(callback));
     }
 
     /**
@@ -294,7 +308,7 @@ public class GUIController
 
         swingAsyncQueue.SubmitAsyncOperation(
                 () -> appController.SaveBackViaFTP(),
-                callback);
+                DatabaseOperationCallbackWrapper(callback));
     }
     //endregion PUBLIC_METHODS
 
@@ -308,6 +322,21 @@ public class GUIController
     {
         if (!IsConnected().HasSucceeded())
             throw new DatabaseConnectionException("App Controller is not connected");
+    }
+
+    /**
+     * This method decorate the original callback passed in parameter to publish an event with the message of the {@link OperationResult}
+     * @param callBack The callback you want to decorate with
+     * @return A wrapped callback doing an extra step : Publishing a {@link DatabaseOperationEndedEvent} on the {{@link #eventBus}}
+     * @param <T> The data possibly contained in the {@link OperationResult}
+     */
+    private <T> Consumer<OperationResult<T>> DatabaseOperationCallbackWrapper(final Consumer<OperationResult<T>> callBack)
+    {
+        return result ->
+        {
+            eventBus.Publish(new DatabaseOperationEndedEvent(result.getMessage()));
+            callBack.accept(result);
+        };
     }
     //endregion PRIVATE_METHODS
 }

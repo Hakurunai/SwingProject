@@ -15,9 +15,16 @@ public abstract class SwingView implements ISwingInterface
 
     protected abstract void Init();
 
-    protected void AutoShow(final boolean autoShow)
+    /**
+     * Generic method to close the window
+     */
+    public void Close()
     {
-        if (autoShow)
-            Display();
+        InternalClose();
     }
+
+    /**
+     * Internal method to implement, called by {@link #Close()}
+     */
+    protected abstract void InternalClose();
 }

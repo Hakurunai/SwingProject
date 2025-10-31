@@ -18,9 +18,9 @@ public class Database
     private final String ORDER_FILE = "Commandes.txt";
     private final String PRODUCT_FILE = "Produits.txt";
 
-    private static final String ERROR_ID_ALREADY_EXISTING = "The ID used is already present in the database";
-    private static final String ERROR_UNKNOWN_ID = "The ID used is unknown from the database";
-    private static final String ERROR_UNKNOWN_PRODUCT_CATEGORY = "The Category used is unknown from the database";
+    private static final String ERROR_ID_ALREADY_EXISTING = "ERROR : The ID used is already present in the database";
+    private static final String ERROR_UNKNOWN_ID = "ERROR : The ID used is unknown from the database";
+    private static final String ERROR_UNKNOWN_PRODUCT_CATEGORY = "ERROR : The Category used is unknown from the database";
 
 
     private final Map<Category, ProductCategoryMap> productMap;
@@ -86,7 +86,8 @@ public class Database
         Product newProduct = new Product(newProductID, product.getName(), CATEGORY, product.getPrice(), product.getStoredQuantity());
         productMap.get(CATEGORY).getProductMap().put(newProductID, newProduct);
 
-        return OperationResult.SUCCESS(newProduct.getId(), "Creation of a new product has been done successfully");
+        return OperationResult.SUCCESS(newProduct.getId(), "SUCCESS : Creation of a new product has been done successfully"
+                                                                    + newProductID.id());
     }
 
     /**
@@ -96,38 +97,34 @@ public class Database
      */
     public OperationResult<Void> CreateNewProductCategory(final Category category)
     {
-        OperationResult<Void> checkCategoryResult = CheckIfProductCategoryExist(category);
-        if (checkCategoryResult.HasSucceeded())
-            return OperationResult.FAILURE("The category is already present in the database : " + category.categoryName());
+        Category internalCat = new Category(category.categoryName().toUpperCase());
 
-        productMap.put(category, new ProductCategoryMap());
-        return OperationResult.SUCCESS("Creation of a new category has been done successfully : " + category.categoryName());
+        OperationResult<Void> checkCategoryResult = CheckIfProductCategoryExist(internalCat);
+        if (checkCategoryResult.HasSucceeded())
+            return OperationResult.FAILURE("ERROR : The category is already present in the database : " + internalCat.categoryName());
+
+        productMap.put(internalCat, new ProductCategoryMap());
+        return OperationResult.SUCCESS("SUCCESS : Creation of a new category has been done successfully : " + internalCat.categoryName());
     }
 
+
     /**
-     * Read the data of a specific {@link Product} own internally
+     * Read the data of a specific {@link Product} own internally and return a COPY of it
      * @param productId The {@link ID} to find the correct {@link Product}
-     * @return An {@link OperationResult} with the complete {@link Product} targeted
+     * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     *      * and, in case of success, containing a COPY of the {@link Product} targeted
      */
     public OperationResult<Product> ReadProduct(final ID productId)
     {
-        final var CATEGORY_OPERATION = ExtractProductCategoryFromID(productId);
-        if (!CATEGORY_OPERATION.HasSucceeded())
-            return OperationResult.FAILURE(CATEGORY_OPERATION.getMessage());
+        final var INTERNAL_READ_OPERATION = ReadProductInternal(productId);
 
+        //Return a copy of the reference
+        if (INTERNAL_READ_OPERATION.HasSucceeded())
+            return OperationResult.SUCCESS(new Product(INTERNAL_READ_OPERATION.getData()), INTERNAL_READ_OPERATION.getMessage());
 
-        final Category CATEGORY = CATEGORY_OPERATION.getData();
-        final OperationResult<Void> CHECK_CATEGORY_RESULT = CheckIfProductCategoryExist(CATEGORY);
-        if (!CHECK_CATEGORY_RESULT.HasSucceeded())
-            return OperationResult.FAILURE(CHECK_CATEGORY_RESULT.getMessage());
-
-
-        if (!productMap.get(CATEGORY).getProductMap().containsKey(productId))
-            return OperationResult.FAILURE(ERROR_UNKNOWN_ID + " : " + productId.id());
-
-
-        return OperationResult.SUCCESS(new Product(productMap.get(CATEGORY).getProductMap().get(productId)),
-                                                        "Found Product in database");
+        //No risk, INTERNAL_READ_OPERATION.getData() already return null
+        else
+            return INTERNAL_READ_OPERATION;
     }
 
     /**
@@ -147,7 +144,17 @@ public class Database
         }
 
         return OperationResult.SUCCESS(allProducts.toArray(Product[]::new),
-                "SUCCESS : read all Product from database");
+                "SUCCESS : Read all Product from database");
+    }
+
+    /**
+     * Retrieve all the categories already inserted in the database
+     * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     * and containing, in case of success, an array of {@link Category} corresponding to all the categories in the database
+     */
+    public OperationResult<Category[]> ReadAllProductCategories()
+    {
+        return OperationResult.SUCCESS(productMap.keySet().toArray(Category[]::new), "SUCCESS : Read all Categories from database");
     }
 
     /**
@@ -164,7 +171,7 @@ public class Database
 
         Product internalCopy = new Product(product);
         productMap.get(product.getCategory()).getProductMap().put(product.getId(), internalCopy);
-        return OperationResult.SUCCESS("SUCCESS : update of a Product. ID : " + product.getId());
+        return OperationResult.SUCCESS("SUCCESS : Update of a Product. ID : " + product.getId().id());
     }
 
     /**
@@ -180,7 +187,7 @@ public class Database
 
         Product copy = checkIfProductExist.getData();
         productMap.get(copy.getCategory()).getProductMap().remove(copy.getId());
-        return OperationResult.SUCCESS("SUCCESS : deletion of a Product. ID : " + copy.getId());
+        return OperationResult.SUCCESS("SUCCESS : Deletion of a Product. ID : " + copy.getId().id());
     }
     //endregion Product_Crud
 
@@ -194,27 +201,34 @@ public class Database
     {
         final ID newProductID = new ID(orderIDGenerator.GetNextIdAsString());
 
-        var internalData = ReadOrder(newProductID);
+        var internalData = ReadOrderInternal(newProductID);
         if (internalData.HasSucceeded())
-            return OperationResult.FAILURE("New generated ID is already in Database : " + newProductID.id());
+            return OperationResult.FAILURE("ERROR : New generated ID is already in Database : " + newProductID.id());
 
         Order newOrder = new Order(newProductID, LocalDate.now(), order.getClientName(), order.getOrderedProduct());
         orderMap.put(newProductID, newOrder);
 
-        return OperationResult.SUCCESS(newOrder.getId(), "Creation of a new order has been done successfully");
+        return OperationResult.SUCCESS(newOrder.getId(), "SUCCESS : Creation of a new order has been done successfully, ID : "
+                                                            +  newProductID.id());
     }
 
     /**
-     * Read the data of an internal {@link Order}
+     * Read the data of an internal {@link Order} adn return a COPY of it
      * @param orderId The {@link ID} of the targeted Order
-     * @return An {@link OperationResult} containing in case of success a copy of the internal {@link Order}
+     * @return An {@link OperationResult} able to tell you if the deletion was a success using {@link OperationResult#HasSucceeded()}
+     * and containing, in case of success, a COPY of the internal {@link Order}
      */
     public OperationResult<Order> ReadOrder(final ID orderId)
     {
-        if (!orderMap.containsKey(orderId))
-            return OperationResult.FAILURE(ERROR_UNKNOWN_ID + " : " + orderId.id());
+        var INTERNAL_READ_OPERATION = ReadOrderInternal(orderId);
 
-        return OperationResult.SUCCESS(new Order(orderMap.get(orderId)), "Found order in Database");
+        //Return a copy of the reference
+        if (INTERNAL_READ_OPERATION.HasSucceeded())
+            return OperationResult.SUCCESS(new Order(INTERNAL_READ_OPERATION.getData()), INTERNAL_READ_OPERATION.getMessage());
+
+        //No risk, INTERNAL_READ_OPERATION.getData() already return null
+        else
+            return INTERNAL_READ_OPERATION;
     }
 
     /**
@@ -229,7 +243,7 @@ public class Database
         {
             allOrders.add(new Order(order));
         }
-        return OperationResult.SUCCESS(allOrders.toArray(Order[]::new), "SUCCESS : read all Order from databases");
+        return OperationResult.SUCCESS(allOrders.toArray(Order[]::new), "SUCCESS : Read all Order from databases");
     }
 
     /**
@@ -245,7 +259,7 @@ public class Database
 
         Order internalCopy = new Order(order);
         orderMap.put(order.getId(), internalCopy);
-        return OperationResult.SUCCESS("SUCCESS : update of an Order. ID : " + order.getId());
+        return OperationResult.SUCCESS("SUCCESS : Update of an Order completed. ID : " + order.getId().id());
     }
 
     /**
@@ -255,13 +269,13 @@ public class Database
      */
     public OperationResult<Void> DeleteOrder(final ID orderId)
     {
-        OperationResult<Order> checkIfOrderExist = ReadOrder(orderId);
+        OperationResult<Order> checkIfOrderExist = ReadOrderInternal(orderId);
         if (!checkIfOrderExist.HasSucceeded())
             return OperationResult.FAILURE(checkIfOrderExist.getMessage());
 
-        Order copy = checkIfOrderExist.getData();
-        orderMap.remove(copy.getId());
-        return OperationResult.SUCCESS("SUCCESS : deletion of a Product. ID : " + orderId.id());
+        Order internalOrder = checkIfOrderExist.getData();
+        orderMap.remove(internalOrder.getId());
+        return OperationResult.SUCCESS("SUCCESS : Deletion of a Product. ID : " + orderId.id());
     }
     //endregion Order_Crud
     //endregion CRUD_OPERATION
@@ -273,10 +287,10 @@ public class Database
      */
     public OperationResult<Order[]> MakeAllDeliveries()
     {
-        var orders = orderMap.values();
+        final List<Order> internalOrders = orderMap.values().stream().filter(order -> !order.isDelivered()).toList();
         List<Order> impossibleOrderToFulfill = new ArrayList<>();
 
-        for (Order order : orders)
+        for (Order order : internalOrders)
         {
             if (CheckIfOrderIsDoable(order))
                 FulfillOrder(order);
@@ -301,7 +315,7 @@ public class Database
      */
     private void Init()
     {
-        LoggerHelper.log.info("Start initialization of the Database");
+        LoggerHelper.log.info("START : initialization of the Database");
         InitProduct();
         InitOrder();
     }
@@ -311,7 +325,7 @@ public class Database
      */
     private void InitOrder()
     {
-        LoggerHelper.log.info("Start initialization of Order in the database");
+        LoggerHelper.log.info("START : initialization of Order in the database");
         try
         {
             final String[] DATA = CSVHelper.ReadCsvFile(Config.DB_ORDER_FILE_PATH);
@@ -343,7 +357,7 @@ public class Database
         String[] dataContent = line.split(";");
         ID orderID = new ID(dataContent[0]);
 
-        var readRes = ReadOrder(orderID);
+        var readRes = ReadOrderInternal(orderID);
         if (readRes.HasSucceeded())
         {
             LoggerHelper.log.warn("CHECK : You tried to initialize an already existing Order in the database" + orderID.id());
@@ -367,7 +381,7 @@ public class Database
      */
     private void InitProduct()
     {
-        LoggerHelper.log.info("Start initialization of Product in the database");
+        LoggerHelper.log.info("START : initialization of Product in the database");
         try
         {
             final String[] DATA = CSVHelper.ReadCsvFile(Config.DB_PRODUCT_FILE_PATH);
@@ -412,7 +426,7 @@ public class Database
         }
         else
         {
-            var resProd = ReadProduct(readedID);
+            var resProd = ReadProductInternal(readedID);
             if (resProd.HasSucceeded())
             {
                 LoggerHelper.log.warn("CHECK : You tried to initialize an already existing Product in the database. ID : "
@@ -431,6 +445,33 @@ public class Database
     //endregion INIT
 
     //region Product_Methods
+    /**
+     * Read the data of a specific {@link Product} own internally and return a REFERENCE to it
+     * @param productId The {@link ID} to find the correct {@link Product}
+     * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     * and, in case of success, containing a REFERENCE of the {@link Product} targeted
+     */
+    private OperationResult<Product> ReadProductInternal(final ID productId)
+    {
+        final var CATEGORY_OPERATION = ExtractProductCategoryFromID(productId);
+        if (!CATEGORY_OPERATION.HasSucceeded())
+            return OperationResult.FAILURE(CATEGORY_OPERATION.getMessage());
+
+
+        final Category CATEGORY = CATEGORY_OPERATION.getData();
+        final OperationResult<Void> CHECK_CATEGORY_RESULT = CheckIfProductCategoryExist(CATEGORY);
+        if (!CHECK_CATEGORY_RESULT.HasSucceeded())
+            return OperationResult.FAILURE(CHECK_CATEGORY_RESULT.getMessage());
+
+
+        if (!productMap.get(CATEGORY).getProductMap().containsKey(productId))
+            return OperationResult.FAILURE(ERROR_UNKNOWN_ID + " : " + productId.id());
+
+
+        return OperationResult.SUCCESS(productMap.get(CATEGORY).getProductMap().get(productId),
+                "SUCCESS : Product found in database. ID : " + productId.id());
+    }
+
 
     /**
      * Used to split an id From a product in his two parts : CategoryName and a Number
@@ -444,13 +485,13 @@ public class Database
 
         if (idSplit.length != 2)
         {
-            final String SPLIT_FAIL = "The ID of the product seems to be malformed. " +
+            final String SPLIT_FAIL = "ERROR : The ID of the product seems to be malformed. " +
                                               "Impossible to extract a category and a number from it. " +
                                               "ID value : " + productId.id();
             return OperationResult.FAILURE(SPLIT_FAIL);
         }
 
-        return OperationResult.SUCCESS(idSplit, "Product ID was correctly split");
+        return OperationResult.SUCCESS(idSplit, "SUCCESS : Product ID was correctly split. ID : " + productId.id());
     }
 
     /**
@@ -466,7 +507,7 @@ public class Database
             return OperationResult.FAILURE(SPLIT_OPERATION.getMessage());
 
         String[] splitedId = SPLIT_OPERATION.getData();
-        return OperationResult.SUCCESS(new Category(splitedId[0]), "Category extracted");
+        return OperationResult.SUCCESS(new Category(splitedId[0]), "SUCCESS : Category extracted from ID : " +  readedID.id());
     }
 
     /**
@@ -479,7 +520,7 @@ public class Database
         if (!productMap.containsKey(category))
             return OperationResult.FAILURE(ERROR_UNKNOWN_PRODUCT_CATEGORY + " : " + category.categoryName());
 
-        return OperationResult.SUCCESS("Category exist in database");
+        return OperationResult.SUCCESS("SUCCESS : Category found in database. Category : " + category.categoryName());
     }
 
     /**
@@ -500,15 +541,32 @@ public class Database
 
     //region Order_Methods
     /**
+     * Read the data of an internal {@link Order} and return a REFERENCE of it
+     * @param orderId The {@link ID} of the targeted Order
+     * @return An {@link OperationResult} able to tell you if the deletion was a success using {@link OperationResult#HasSucceeded()}
+     * and containing, in case of success, a REFERENCE of the internal {@link Order}
+     */
+    public OperationResult<Order> ReadOrderInternal(final ID orderId)
+    {
+        if (!orderMap.containsKey(orderId))
+            return OperationResult.FAILURE(ERROR_UNKNOWN_ID + " : " + orderId.id());
+
+        return OperationResult.SUCCESS(orderMap.get(orderId), "SUCCESS : Order found in Database. ID :  " + orderId.id());
+    }
+
+    /**
      * Return true if the storage is in capacity to provide an {@link Order} with all the desired content
      * @param order The {@link Order} you want to check
      * @return True if the storage has enough of each desired {@link Product}, false otherwise
      */
     private boolean CheckIfOrderIsDoable(final Order order)
     {
+        if (order.isDelivered())
+            return false;
+
         for (OrderDetail detail : order.getOrderedProduct())
         {
-            OperationResult<Product> res = ReadProduct(detail.productID());
+            OperationResult<Product> res = ReadProductInternal(detail.productID());
             if (!res.HasSucceeded())
                 return false;
 
@@ -526,7 +584,7 @@ public class Database
     {
         for (OrderDetail detail : order.getOrderedProduct())
         {
-            Product product = ReadProduct(detail.productID()).getData();
+            Product product = ReadProductInternal(detail.productID()).getData();
             product.setStoredQuantity(product.getStoredQuantity() - detail.productQuantity());
         }
         order.UpdateToDeliveredStatus();
@@ -543,7 +601,7 @@ public class Database
 
         for (OrderDetail detail : order.getOrderedProduct())
         {
-            OperationResult<Product> res = ReadProduct(detail.productID());
+            OperationResult<Product> res = ReadProductInternal(detail.productID());
             if (!res.HasSucceeded())
             {
                 builder.append(res.getMessage()).append("\n");
@@ -556,7 +614,7 @@ public class Database
                 final int MISSING_QUANTITY = detail.productQuantity() - product.getStoredQuantity();
                 builder.append(MISSING_QUANTITY)
                         .append(" ").append(detail.productID().id())
-                        .append(" are missing from our storage\n");
+                        .append(" are missing\n");
             }
         }
         order.UpdateToNonDeliveredStatus(builder.toString());
@@ -581,7 +639,7 @@ public class Database
             productDetail = orderContent.get(i).split("=");
             ID productID = new ID(productDetail[0]);
 
-            if (!ReadProduct(productID).HasSucceeded())
+            if (!ReadProductInternal(productID).HasSucceeded())
             {
                 LoggerHelper.log.warn("You are trying to initialize an Order from the file with an unknown Product ID." +
                                               "Order ID targeted : " + orderID.id());

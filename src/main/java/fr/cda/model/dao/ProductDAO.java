@@ -48,6 +48,16 @@ public class ProductDAO extends DAO<Product>
     }
 
     /**
+     * Retrieve all the categories already inserted in the database
+     * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     * and containing, in case of success, an array of {@link Category} corresponding to all the categories in the database
+     */
+    public OperationResult<Category[]> ReadAllProductCategories()
+    {
+        return database.ReadAllProductCategories();
+    }
+
+    /**
      * Specialisation to update a {@link Product}
      * @param data A {@link Product} containing the updated values AND the {@link ID} of the targeted object
      * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
