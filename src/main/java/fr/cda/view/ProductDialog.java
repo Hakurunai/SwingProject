@@ -2,26 +2,20 @@ package fr.cda.view;
 
 import fr.cda.controller.GUIController;
 import fr.cda.model.Category;
-import fr.cda.model.ID;
 import fr.cda.model.OperationResult;
 import fr.cda.model.Product;
 import fr.cda.util.LoggerHelper;
-import fr.cda.view.swing.SwingDialog;
 import fr.cda.view.swing.SwingViewConfig;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.util.Arrays;
 import java.util.function.Consumer;
 
 /**
  * A model shared between class who need to work with the different value of a {@link Product}
  */
-public abstract class ProductDialog extends SwingDialog
+public abstract class ProductDialog extends DataDialog<Product>
 {
-    protected final Consumer<OperationResult<Product>> OnDialogAchieveTask;
-
     static final Dimension TEXT_DIMENSION = new Dimension(150, 22);
     static final Dimension NUMBER_DIMENSION = new Dimension(50, 22);
 
@@ -30,8 +24,7 @@ public abstract class ProductDialog extends SwingDialog
     protected JTextField newCategoryField;
     protected JTextField priceField;
     protected JTextField quantityField;
-    protected JButton validateButton;
-    protected JButton cancelButton;
+
 
     protected JCheckBox newCategoryCheck;
 
@@ -39,18 +32,15 @@ public abstract class ProductDialog extends SwingDialog
      * @param config     The initial configuration of the {@link JDialog}
      * @param controller Injection of the {@link GUIController}
      * @param frameOwner The {@link JFrame} owning the internal {@link JDialog}
-     * @param consumer   A {@link Consumer} who can be called by any child class if necessary
+     * @param onDialogAchieveTask   A {@link Consumer} called inside {@link DataDialog#DialogAchieveTask(OperationResult, Object)}
      */
     public ProductDialog(SwingViewConfig config, GUIController controller, JFrame frameOwner,
-                         Consumer<OperationResult<Product>> consumer)
+                         Consumer<OperationResult<Product>> onDialogAchieveTask)
     {
-        super(config, controller, frameOwner, true);
-        this.OnDialogAchieveTask = consumer;
+        super(config, controller, frameOwner, onDialogAchieveTask);
     }
 
-    /**
-     * Method called when the button Validate is pressed
-     */
+    @Override
     protected void OnValidateButton()
     {
         String name = nameField.getText().trim();
@@ -97,9 +87,12 @@ public abstract class ProductDialog extends SwingDialog
         }
     }
 
+
     @Override
     protected void Init()
     {
+        super.Init();
+
         LoggerHelper.log.info("START : initialisation of a ProductDialog window");
 
         //mainPanel
@@ -175,14 +168,9 @@ public abstract class ProductDialog extends SwingDialog
 
         //buttons
         JPanel buttonPanel = new JPanel();
-        validateButton = new JButton("Validate");
-        cancelButton = new JButton("Cancel");
         buttonPanel.add(validateButton);
         buttonPanel.add(cancelButton);
         mainPanel.add(buttonPanel);
-
-        cancelButton.addActionListener(e -> Close());
-        validateButton.addActionListener(e -> OnValidateButton());
 
         dialog.setContentPane(mainPanel);
     }
@@ -250,23 +238,4 @@ public abstract class ProductDialog extends SwingDialog
      */
     protected abstract void HandleProductActionOnDatabase(final String name, final Category category, final float priceRef,
                                                final int quantity);
-
-    /**
-     * Call to end this Dialog and call the callback given to her at her creation on the result of their work
-     * @param taskOperationRes A wrapper of the result from the {@link fr.cda.model.Database}
-     * @param toReturn The Product given to the callback {{@link #OnDialogAchieveTask}}
-     */
-    protected void DialogAchieveTask(final OperationResult<Void> taskOperationRes, final Product toReturn)
-    {
-        if (taskOperationRes.HasSucceeded())
-        {
-            OnDialogAchieveTask.accept(OperationResult.SUCCESS(toReturn, taskOperationRes.getMessage()));
-            Close();
-        }
-        else
-        {
-            JOptionPane.showMessageDialog(dialog, taskOperationRes.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
 }

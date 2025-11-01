@@ -257,6 +257,7 @@ public final class HomeFrame extends SwingFrame
      */
     private void OnRemoveItemButton(ActionEvent p_actionEvent)
     {
+        LoggerHelper.log.info("TRIGGER HomeFrame::OnRemoveItemButton");
         int result = JOptionPane.showConfirmDialog(
                 frame,
                 "Are you sure you want to delete this item ?",
@@ -552,7 +553,9 @@ public final class HomeFrame extends SwingFrame
      */
     private void OpenCreateNewOrderDialog()
     {
-        //todo : implement
+//        SwingViewConfig config = new SwingViewConfig("Add new Order", 500, 200);
+//        CreateOrderDialog createOrderDialog = new CreateOrderDialog(config, controller, frame, this::OnNewProductCreated);
+//        createOrderDialog.Display();
     }
 
     /**

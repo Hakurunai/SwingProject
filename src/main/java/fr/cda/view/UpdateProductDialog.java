@@ -17,13 +17,13 @@ public class UpdateProductDialog extends ProductDialog
      * @param config     The initial configuration of the {@link JDialog}
      * @param controller Injection of the {@link GUIController}
      * @param frameOwner The {@link JFrame} owning the internal {@link JDialog}
-     * @param consumer   A {@link Consumer} who can be called by any child class if necessary
+     * @param onDialogAchieveTask   A {@link Consumer} called inside {@link DataDialog#DialogAchieveTask(OperationResult, Object)}
      * @param productToUpdate   The {@link Product} this Dialog will update
      */
     public UpdateProductDialog(SwingViewConfig config, GUIController controller, JFrame frameOwner,
-                               Consumer<OperationResult<Product>> consumer, final Product productToUpdate)
+                               Consumer<OperationResult<Product>> onDialogAchieveTask, final Product productToUpdate)
     {
-        super(config, controller, frameOwner, consumer);
+        super(config, controller, frameOwner, onDialogAchieveTask);
         internalCopy = productToUpdate;
         InitField();
     }
