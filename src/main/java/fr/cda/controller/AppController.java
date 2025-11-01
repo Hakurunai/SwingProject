@@ -4,7 +4,10 @@ import fr.cda.model.*;
 import fr.cda.model.dao.OrderDAO;
 import fr.cda.model.dao.ProductDAO;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class AppController
@@ -28,6 +31,68 @@ public class AppController
     {
         //todo: implement
         return null;
+    }
+
+    public OperationResult<String> GenerateProfitFile()
+    {
+        OperationResult<Order[]> ordersOperation = orderDAO.ReadAllData();
+        if (!ordersOperation.HasSucceeded())
+        {
+            return OperationResult.FAILURE(ordersOperation.getMessage());
+        }
+
+        List<Order> orderDelivered = Arrays.stream(ordersOperation.getData())
+                                             .filter(Order::isDelivered)
+                                             .toList();
+
+        ArrayList<Float> orderProfit = new ArrayList<>();
+        orderProfit.ensureCapacity(orderDelivered.size());
+
+        StringBuilder builder = new StringBuilder();
+        for (Order order : orderDelivered)
+        {
+            builder.append(CollectOrderData(order, orderProfit));
+        }
+
+        float totalProfit = 0f;
+        for (Float value : orderProfit)
+        {
+            totalProfit += value;
+        }
+
+        builder.append("ENTIRE SUM : ").append(String.format("%.2f", totalProfit)).append("€\n");
+        return OperationResult.SUCCESS(builder.toString(), "SUCCESS : Completed computation of profit made");
+    }
+
+    private String CollectOrderData(final Order order, ArrayList<Float> orderProfit)
+    {
+        StringBuilder builder = new StringBuilder();
+        float profitOnOrder = 0f;
+
+        builder.append("ORDER NUMBER : ").append(order.getId().id()).append("\n");
+
+        for (OrderDetail detail : order.getOrderedProduct())
+        {
+            OperationResult<Product> readResTemp = productDAO.ReadData(detail.productID());
+            if (!readResTemp.HasSucceeded())
+                continue;
+
+            final Product product = readResTemp.getData();
+            final float profitOnDetail = detail.productQuantity() * readResTemp.getData().getPrice();
+
+            builder.append("\t").append(product.getName())
+                    .append("  ").append(detail.productQuantity())
+                    .append("  ").append(String.format("%.2f", product.getPrice()))
+                    .append("€").append("\n");
+
+
+            profitOnOrder += profitOnDetail;
+        }
+        builder.append("\n").append("Sum : ").append(String.format("%.2f", profitOnOrder)).append("€\n")
+                .append("=======================\n\n");
+
+        orderProfit.add(profitOnOrder);
+        return builder.toString();
     }
 
     /**

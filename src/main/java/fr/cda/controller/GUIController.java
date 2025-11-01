@@ -5,6 +5,7 @@ import fr.cda.model.*;
 import fr.cda.view.swing.async.SwingAsyncQueue;
 import fr.cda.util.LoggerHelper;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -143,7 +144,7 @@ public class GUIController
     /**
      * Action used to insert a new {@link Order} in the {@link Database}. A callback is then used on the {@link OperationResult}
      * returned by the {@link Database}
-     * @param data The {@link Order} you want to insert generated via {@link Order#GenerateOrderDTO(String, List)}
+     * @param data The {@link Order} you want to insert generated via {@link Order#GenerateOrderDTO(String, LocalDate, List)}
      * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
      * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
      */
@@ -221,6 +222,15 @@ public class GUIController
     //endregion Order_Crud
 
     //endregion CRUD_OPERATION
+
+    public void QueryProfitMade(final Consumer<OperationResult<String>> callback) throws DatabaseConnectionException
+    {
+        VerifyConnection();
+
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.GenerateProfitFile(),
+                callback);
+    }
 
     /**
      * Action used to get the {@link AppController} owned by the {@link BackApp}

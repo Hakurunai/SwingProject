@@ -4,10 +4,7 @@ import fr.cda.controller.DatabaseConnectionEvent;
 import fr.cda.controller.DatabaseOperationEndedEvent;
 import fr.cda.controller.GUIController;
 import fr.cda.event.IEventListener;
-import fr.cda.model.OperationResult;
-import fr.cda.model.Order;
-import fr.cda.model.OrderDetail;
-import fr.cda.model.Product;
+import fr.cda.model.*;
 import fr.cda.view.cellRenderer.ProductOrderListCellRenderer;
 import fr.cda.view.swing.SwingFrame;
 import fr.cda.util.LoggerHelper;
@@ -24,6 +21,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Map;
 
 
 public final class HomeFrame extends SwingFrame
@@ -209,6 +207,8 @@ public final class HomeFrame extends SwingFrame
         buttonMakeDeliveries.addActionListener(e -> controller.MakeAllDeliveries(this::ReadAllOrderCallback));
 
         buttonComputeProfit = new JButton("Compute profit");
+        buttonComputeProfit.addActionListener(this::OnComputeProfitButton);
+
         buttonSendMailData = new JButton("Send data to mail");
         buttonGenerateBackUp = new JButton("Generate back up");
 
@@ -223,6 +223,7 @@ public final class HomeFrame extends SwingFrame
 
         return panelButtons;
     }
+
     //endregion INIT_PHASE
 
     //region PRIVATE_METHODS
@@ -332,6 +333,33 @@ public final class HomeFrame extends SwingFrame
 
         OpenUpdateDialog(lastElementIndexSelectedByUserInDataListView);
     }
+
+    private void OnComputeProfitButton(ActionEvent p_actionEvent)
+    {
+        LoggerHelper.log.info("TRIGGER HomeFrame::OnComputeProfitButton");
+        dataList.clear();
+        detailArea.setText("");
+        SetButtonAddAndRemoveItemVisibility(false);
+        controller.QueryProfitMade(this::DisplayOrderProfitCallback);
+    }
+
+    /**
+     * Call when user press the button {@link #buttonComputeProfit}
+     * @param operationResult An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     * and, in case of success, containing an array of {@link Order} representing all the order in the {@link fr.cda.model.Database}
+     */
+    private void DisplayOrderProfitCallback(OperationResult<String> operationResult)
+    {
+        if (!operationResult.HasSucceeded())
+        {
+            JOptionPane.showMessageDialog(frame, "An error occured while trying to get the data from the database : "
+                    + operationResult.getMessage(), "Compute profit error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        detailArea.setText(operationResult.getData());
+    }
+
     //endregion Button_Event
 
     //region CRUD_Callback
