@@ -5,11 +5,9 @@
 !include ../Common.puml
 !include ViewPackage.puml
 
-remove model.dao
-remove model.idGenerator
-remove model.Database
+remove model
 
-remove util
+remove util.CSVHelper
 
 remove controller.AppController
 

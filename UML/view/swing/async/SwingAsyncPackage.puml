@@ -1,0 +1,21 @@
+!ifndef SWING_ASYNC__PUML
+!define SWING_ASYNC__PUML
+
+!include ../../../async/AsyncPackage.puml
+
+package view.swing.async
+{
+    class SwingAsyncQueue
+    {
+        + <<override>> SubmitAsyncOperation <T> ( operation : Supplier<T>, onOperationDone : Consumer<T>)
+    }
+
+    note right of SwingAsyncQueue::SubmitAsyncOperation
+        Wrap the Consumer with
+        SwingUtilities.invokeLater()
+    end note
+}
+
+view.swing.async.SwingAsyncQueue --|> async.AsyncQueue
+
+!endif

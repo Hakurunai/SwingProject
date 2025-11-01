@@ -2,7 +2,6 @@
 !define MODEL__PUML
 
 
-!include idGenerator/IdGeneratorPackage.puml
 !include dao/DAOPackage.puml
 
 
@@ -12,65 +11,123 @@
 
 package model
 {
+    record ID
+    {
+        + ID(id : String)
+    }
+
+    record Category
+    {
+        + Category(categoryName : String)
+    }
+
     class BackApp
     {
+        - database : Database
+        - appController : AppController
+        - hasAnActiveConnection : boolean
+
         + BackApp(database)
 
-        + IsAbleToReceiveNewConnection() : boolean
-        + RequestConnection(GUIController) : AppController
+        + HasNoActiveConnection() : boolean
+        + RequestConnection(GUIController) : OperationResult<AppController>
     }
 
     class Product
     {
-        - id : String
         - name : String
-        - category : String
         - price : float
         - storedQuantity : int
 
-        + Product(id, name, category, price)
-        + {static} GenerateProductDTO(name, category, price) : Product
+        + Product(id : ID, name, category : Category, price)
+        + Product(other : Product)
+        - Product(name, category : Category, price)
+        + {static} GenerateProductDTO(name, category : Category, price) : Product
     }
 
     class Order
     {
-        - id : String
         - creationDate : LocalDate
         - clientName : String
-        - orderedProduct : ArrayList<Product>
+        - orderedProduct : ArrayList<OrderDetail>
         - isDelivered : boolean
         - nonDeliveredExplanation : String
 
-        + Order(id, creationDate, clientName, orderedProduct)
+        + Order(id : ID, creationDate, clientName, orderedProduct)
+        + Order(other : Order)
+        - Order(creationDate, clientName, orderedProduct)
+
+        + UpdateToNonDeliveredStatus(explanation : String)
+        + UpdateToDeliveredStatus()
         + {static} GenerateOrderDTO(creationDate, clientName, orderedProduct) : Order
+    }
+
+    record OrderDetail
+    {
+        + OrderDetail(productID : ID, productQuantity : int)
+    }
+
+    class ProductCategoryMap
+    {
+        - categoryIDGenerator : DataIdGenerator
+        - productMap : Map<ID, Product>
+
+        + ProductCategoryMap()
+        + GetNextCategoryIdAsString() : String
+        + TryUpdateCategoryID(value : long)
     }
 
     class Database
     {
-        - productMap : Hashmap<String, Product>
-        - orderMap : Hashmap<String, Order>
+        - productMap : Hashmap<Category, Hashmap<ID, Product>>
+        - orderMap : Hashmap<ID, Order>
 
         - dataPath : String
 
-        - Init()
-
         + Database(dataPath : String)
 
-        + SaveProductToFile(orderPath : String) : OperationResult<String>
-        + SaveOrderToFile(orderPath : String) : OperationResult<String>
+        + SaveProductToFile(productPath : String) : OperationResult<Void>
+        + SaveOrderToFile(orderPath : String) : OperationResult<Void>
 
-        + CreateNewProduct(data : Product) : OperationResult<String>
-        + ReadProduct(id : String) : OperationResult<Product>
-        + ReadAllProduct() : OperationResult<ArrayList<Product>>
+        + CreateNewProduct(data : Product) : OperationResult<ID>
+        + CreateNewProductCategory(category : Category) OperationResult<Void>
+        + ReadProduct(id : ID) : OperationResult<Product>
+        + ReadAllProduct() : OperationResult<Product[]>
         + UpdateProduct(data : Product) OperationResult<Void>
-        + DeleteProduct(id : String) OperationResult<Void>
+        + DeleteProduct(id : ID) OperationResult<Void>
 
-        + CreateNewOrder(data : Order) : OperationResult<String>
-        + ReadOrder(id : String) : OperationResult<Order>
-        + ReadAllOrder() : OperationResult<ArrayList<Product>>
+        + CreateNewOrder(data : Order) : OperationResult<ID>
+        + ReadOrder(id : ID) : OperationResult<Order>
+        + ReadAllOrder() : OperationResult<Order[]>
         + UpdateOrder(data : Order) OperationResult<Void>
-        + DeleteOrder(id : String) OperationResult<Void>
+        + DeleteOrder(id : ID) OperationResult<Void>
+
+        + MakeAllDeliveries() : OperationResult<Order[]>
+
+        - Init()
+        - InitOrder()
+        - InitProduct()
+        - ExtractFromFileAndInsertOrder(line : String)
+        - ExtractFromFileAndInsertProduct(line : String)
+
+        - ReadProductInternal(id : ID) : OperationResult<Product>
+        - SplitProductID(productId : ID) : OperationResult<String[]>
+        - ExtractProductCategoryFromID(readedID) : OperationResult<Category>
+        - CheckIfProductCategoryExist(category) : OperationResult<Void>
+        - UpdateOrderIdGenerator(orderID : ID)
+
+        - ReadOrderInternal(id : ID) : OperationResult<Order>
+        - CheckIfOrderIsDoable(order) : boolean
+        - FulfillOrder(order)
+        - SetNonDoableOrderReason(order)
+        - ExtractOrderDetail(orderContent : ArrayList<String>, orderID) : List<OrderDetail>
+        - UpdateProductIdGenerator(productId : ID, category : Category)
     }
+
+    note right of Database::productMap
+        First map use category as key
+        Next map use complete id
+    end note
 
     class OperationResult <T>
     {
@@ -80,27 +137,50 @@ package model
 
         - OperationResult(data, message, success)
 
-        + Success(message : String, data : T) : OperationResult<T>
-        + Success(message : String) : OperationResult<T>
-        + Failure(message : String) : OperationResult<T>
+        + {static} Success(message : String, data : T) : OperationResult<T>
+        + {static} Success(message : String) : OperationResult<T>
+        + {static} Failure(message : String) : OperationResult<T>
 
-        + IsSuccess() : boolean
+        + HasSucceeded() : boolean
         + GetMessage() : String
         + GetData() : T
     }
 
+    class DataIdGenerator
+    {
+        - currentId : long
+
+        + DataIdGenerator()
+        + TryUpdateCurrentId(value : long)
+        + GetNextId() : long
+        + GetNextIdAsString() : String
+    }
+
     Order "0,n" o-- "1-n" Product
 
-    Order "0-n" --* "1" Database
-    Product "0-n" --* "1" Database
+    OrderDetail "1-n" --* Order
 
-    OrderIdGenerator "1" --* "1" Database
-    ProductIdGenerator "1" --* "1" Database
+    Order "0-n" --* Database
+    Product "0-n" --* Database
+
+    ID "1" --* Order
+    ID "1" --* Product
+    ID "1" --* OrderDetail
+
+    Category "1" --* Product
+    Category "1" --* ProductCategoryMap
+
+
+    DataIdGenerator "1" --* Database
+    DataIdGenerator "1" --* ProductCategoryMap
+
+    ProductCategoryMap "n" --* Database
 
     Database "1" --o BackApp
 }
 
 model.Database --> util.SerializerHelper
+model.Database --> util.CSVHelper
 controller.AppController "1" --* model.BackApp
 
 !endif

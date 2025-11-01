@@ -8,10 +8,21 @@ package fr.cda
     !include util/UtilPackage.puml
 
     !include async/AsyncPackage.puml
+    !include event/EventPackage.puml
 
     !include model/modelPackage.puml
     !include controller/ControllerPackage.puml
     !include view/ViewPackage.puml
+
+    abstract class Config
+    {
+        - {static} static dotenv : Dotenv
+
+        + {static} DB_ORDER_FILE_PATH : String
+        + {static} DB_PRODUCT_FILE_PATH : String
+
+        - {static} static()
+    }
 }
 
 @enduml
