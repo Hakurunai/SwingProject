@@ -206,9 +206,11 @@ public final class HomeFrame extends SwingFrame
         buttonMakeDeliveries.addActionListener(e -> controller.MakeAllDeliveries(this::ReadAllOrderCallback));
 
         buttonComputeProfit = new JButton("Compute profit");
-        buttonComputeProfit.addActionListener(this::OnComputeProfitButton);
+        buttonComputeProfit.addActionListener(this::OnComputeProfitButtonCallback);
 
         buttonSendMailData = new JButton("Send data to mail");
+        buttonSendMailData.addActionListener(this::OnSendMailButtonCallback);
+
         buttonGenerateBackUp = new JButton("Generate back up");
 
         //Todo: Add listener to the buttons
@@ -222,6 +224,7 @@ public final class HomeFrame extends SwingFrame
 
         return panelButtons;
     }
+
 
     //endregion INIT_PHASE
 
@@ -333,7 +336,7 @@ public final class HomeFrame extends SwingFrame
         OpenUpdateDialog(lastElementIndexSelectedByUserInDataListView);
     }
 
-    private void OnComputeProfitButton(ActionEvent p_actionEvent)
+    private void OnComputeProfitButtonCallback(ActionEvent p_actionEvent)
     {
         LoggerHelper.log.info("TRIGGER HomeFrame::OnComputeProfitButton");
         dataList.clear();
@@ -359,6 +362,25 @@ public final class HomeFrame extends SwingFrame
         detailArea.setText(operationResult.getData());
     }
 
+    /**
+     * Call when a user press {@link #buttonSendMailData}
+     * Used to gather and generate the same information as {@link #buttonComputeProfit} but send the result via mail
+     * @param actionEvent The event sent by the button
+     */
+    private void OnSendMailButtonCallback(ActionEvent actionEvent)
+    {
+        controller.SendOrderReviewByMail(this::OnMailSentCallback);
+    }
+
+    private void OnMailSentCallback(OperationResult<Void> operationResult)
+    {
+        if (!operationResult.HasSucceeded())
+        {
+            JOptionPane.showMessageDialog(frame, "Fail to send the mail", "Mail sending error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        JOptionPane.showMessageDialog(frame, "The mail was correctly sent", "Mail sent", JOptionPane.INFORMATION_MESSAGE);
+    }
     //endregion Button_Event
 
     //region CRUD_Callback

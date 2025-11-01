@@ -1,10 +1,15 @@
 package fr.cda.controller;
 
+import fr.cda.Config;
 import fr.cda.event.EventBus;
 import fr.cda.model.*;
+import fr.cda.util.MailMessenger;
+import fr.cda.util.SerializerHelper;
 import fr.cda.view.swing.async.SwingAsyncQueue;
 import fr.cda.util.LoggerHelper;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Consumer;
@@ -276,6 +281,54 @@ public class GUIController
         //todo : implement
     }
 
+    public void SendOrderReviewByMail(final Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
+    {
+        VerifyConnection();
+
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.GenerateProfitFile(), // Supplier<String>
+                fileGenerationResult ->
+                {
+                    if (!fileGenerationResult.HasSucceeded())
+                    {
+                        DatabaseOperationCallbackWrapper(callback).accept(
+                                OperationResult.FAILURE("FAIL : File generation : " + fileGenerationResult.getMessage())
+                        );
+                        return;
+                    }
+
+                    // Serialize the data
+                    boolean serialized = SerializerHelper.SerializeToFile(
+                            fileGenerationResult.getData(),
+                            Config.REVIEW_ORDER_FILE_PATH,
+                            Config.REVIEW_ORDER_FILE_NAME
+                    );
+
+                    if (!serialized)
+                    {
+                        DatabaseOperationCallbackWrapper(callback).accept(
+                                OperationResult.FAILURE("FAIL : Serialize file failed at path : "
+                                                                + Config.REVIEW_ORDER_FILE_PATH)
+                        );
+                        return;
+                    }
+
+                    // Send the mail
+                    Path filePath = Paths.get(Config.REVIEW_ORDER_FILE_PATH, Config.REVIEW_ORDER_FILE_NAME);
+
+                    OperationResult<Void> mailResult = MailMessenger.SendMail(
+                            Config.SEND_BLUE_MAIL_TARGET_MAIL,
+                            Config.SEND_BLUE_MAIL_TARGET_NAME,
+                            Config.SEND_BLUE_MAIL_SENDER_MAIL,
+                            Config.SEND_BLUE_MAIL_SENDER_NAME,
+                            "Order delivered review",
+                            "In attachment the desired file",
+                            new Path[]{filePath}
+                    );
+
+                    DatabaseOperationCallbackWrapper(callback).accept(mailResult);
+                });
+    }
 
     /**
      * Method to call to ask the linked {@link Database} to perform {@link Database#MakeAllDeliveries()} through a Chain of Responsibility

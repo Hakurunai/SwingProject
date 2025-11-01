@@ -13,14 +13,14 @@ public abstract class SerializerHelper
 {
     public static final String PATH_SEPARATOR = "/";
 
-    public static void SerializeToFile(final String content, final String path, final String fileName)
+    public static boolean SerializeToFile(final String content, final String path, final String fileName)
     {
         LoggerHelper.log.info("TRY : to serialize file {} at path {}", fileName, path);
 
         if (!EnsureOrCreatePath(path))
         {
             LoggerHelper.log.error("FAIL : to ensure/create path : " + path);
-            return;
+            return false;
         }
 
         Path filePath = Path.of(path, fileName);
@@ -42,6 +42,7 @@ public abstract class SerializerHelper
             LoggerHelper.log.error("FAIL : while writing file : " + filePath + " | " + e.getMessage());
             e.printStackTrace();
         }
+        return true;
     }
 
     /**

@@ -12,6 +12,12 @@ public abstract class Config
     public static final String REVIEW_ORDER_FILE_NAME;
     public static final String REVIEW_ORDER_FILE_PATH;
 
+    public static final String SEND_BLUE_API_KEY;
+    public static final String SEND_BLUE_MAIL_TARGET_MAIL;
+    public static final String SEND_BLUE_MAIL_TARGET_NAME;
+    public static final String SEND_BLUE_MAIL_SENDER_MAIL;
+    public static final String SEND_BLUE_MAIL_SENDER_NAME;
+
     static
     {
         dotenv = Dotenv.load();
@@ -21,5 +27,11 @@ public abstract class Config
 
         REVIEW_ORDER_FILE_PATH = dotenv.get("REVIEW_ORDER_FILE_PATH");
         REVIEW_ORDER_FILE_NAME = dotenv.get("REVIEW_ORDER_FILE_NAME");
+
+        SEND_BLUE_API_KEY = dotenv.get("SEND_BLUE_API_KEY");
+        SEND_BLUE_MAIL_TARGET_MAIL = dotenv.get("SEND_BLUE_MAIL_TARGET_MAIL");
+        SEND_BLUE_MAIL_TARGET_NAME = dotenv.get("SEND_BLUE_MAIL_TARGET_NAME");
+        SEND_BLUE_MAIL_SENDER_MAIL = dotenv.get("SEND_BLUE_MAIL_SENDER_MAIL");
+        SEND_BLUE_MAIL_SENDER_NAME = dotenv.get("SEND_BLUE_MAIL_SENDER_NAME");
     }
 }
