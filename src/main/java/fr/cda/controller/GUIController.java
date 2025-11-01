@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 public class GUIController
 {
     private AppController appController;
-    private SwingAsyncQueue swingAsyncQueue;
+    private final SwingAsyncQueue swingAsyncQueue;
 
     public final EventBus eventBus;
 

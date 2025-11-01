@@ -4,16 +4,16 @@ import fr.cda.model.*;
 import fr.cda.model.dao.OrderDAO;
 import fr.cda.model.dao.ProductDAO;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class AppController
 {
-    private ProductDAO productDAO;
-    private OrderDAO orderDAO;
+    private final ProductDAO productDAO;
+    private final OrderDAO orderDAO;
 
     public AppController(Database database)
     {
@@ -168,7 +168,7 @@ public class AppController
 
     /**
      * Action to call if you want to create a new {@link Order} in the {@link Database}
-     * @param data The new {@link Order} to insert generated via {@link Order#GenerateOrderDTO(String, List)}
+     * @param data The new {@link Order} to insert generated via {@link Order#GenerateOrderDTO(String, LocalDate, List)}
      * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
      * and, in case of success, containing the {@link ID} generated during the insertion for this object
      */

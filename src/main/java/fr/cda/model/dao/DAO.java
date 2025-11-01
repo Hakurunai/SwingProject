@@ -58,10 +58,6 @@ public abstract class DAO<T>
      */
     public abstract OperationResult<Void> DeleteData(final ID id);
 
-    /**
-     *
-     * @param pathFile
-     * @return
-     */
+
     public abstract OperationResult<Void> SaveDataToFile(final String pathFile);
 }

@@ -46,8 +46,8 @@ public abstract class ProductDialog extends DataDialog<Product>
         String name = nameField.getText().trim();
         String categoryRead = newCategoryCheck.isSelected() ? newCategoryField.getText().trim().toUpperCase()
                                       : ((Category)categoryCombo.getSelectedItem()).categoryName();
-        float price = 0f;
-        int quantity = 0;
+        float price;
+        int quantity;
 
         try
         {

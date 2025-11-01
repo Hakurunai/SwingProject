@@ -21,7 +21,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Arrays;
-import java.util.Map;
 
 
 public final class HomeFrame extends SwingFrame

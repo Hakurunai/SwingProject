@@ -64,7 +64,7 @@ public abstract class OrderDialog extends DataDialog<Order>
         {
             Product product = (Product) line.getProductCombo().getSelectedItem();
             String qtyText = line.getQuantityField().getText().trim();
-            int quantity = 0;
+            int quantity;
 
             try
             {

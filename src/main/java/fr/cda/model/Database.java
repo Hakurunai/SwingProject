@@ -15,9 +15,6 @@ import java.util.*;
  */
 public class Database
 {
-    private final String ORDER_FILE = "Commandes.txt";
-    private final String PRODUCT_FILE = "Produits.txt";
-
     private static final String ERROR_ID_ALREADY_EXISTING = "ERROR : The ID used is already present in the database";
     private static final String ERROR_UNKNOWN_ID = "ERROR : The ID used is unknown from the database";
     private static final String ERROR_UNKNOWN_PRODUCT_CATEGORY = "ERROR : The Category used is unknown from the database";
@@ -26,7 +23,7 @@ public class Database
     private final Map<Category, ProductCategoryMap> productMap;
     private final Map<ID, Order> orderMap;
 
-    private DataIdGenerator orderIDGenerator;
+    private final DataIdGenerator orderIDGenerator;
 
     //region Ctor
     /**
@@ -326,7 +323,7 @@ public class Database
         {
             SetNonDoableOrderReason(order);
         }
-        return OperationResult.SUCCESS(impossibleOrderToFulfill.stream().toArray(Order[]::new),
+        return OperationResult.SUCCESS(impossibleOrderToFulfill.toArray(Order[]::new),
                 "SUCCESS : All possible deliveries has been made. Here are the one impossible to fulfill right now");
     }
     //endregion PUBLIC_METHODS
@@ -658,9 +655,9 @@ public class Database
         //OrderContent Format for each String : ID(Name-Number)=Quantity
         String[] productDetail;
         List<OrderDetail> orderDetails = new ArrayList<>();
-        for (int i = 0 ; i < orderContent.size(); ++i)
+        for (String string : orderContent)
         {
-            productDetail = orderContent.get(i).split("=");
+            productDetail = string.split("=");
             ID productID = new ID(productDetail[0]);
 
             if (!ReadProductInternal(productID).HasSucceeded())
