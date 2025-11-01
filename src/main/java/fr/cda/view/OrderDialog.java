@@ -1,6 +1,8 @@
 package fr.cda.view;
 
 import fr.cda.controller.GUIController;
+import fr.cda.event.EventBus;
+import fr.cda.event.VoidEvent;
 import fr.cda.model.OperationResult;
 import fr.cda.model.Order;
 import fr.cda.model.Product;
@@ -26,7 +28,9 @@ public abstract class OrderDialog extends DataDialog<Order>
     protected JButton addNewProductButton;
 
     protected JPanel listContainerPanel;
-    ArrayList<OrderLinePanel> orderLines;
+    protected ArrayList<OrderLinePanel> orderLines;
+
+    protected EventBus eventBus;
 
     /**
      * @param config              The initial configuration of the {@link JDialog}
@@ -39,6 +43,7 @@ public abstract class OrderDialog extends DataDialog<Order>
     {
         super(config, controller, frameOwner, onDialogAchieveTask);
 
+        eventBus = new EventBus();
         orderLines = new ArrayList<>();
     }
 
@@ -185,7 +190,7 @@ public abstract class OrderDialog extends DataDialog<Order>
     /**
      * Crée une ligne avec ComboBox, JTextField, et bouton Supprimer
      */
-    private void AddRow()
+    protected void AddRow()
     {
         JPanel rowPanel = new JPanel();
         rowPanel.setLayout(new BoxLayout(rowPanel, BoxLayout.X_AXIS));
@@ -210,10 +215,7 @@ public abstract class OrderDialog extends DataDialog<Order>
 
         removeButton.addActionListener(e ->
         {
-            listContainerPanel.remove(rowPanel);
-            orderLines.removeIf(line -> line.getPanel() == rowPanel);
-            listContainerPanel.revalidate();
-            listContainerPanel.repaint();
+            RemoveRow(rowPanel);
         });
 
         orderLines.add(new OrderLinePanel(rowPanel, comboBox, quantityField));
@@ -221,6 +223,18 @@ public abstract class OrderDialog extends DataDialog<Order>
         listContainerPanel.add(rowPanel);
         listContainerPanel.add(Box.createVerticalStrut(5));
 
+        listContainerPanel.revalidate();
+        listContainerPanel.repaint();
+    }
+
+    /**
+     * Call to remove a row from the view AND her representation from {@link #orderLines}
+     * @param toRemove The JPanel targeted
+     */
+    protected void RemoveRow(final JPanel toRemove)
+    {
+        listContainerPanel.remove(toRemove);
+        orderLines.removeIf(line -> line.getPanel() == toRemove);
         listContainerPanel.revalidate();
         listContainerPanel.repaint();
     }
@@ -245,6 +259,7 @@ public abstract class OrderDialog extends DataDialog<Order>
 
         existingProducts = operationResult.getData();
         AddRow();
+        eventBus.Publish(new VoidEvent());
     }
 
     JComboBox<Product> GetComboBoxFromExistingProduct()

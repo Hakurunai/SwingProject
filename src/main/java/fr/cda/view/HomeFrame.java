@@ -416,6 +416,19 @@ public final class HomeFrame extends SwingFrame
     }
 
     /**
+     * Callback called when an Order is updated from a {@link UpdateOrderDialog} to update the view
+     * @param orderOperationResult An {@link OperationResult} able to tell if the operation was succeeded via {@link OperationResult#HasSucceeded()}
+     * and, in case of success, containing the {@link Order} newly updated
+     */
+    private void OnOrderUpdated(OperationResult<Order> orderOperationResult)
+    {
+        if (!orderOperationResult.HasSucceeded())
+            return;
+
+        controller.ReadAllOrder(this::ReadAllOrderCallback);
+    }
+
+    /**
      * Callback called at the end of a DeleteOrder call to refresh the view
      * @param operationResult An {@link OperationResult} able to tell if the operation was succeeded via {@link OperationResult#HasSucceeded()}
      */
@@ -543,9 +556,12 @@ public final class HomeFrame extends SwingFrame
         updateProductDialog.Display();
     }
 
-    private void OpenUpdateOrderDialog(Order item)
+    private void OpenUpdateOrderDialog(final Order itemToUpdate)
     {
-        //todo
+        SwingViewConfig config = new SwingViewConfig("Update Order", 600, 600);
+        UpdateOrderDialog updateOrderDialog = new UpdateOrderDialog(config, controller, frame,
+                this::OnOrderUpdated, itemToUpdate);
+        updateOrderDialog.Display();
     }
 
     /**

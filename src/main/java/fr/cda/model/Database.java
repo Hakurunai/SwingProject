@@ -218,7 +218,7 @@ public class Database
     //region Order_Crud
     /**
      * Add a new {@link  Order} in the Database
-     * @param order A non complete {@link Order} created via {@link Order#GenerateOrderDTO(String, List)}
+     * @param order A non complete {@link Order} created via {@link Order#GenerateOrderDTO(String, LocalDate, List)}
      * @return An {@link OperationResult} containing in case of success the generated ID for the Order inserted
      */
     public OperationResult<ID> CreateNewOrder(final Order order)
@@ -396,7 +396,7 @@ public class Database
         List<OrderDetail> orderDetails = ExtractOrderDetails(orderContentFromFile, orderID);
 
         Order newOrder = new Order(orderID, LocalDate.parse(dataContent[1], DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                dataContent[1], orderDetails);
+                dataContent[2], orderDetails);
         orderMap.put(orderID, newOrder);
     }
 
