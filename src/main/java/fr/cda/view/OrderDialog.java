@@ -11,6 +11,8 @@ import fr.cda.view.swing.SwingViewConfig;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 /**
@@ -24,6 +26,7 @@ public abstract class OrderDialog extends DataDialog<Order>
     protected JButton addNewProductButton;
 
     protected JPanel listContainerPanel;
+    ArrayList<OrderLinePanel> orderLines;
 
     /**
      * @param config              The initial configuration of the {@link JDialog}
@@ -35,6 +38,50 @@ public abstract class OrderDialog extends DataDialog<Order>
                        Consumer<OperationResult<Order>> onDialogAchieveTask)
     {
         super(config, controller, frameOwner, onDialogAchieveTask);
+
+        orderLines = new ArrayList<>();
+    }
+
+    @Override
+    protected void OnValidateButton()
+    {
+        String clientName = clientNameField.getText();
+        if (clientName.isBlank())
+        {
+            JOptionPane.showMessageDialog(dialog, "The client name is emptuy", "Client name error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        java.util.List<Product> selectedProducts = new java.util.ArrayList<>();
+        java.util.List<Integer> quantities = new java.util.ArrayList<>();
+
+        for (OrderLinePanel line : orderLines)
+        {
+            Product product = (Product) line.getProductCombo().getSelectedItem();
+            String qtyText = line.getQuantityField().getText().trim();
+            int quantity = 0;
+
+            try
+            {
+                quantity = Integer.parseInt(qtyText);
+                if (quantity <= 0)
+                {
+                    JOptionPane.showMessageDialog(dialog, "Quantity is negative for product : " + product.getId().id(),
+                            "Quantity error", JOptionPane.WARNING_MESSAGE);
+                }
+            }
+            catch (NumberFormatException ex)
+            {
+                JOptionPane.showMessageDialog(dialog, "Quantity invalid for product : " + product.getId().id(),
+                        "Quantity invalid format", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            selectedProducts.add(product);
+            quantities.add(quantity);
+        }
+
+        HandleValidateOperation(selectedProducts, quantities, clientName);
     }
 
     @Override
@@ -61,11 +108,25 @@ public abstract class OrderDialog extends DataDialog<Order>
 
         JPanel northPanel = CreateNorthPanel();
         JPanel centerPanel = CreateCenterPanel();
+        JPanel southPanel = CreateSouthPanel();
 
         mainPanel.add(northPanel, BorderLayout.NORTH);
         mainPanel.add(centerPanel, BorderLayout.CENTER);
+        mainPanel.add(southPanel, BorderLayout.SOUTH);
 
         dialog.add(mainPanel, BorderLayout.CENTER);
+    }
+
+    private JPanel CreateSouthPanel()
+    {
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        mainPanel.add(validateButton);
+        mainPanel.add(cancelButton);
+
+        return mainPanel;
     }
 
     private JPanel CreateCenterPanel()
@@ -150,10 +211,12 @@ public abstract class OrderDialog extends DataDialog<Order>
         removeButton.addActionListener(e ->
         {
             listContainerPanel.remove(rowPanel);
+            orderLines.removeIf(line -> line.getPanel() == rowPanel);
             listContainerPanel.revalidate();
             listContainerPanel.repaint();
         });
 
+        orderLines.add(new OrderLinePanel(rowPanel, comboBox, quantityField));
 
         listContainerPanel.add(rowPanel);
         listContainerPanel.add(Box.createVerticalStrut(5));
@@ -195,4 +258,8 @@ public abstract class OrderDialog extends DataDialog<Order>
 
         return toReturn;
     }
+
+    protected abstract void HandleValidateOperation(final java.util.List<Product> selectedProduct,
+                                                    final java.util.List<Integer> productQuantities,
+                                                    final String clientName);
 }

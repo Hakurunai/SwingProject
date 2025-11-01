@@ -229,7 +229,7 @@ public class Database
         if (internalData.HasSucceeded())
             return OperationResult.FAILURE("ERROR : New generated ID is already in Database : " + newProductID.id());
 
-        Order newOrder = new Order(newProductID, LocalDate.now(), order.getClientName(), order.getOrderedProduct());
+        Order newOrder = new Order(newProductID, order.getCreationDate(), order.getClientName(), order.getOrderedProduct());
         orderMap.put(newProductID, newOrder);
 
         return OperationResult.SUCCESS(newOrder.getId(), "SUCCESS : Creation of a new order has been done successfully, ID : "

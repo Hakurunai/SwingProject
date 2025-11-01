@@ -21,7 +21,7 @@ public class Order
 
     /**
      * Complete ctor. If the id is not know when you want
-     * to manipulate an Order, use {@link #GenerateOrderDTO(String, List)} instead
+     * to manipulate an Order, use {@link #GenerateOrderDTO(String, LocalDate, List)} instead
      * @param id Unique id of the Order
      * @param creationDate Date of creation
      * @param clientName Name of the client
@@ -29,8 +29,7 @@ public class Order
      */
     public Order(final ID id, final LocalDate creationDate, final String clientName, final List<OrderDetail> orderedProduct)
     {
-        this(clientName, orderedProduct);
-        this.creationDate = creationDate;
+        this(clientName, creationDate, orderedProduct);
         this.id = id;
     }
 
@@ -56,12 +55,19 @@ public class Order
      * @param clientName Name of the client
      * @param orderedProduct ProductDetail contained in the Order
      */
-    private Order(final String clientName, final List<OrderDetail> orderedProduct)
+
+    /**
+     ** Used by {@link #GenerateOrderDTO(String, LocalDate, List)} to create an Order with a NULL ID
+     * @param clientName Name of the client
+     * @param creationDate The date of the creation of the Order
+     * @param orderedProduct ProductDetail contained in the Order
+     */
+    private Order(final String clientName, final LocalDate creationDate, final List<OrderDetail> orderedProduct)
     {
         this.clientName = clientName;
         this.orderedProduct = orderedProduct;
 
-        this.creationDate = null;
+        this.creationDate = creationDate;
         this.id = null;
         this.isDelivered = false;
         this.nonDeliveredExplanation = DEFAULT_NON_DELIVERED_EXPLANATION;
@@ -74,9 +80,10 @@ public class Order
      * @param orderedProduct Products contained in the Order
      * @return
      */
-    public static Order GenerateOrderDTO(final String clientName, final List<OrderDetail> orderedProduct)
+    public static Order GenerateOrderDTO(final String clientName, final LocalDate creationDate,
+                                         final List<OrderDetail> orderedProduct)
     {
-        return new Order(clientName, orderedProduct);
+        return new Order(clientName, creationDate, orderedProduct);
     }
 
     /**
