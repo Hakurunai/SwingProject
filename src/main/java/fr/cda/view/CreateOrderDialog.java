@@ -24,7 +24,7 @@ public class CreateOrderDialog extends OrderDialog
     @Override
     protected void OnValidateButton()
     {
-
+        System.out.println("VALIDATE !!!\n");
     }
 
 

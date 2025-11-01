@@ -553,9 +553,9 @@ public final class HomeFrame extends SwingFrame
      */
     private void OpenCreateNewOrderDialog()
     {
-//        SwingViewConfig config = new SwingViewConfig("Add new Order", 500, 200);
-//        CreateOrderDialog createOrderDialog = new CreateOrderDialog(config, controller, frame, this::OnNewProductCreated);
-//        createOrderDialog.Display();
+        SwingViewConfig config = new SwingViewConfig("Add new Order", 600, 600);
+        CreateOrderDialog createOrderDialog = new CreateOrderDialog(config, controller, frame, this::OnNewOrderCreated);
+        createOrderDialog.Display();
     }
 
     /**
