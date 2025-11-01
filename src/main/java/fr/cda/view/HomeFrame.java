@@ -22,7 +22,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 
@@ -201,7 +200,7 @@ public final class HomeFrame extends SwingFrame
         buttonShowStorage.addActionListener(e ->controller.ReadAllProduct(this::ReadAllProductCallback));
 
         buttonUpdateSelectedItem = new JButton("Update selected");
-        buttonUpdateSelectedItem.addActionListener(this::OnOpenUpdateDialog);
+        buttonUpdateSelectedItem.addActionListener(this::OnOpenUpdateDialogButton);
 
         buttonShowOrder = new JButton("Show all order");
         buttonShowOrder.addActionListener(e ->controller.ReadAllOrder(this::ReadAllOrderCallback));
@@ -230,7 +229,7 @@ public final class HomeFrame extends SwingFrame
     //region PRIVATE_METHODS
 
     //region Event
-
+    //region Button_Event
     /**
      * Callback called when a user click on the AddItemButton. This will create a new Dialog to fill the data of the new entry
      * @param e The event sent by the button
@@ -249,19 +248,6 @@ public final class HomeFrame extends SwingFrame
         else if (item instanceof Order)
         {
             OpenCreateNewOrderDialog();
-        }
-    }
-
-    /**
-     * Callback called when a new Product is created from an {@link CreateProductDialog} to add it to the view
-     * @param result An {@link OperationResult} able to tell if the operation was succeeded via {@link OperationResult#HasSucceeded()}
-     * and, in case of success, containing the {@link Product} newly created
-     */
-    private void OnNewProductCreated( OperationResult<Product> result)
-    {
-        if (result.HasSucceeded())
-        {
-            dataList.addElement(result.getData());
         }
     }
 
@@ -288,13 +274,61 @@ public final class HomeFrame extends SwingFrame
     }
 
     /**
+     * Used to determine the type of items in the JList and call the correct deletion method on the {@link GUIController}
+     * @param selectedValuesList The list of object the user want to delete
+     */
+    private void RemoveItems(List<Object> selectedValuesList)
+    {
+        if (selectedValuesList.size() <= 0)
+            return;
+
+        Object object = selectedValuesList.getFirst();
+        if (object instanceof Order)
+        {
+            List<Order> orders = selectedValuesList.stream()
+                                         .map(obj -> (Order)obj)
+                                         .toList();
+            DeleteOrder(orders);
+        }
+        else if (object instanceof Product)
+        {
+            List<Product> products = selectedValuesList.stream()
+                                             .map(obj -> (Product)obj)
+                                             .toList();
+            DeleteProduct(products);
+        }
+    }
+
+    /**
+     * Use to delete a list of {@link Product}
+     * @param products The list of Product the user want to delete
+     */
+    private void DeleteProduct(List<Product> products)
+    {
+        //todo
+        for(Product product : products)
+        {
+            controller.DeleteProduct(product.getId(), this::DeleteProductCallback);
+        }
+    }
+
+    /**
+     * Use to delete a list of {@link Order}
+     * @param orders The list of Product the user want to delete
+     */
+    private void DeleteOrder(List<Order> orders)
+    {
+        //todo
+    }
+
+    /**
      * Call when user press the button {@link #buttonUpdateSelectedItem}
      * @param p_actionEvent The event sent by the button
      */
-    private void OnOpenUpdateDialog(ActionEvent p_actionEvent)
+    private void OnOpenUpdateDialogButton(ActionEvent p_actionEvent)
     {
         if (lastElementIndexSelectedByUserInDataListView < 0
-            || lastElementIndexSelectedByUserInDataListView >= dataList.size())
+                    || lastElementIndexSelectedByUserInDataListView >= dataList.size())
         {
             JOptionPane.showMessageDialog(frame, "Please select one item to update", "Update item error",
                     JOptionPane.WARNING_MESSAGE);
@@ -302,6 +336,26 @@ public final class HomeFrame extends SwingFrame
         }
 
         OpenUpdateDialog(lastElementIndexSelectedByUserInDataListView);
+    }
+    //endregion Button_Event
+
+    //region CRUD_Callback
+    /**
+     * Callback called when a new Product is created from an {@link CreateProductDialog} to add it to the view
+     * @param result An {@link OperationResult} able to tell if the operation was succeeded via {@link OperationResult#HasSucceeded()}
+     * and, in case of success, containing the {@link Product} newly created
+     */
+    private void OnNewProductCreated( OperationResult<Product> result)
+    {
+        if (result.HasSucceeded())
+        {
+            dataList.addElement(result.getData());
+        }
+    }
+
+    private void DeleteProductCallback(OperationResult<Void> p_voidOperationResult)
+    {
+        //todo
     }
 
     /**
@@ -355,7 +409,9 @@ public final class HomeFrame extends SwingFrame
 
         DisplayDataListView(result.getData());
     }
+    //endregion CRUD_Callback
 
+    //region Mouse_Clic_Event
     /**
      * Callback called when the {@link #dataListView} selection change
      * Is used to determine the type of object to display and how the data are formatted
@@ -406,6 +462,8 @@ public final class HomeFrame extends SwingFrame
 
         OpenUpdateDialog(lastElementIndexSelectedByUserInDataListView);
     }
+    //endregion Mouse_Clic_Event
+
 
 
     /**
@@ -429,24 +487,7 @@ public final class HomeFrame extends SwingFrame
     }
     //endregion Event
 
-    /**
-     * Called to open a new {@link CreateOrderDialog}. This object is then linked to the new Dialog by the callback {@link #OnNewOrderCreated(OperationResult)}
-     */
-    private void OpenCreateNewOrderDialog()
-    {
-        //todo : implement
-    }
-
-    /**
-     * Called to open a new {@link CreateProductDialog}. This object is then linked to the new Dialog by the callback {@link #OnNewProductCreated(OperationResult)}
-     */
-    private void OpenCreateNewProductDialog()
-    {
-        SwingViewConfig config = new SwingViewConfig("Add new Product", 500, 200);
-        CreateProductDialog createProductDialog = new CreateProductDialog(config, controller, frame, this::OnNewProductCreated);
-        createProductDialog.Display();
-    }
-
+    //region OpenDialog
     /**
      * Call to open an Update Dialog on a selected item from {@link #dataListView}
      * @param INDEX The index of the selected item
@@ -489,49 +530,25 @@ public final class HomeFrame extends SwingFrame
     }
 
     /**
-     * Used to determine the type of items in the JList and call the correct deletion method on the {@link GUIController}
-     * @param selectedValuesList The list of object the user want to delete
+     * Called to open a new {@link CreateOrderDialog}. This object is then linked to the new Dialog by the callback {@link #OnNewOrderCreated(OperationResult)}
      */
-    private void RemoveItems(List<Object> selectedValuesList)
+    private void OpenCreateNewOrderDialog()
     {
-        if (selectedValuesList.size() <= 0)
-            return;
-
-        Object object = selectedValuesList.getFirst();
-        if (object instanceof Order)
-        {
-            List<Order> orders = selectedValuesList.stream()
-                                          .map(obj -> (Order)obj)
-                                         .toList();
-            DeleteOrder(orders);
-        }
-        else if (object instanceof Product)
-        {
-            List<Order> products = selectedValuesList.stream()
-                                         .map(obj -> (Order)obj)
-                                         .toList();
-            DeleteProduct(products);
-        }
+        //todo : implement
     }
 
     /**
-     * Use to delete a list of {@link Product}
-     * @param products The list of Product the user want to delete
+     * Called to open a new {@link CreateProductDialog}. This object is then linked to the new Dialog by the callback {@link #OnNewProductCreated(OperationResult)}
      */
-    private void DeleteProduct(List<Order> products)
+    private void OpenCreateNewProductDialog()
     {
-        //todo
+        SwingViewConfig config = new SwingViewConfig("Add new Product", 500, 200);
+        CreateProductDialog createProductDialog = new CreateProductDialog(config, controller, frame, this::OnNewProductCreated);
+        createProductDialog.Display();
     }
+    //endregion OpenDialog
 
-    /**
-     * Use to delete a list of {@link Order}
-     * @param orders The list of Product the user want to delete
-     */
-    private void DeleteOrder(List<Order> orders)
-    {
-        //todo
-    }
-
+    //region Display_Data
     /**
      * Called to add a message to the {@link #infoArea} of this frame
      * @param message The message to display
@@ -664,6 +681,8 @@ public final class HomeFrame extends SwingFrame
                                String.valueOf(product.getStoredQuantity())
                        };
     }
+    //endregion DIsplay_Data
+
 
     /**
      * Update the visibility of {@link #buttonCreateNewItem} and {@link #buttonRemoveItem} buttons and force the interface to be updated accordingly
