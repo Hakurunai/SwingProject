@@ -22,6 +22,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 
@@ -36,14 +37,17 @@ public final class HomeFrame extends SwingFrame
     private JList<Object> dataListView;
 
     private JButton buttonShowStorage;
+    private JButton buttonUpdateSelectedItem;
     private JButton buttonShowOrder;
     private JButton buttonCreateNewItem;
+    private JButton buttonRemoveItem;
     private JButton buttonMakeDeliveries;
     private JButton buttonComputeProfit;
     private JButton buttonSendMailData;
     private JButton buttonGenerateBackUp;
     //endregion SWING_ATTRIBUTE
 
+    private int lastElementIndexSelectedByUserInDataListView = -1;
     private static final int PANEL_BORDER_SIZE = 10;
 
     //region IEventListener
@@ -129,12 +133,22 @@ public final class HomeFrame extends SwingFrame
     private JPanel CreateListAndDescriptionPanel()
     {
         buttonCreateNewItem = new JButton("+");
-        buttonCreateNewItem.setToolTipText("Create New Item");
+        buttonCreateNewItem.setToolTipText("Create new item");
         buttonCreateNewItem.setVisible(false);
         buttonCreateNewItem.addActionListener(this::OnAddItemButton);
 
+        buttonRemoveItem = new JButton("-");
+        buttonRemoveItem.setToolTipText("Delete selected items");
+        buttonRemoveItem.setVisible(false);
+        buttonRemoveItem.addActionListener(this::OnRemoveItemButton);
+
+        //align the two button
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        buttonsPanel.add(buttonCreateNewItem);
+        buttonsPanel.add(buttonRemoveItem);
+
         JPanel westPanel = new JPanel(new BorderLayout());
-        westPanel.add(buttonCreateNewItem, BorderLayout.NORTH);
+        westPanel.add(buttonsPanel, BorderLayout.NORTH);
 
         dataList = new DefaultListModel<>();
         dataListView = new JList<>(dataList);
@@ -146,7 +160,7 @@ public final class HomeFrame extends SwingFrame
             @Override
             public void mouseClicked(MouseEvent e)
             {
-                OnListDoubleClic(e);
+                OnListClic(e);
             }
         });
 
@@ -186,6 +200,9 @@ public final class HomeFrame extends SwingFrame
         buttonShowStorage = new JButton("Show storage");
         buttonShowStorage.addActionListener(e ->controller.ReadAllProduct(this::ReadAllProductCallback));
 
+        buttonUpdateSelectedItem = new JButton("Update selected");
+        buttonUpdateSelectedItem.addActionListener(this::OnOpenUpdateDialog);
+
         buttonShowOrder = new JButton("Show all order");
         buttonShowOrder.addActionListener(e ->controller.ReadAllOrder(this::ReadAllOrderCallback));
 
@@ -199,7 +216,7 @@ public final class HomeFrame extends SwingFrame
         //Todo: Add listener to the buttons
 
         JButton[] buttonArray =
-                { buttonShowStorage, buttonShowOrder, buttonMakeDeliveries,
+                { buttonShowStorage, buttonShowOrder, buttonUpdateSelectedItem, buttonMakeDeliveries,
                         buttonComputeProfit, buttonSendMailData, buttonGenerateBackUp };
 
         SwingHelper.SetSameSize(buttonArray);
@@ -249,13 +266,55 @@ public final class HomeFrame extends SwingFrame
     }
 
     /**
+     * Call when {@link #buttonRemoveItem} is pressed. Remove the selected items
+     * @param p_actionEvent The event sent by the button
+     */
+    private void OnRemoveItemButton(ActionEvent p_actionEvent)
+    {
+        int result = JOptionPane.showConfirmDialog(
+                frame,
+                "Are you sure you want to delete these items ?",
+                "Deletion confirmation",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (result == JOptionPane.NO_OPTION)
+        {
+            return;
+        }
+
+        RemoveItems(dataListView.getSelectedValuesList());
+    }
+
+    /**
+     * Call when user press the button {@link #buttonUpdateSelectedItem}
+     * @param p_actionEvent The event sent by the button
+     */
+    private void OnOpenUpdateDialog(ActionEvent p_actionEvent)
+    {
+        if (lastElementIndexSelectedByUserInDataListView < 0
+            || lastElementIndexSelectedByUserInDataListView >= dataList.size())
+        {
+            JOptionPane.showMessageDialog(frame, "Please select one item to update", "Update item error",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        OpenUpdateDialog(lastElementIndexSelectedByUserInDataListView);
+    }
+
+    /**
      * Callback called when a Product is updated from a {@link UpdateProductDialog} to update the view
      * @param productOperationResult An {@link OperationResult} able to tell if the operation was succeeded via {@link OperationResult#HasSucceeded()}
      * and, in case of success, containing the {@link Product} newly updated
      */
     private void OnProductUpdated(OperationResult<Product> productOperationResult)
     {
-        //todo
+        if (!productOperationResult.HasSucceeded())
+            return;
+
+        controller.ReadAllProduct(this::ReadAllProductCallback);
     }
 
     /**
@@ -333,32 +392,21 @@ public final class HomeFrame extends SwingFrame
      * Callback when user clic on an element from the {@link #dataListView}
      * @param e The event sent by the JList
      */
-    private void OnListDoubleClic(MouseEvent e)
+    private void OnListClic(MouseEvent e)
     {
-        if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e))
-        {
-            final int INDEX = dataListView.locationToIndex(e.getPoint());
-            if (INDEX < 0)
-                return;
+        if (!SwingUtilities.isLeftMouseButton(e))
+            return;
 
-            var item = dataListView.getModel().getElementAt(INDEX);
-            if (item instanceof Product)
-            {
-                OpenUpdateProductDialog((Product)item);
-            }
-            else if (item instanceof Order)
-            {
-                Order order = (Order)item;
-                if (order.isDelivered())
-                {
-                    JOptionPane.showMessageDialog(frame, "Impossible to update an already delivered Order",
-                            "Update Order Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                OpenUpdateOrderDialog((Order)item);
-            }
-        }
+        lastElementIndexSelectedByUserInDataListView = dataListView.locationToIndex(e.getPoint());
+        if (lastElementIndexSelectedByUserInDataListView < 0)
+            return;
+
+        if (e.getClickCount() < 2)
+            return;
+
+        OpenUpdateDialog(lastElementIndexSelectedByUserInDataListView);
     }
+
 
     /**
      * Callback linked to the {@link GUIController#eventBus} to get the message in case of a Connection Event. Messages
@@ -399,18 +447,90 @@ public final class HomeFrame extends SwingFrame
         createProductDialog.Display();
     }
 
-    private void OpenUpdateOrderDialog(Order p_item)
+    /**
+     * Call to open an Update Dialog on a selected item from {@link #dataListView}
+     * @param INDEX The index of the selected item
+     */
+    private void OpenUpdateDialog(final int INDEX)
+    {
+        var item = dataListView.getModel().getElementAt(INDEX);
+        if (item instanceof Product)
+        {
+            OpenUpdateProductDialog((Product)item);
+        }
+        else if (item instanceof Order)
+        {
+            Order order = (Order)item;
+            if (order.isDelivered())
+            {
+                JOptionPane.showMessageDialog(frame, "Impossible to update an already delivered Order",
+                        "Update Order Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            OpenUpdateOrderDialog((Order)item);
+        }
+    }
+
+    /**
+     * Called to open an {@link UpdateProductDialog} for a specific {@link Product}
+     * @param itemToUpdate The product to update
+     */
+    private void OpenUpdateProductDialog(final Product itemToUpdate)
+    {
+        SwingViewConfig config = new SwingViewConfig("Update Product", 500, 200);
+        UpdateProductDialog updateProductDialog = new UpdateProductDialog(config, controller, frame,
+                this::OnProductUpdated, itemToUpdate);
+        updateProductDialog.Display();
+    }
+
+    private void OpenUpdateOrderDialog(Order item)
     {
         //todo
     }
 
-    private void OpenUpdateProductDialog(Product p_item)
+    /**
+     * Used to determine the type of items in the JList and call the correct deletion method on the {@link GUIController}
+     * @param selectedValuesList The list of object the user want to delete
+     */
+    private void RemoveItems(List<Object> selectedValuesList)
     {
-        SwingViewConfig config = new SwingViewConfig("Update Product", 500, 200);
-        UpdateProductDialog updateProductDialog = new UpdateProductDialog(config, controller, frame, this::OnProductUpdated);
-        updateProductDialog.Display();
+        if (selectedValuesList.size() <= 0)
+            return;
+
+        Object object = selectedValuesList.getFirst();
+        if (object instanceof Order)
+        {
+            List<Order> orders = selectedValuesList.stream()
+                                          .map(obj -> (Order)obj)
+                                         .toList();
+            DeleteOrder(orders);
+        }
+        else if (object instanceof Product)
+        {
+            List<Order> products = selectedValuesList.stream()
+                                         .map(obj -> (Order)obj)
+                                         .toList();
+            DeleteProduct(products);
+        }
     }
 
+    /**
+     * Use to delete a list of {@link Product}
+     * @param products The list of Product the user want to delete
+     */
+    private void DeleteProduct(List<Order> products)
+    {
+        //todo
+    }
+
+    /**
+     * Use to delete a list of {@link Order}
+     * @param orders The list of Product the user want to delete
+     */
+    private void DeleteOrder(List<Order> orders)
+    {
+        //todo
+    }
 
     /**
      * Called to add a message to the {@link #infoArea} of this frame
@@ -433,7 +553,7 @@ public final class HomeFrame extends SwingFrame
         dataList.addAll(Arrays.asList(result));
         dataListView.setSelectionInterval(0, dataList.getSize() - 1);
 
-        SetAddItemButtonVisibility(dataList.getSize() > 0);
+        SetButtonAddAndRemoveItemVisibility(dataList.getSize() > 0);
     }
 
     /**
@@ -546,18 +666,24 @@ public final class HomeFrame extends SwingFrame
     }
 
     /**
-     * Update the visibility of the {@link #buttonCreateNewItem} button and force the interface to be updated accordingly
+     * Update the visibility of {@link #buttonCreateNewItem} and {@link #buttonRemoveItem} buttons and force the interface to be updated accordingly
      * in space and in drawing
      * @param newVisibilityLevel True if the button need to be visible, false otherwise
      */
-    private void SetAddItemButtonVisibility(final boolean newVisibilityLevel)
+    private void SetButtonAddAndRemoveItemVisibility(final boolean newVisibilityLevel)
     {
         if (buttonCreateNewItem != null && buttonCreateNewItem.isVisible() != newVisibilityLevel)
         {
             buttonCreateNewItem.setVisible(newVisibilityLevel);
-            buttonCreateNewItem.getParent().revalidate(); //Recompute the size of the parent
-            buttonCreateNewItem.getParent().repaint(); //Redraw the parent
         }
+
+        if (buttonRemoveItem != null && buttonRemoveItem.isVisible() != newVisibilityLevel)
+        {
+            buttonRemoveItem.setVisible(newVisibilityLevel);
+        }
+
+        buttonCreateNewItem.getParent().revalidate(); //Recompute the size of the parent
+        buttonCreateNewItem.getParent().repaint(); //Redraw the parent
     }
     //endregion PRIVATE_METHODS
 }

@@ -159,19 +159,43 @@ public class Database
 
     /**
      * Allow the possibility to update an internal {@link Product}
-     * @param product The product you want to update. His ID will be used to find the internal one,
+     * @param updatedProduct The product you want to update. His ID will be used to find the internal one,
      *                his data will then be copied
      * @return An {@link OperationResult} able to tell you if the update was successful via {@link OperationResult#HasSucceeded()}
      */
-    public OperationResult<Void> UpdateProduct(final Product product)
+    public OperationResult<Void> UpdateProduct(final Product updatedProduct)
     {
-        OperationResult<Product> checkIfProductExist = ReadProduct(product.getId());
+        OperationResult<Product> checkIfProductExist = ReadProduct(updatedProduct.getId());
         if (!checkIfProductExist.HasSucceeded())
             return OperationResult.FAILURE(checkIfProductExist.getMessage());
 
-        Product internalCopy = new Product(product);
-        productMap.get(product.getCategory()).getProductMap().put(product.getId(), internalCopy);
-        return OperationResult.SUCCESS("SUCCESS : Update of a Product. ID : " + product.getId().id());
+        Product internalProduct = checkIfProductExist.getData();
+        System.out.println("The two categories are the same ? "
+        + (internalProduct.getCategory() == updatedProduct.getCategory()));
+
+        //Category is the same, just need to update the data
+        if (internalProduct.getCategory().equals(updatedProduct.getCategory()))
+        {
+            productMap.get(updatedProduct.getCategory()).getProductMap().put(updatedProduct.getId(), new Product(updatedProduct));
+            return OperationResult.SUCCESS("SUCCESS : Update of a Product. ID : " + updatedProduct.getId().id());
+        }
+        //Category different : need to put the object on his new productMap and remove it from the previous one, while updating
+        //his ID
+        else
+        {
+            //Create a new Product on his new Category, generate a new internal copy with a new ID
+            final OperationResult<ID> creationResult = CreateNewProduct(updatedProduct);
+            if (creationResult.HasSucceeded())
+            {
+                //Remove the data from the previous productMap only in case of success
+                DeleteProduct(internalProduct.getId());
+                return OperationResult.SUCCESS("SUCCESS : " + updatedProduct.getId().id() + " was correctly updated to " + creationResult.getData().id());
+            }
+            else
+            {
+                return OperationResult.FAILURE(creationResult.getMessage());
+            }
+        }
     }
 
     /**

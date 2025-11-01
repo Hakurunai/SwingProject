@@ -2,6 +2,7 @@ package fr.cda.view;
 
 import fr.cda.controller.GUIController;
 import fr.cda.model.Category;
+import fr.cda.model.ID;
 import fr.cda.model.OperationResult;
 import fr.cda.model.Product;
 import fr.cda.util.LoggerHelper;
@@ -10,6 +11,7 @@ import fr.cda.view.swing.SwingViewConfig;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
@@ -24,7 +26,7 @@ public abstract class ProductDialog extends SwingDialog
     static final Dimension NUMBER_DIMENSION = new Dimension(50, 22);
 
     protected JTextField nameField;
-    protected JComboBox<String> categoryCombo;
+    protected JComboBox<Category> categoryCombo;
     protected JTextField newCategoryField;
     protected JTextField priceField;
     protected JTextField quantityField;
@@ -47,9 +49,53 @@ public abstract class ProductDialog extends SwingDialog
     }
 
     /**
-     * Used to set a specific listener to the Validate Button. Is called at the end of {@link #Init()}
+     * Method called when the button Validate is pressed
      */
-    protected abstract void SetValidateButtonListener();
+    protected void OnValidateButton()
+    {
+        String name = nameField.getText().trim();
+        String categoryRead = newCategoryCheck.isSelected() ? newCategoryField.getText().trim().toUpperCase()
+                                      : ((Category)categoryCombo.getSelectedItem()).categoryName();
+        float price = 0f;
+        int quantity = 0;
+
+        try
+        {
+            price = Float.parseFloat(priceField.getText().trim());
+            quantity = Integer.parseInt(quantityField.getText().trim());
+
+            if (price <= 0f || quantity < 0)
+            {
+                JOptionPane.showMessageDialog(dialog, "Price and quantity must be positive",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+        } catch (NumberFormatException ex)
+        {
+            JOptionPane.showMessageDialog(dialog, "Price and quantities need to be valid numbers",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (name.isEmpty() || categoryRead.isEmpty())
+        {
+            JOptionPane.showMessageDialog(dialog, "All fields need a value",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        //Creation of the Product
+        Category category = new Category(categoryRead);
+        if (newCategoryCheck.isSelected())
+        {
+            HandleNewCategoryCase(category, name, price, quantity);
+        }
+        else
+        {
+            HandleProductActionOnDatabase(name, category, price, quantity);
+        }
+    }
 
     @Override
     protected void Init()
@@ -136,7 +182,7 @@ public abstract class ProductDialog extends SwingDialog
         mainPanel.add(buttonPanel);
 
         cancelButton.addActionListener(e -> Close());
-        SetValidateButtonListener();
+        validateButton.addActionListener(e -> OnValidateButton());
 
         dialog.setContentPane(mainPanel);
     }
@@ -151,15 +197,76 @@ public abstract class ProductDialog extends SwingDialog
             if (!result.HasSucceeded())
             {
                 categoryCombo.setModel(new DefaultComboBoxModel<>());
-                return;
             }
-
-            String[] catValues = Arrays.stream(result.getData()).map(Category::categoryName).toArray(String[]::new);
-            categoryCombo.setModel(new DefaultComboBoxModel<>(catValues));
-            if (catValues.length > 0)
+            else
             {
-                categoryCombo.setSelectedIndex(0);
+                categoryCombo.setModel(new DefaultComboBoxModel<>(result.getData()));
             }
+            OnCategoryComboInitialized(result);
         });
+    }
+
+    /**
+     * Call when the CategoryCombo values are set
+     * @param result The {@link OperationResult} returned by the {@link fr.cda.model.Database}
+     */
+    protected void OnCategoryComboInitialized(final OperationResult<Category[]> result)
+    {
+        if (result.getData().length > 0)
+        {
+            categoryCombo.setSelectedIndex(0);
+        }
+    }
+
+    /**
+     * Ask the linked {@link GUIController} to create a new {@link Category}, and in case of success continue
+     * by asking him to operate on a {@link Product}
+     * @param category The category of the new {@link Product}
+     * @param name The name of the new {@link Product}
+     * @param price The price of the new {@link Product}
+     * @param quantity The quantity of the new {@link Product}
+     */
+    protected void HandleNewCategoryCase(final Category category, final String name, final float price, final int quantity)
+    {
+        controller.CreateNewProductCategory(category,
+                res ->
+                {
+                    if (res.HasSucceeded())
+                        HandleProductActionOnDatabase(name, category, price, quantity);
+                    else
+                    {
+                        JOptionPane.showMessageDialog(dialog, res.getMessage(),
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+    }
+
+    /**
+     * A Method called to act on the {@link Product} with the data collected by the Dialog
+     * @param name Name of the {@link Product}
+     * @param category {@link Category} of the new {@link Product}
+     * @param priceRef Price of the {@link Product
+     * @param quantity Quantity of the {@link Product}
+     */
+    protected abstract void HandleProductActionOnDatabase(final String name, final Category category, final float priceRef,
+                                               final int quantity);
+
+    /**
+     * Call to end this Dialog and call the callback given to her at her creation on the result of their work
+     * @param taskOperationRes A wrapper of the result from the {@link fr.cda.model.Database}
+     * @param toReturn The Product given to the callback {{@link #OnDialogAchieveTask}}
+     */
+    protected void DialogAchieveTask(final OperationResult<Void> taskOperationRes, final Product toReturn)
+    {
+        if (taskOperationRes.HasSucceeded())
+        {
+            OnDialogAchieveTask.accept(OperationResult.SUCCESS(toReturn, taskOperationRes.getMessage()));
+            Close();
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(dialog, taskOperationRes.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

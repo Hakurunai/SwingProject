@@ -6,4 +6,9 @@ package fr.cda.model;
  */
 public record Category(String categoryName)
 {
+    @Override
+    public String toString()
+    {
+        return categoryName;
+    }
 }
