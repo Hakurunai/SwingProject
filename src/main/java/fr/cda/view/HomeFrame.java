@@ -225,10 +225,10 @@ public final class HomeFrame extends SwingFrame
     }
     //endregion INIT_PHASE
 
-
     //region PRIVATE_METHODS
 
     //region Event
+
     //region Button_Event
     /**
      * Callback called when a user click on the AddItemButton. This will create a new Dialog to fill the data of the new entry
@@ -259,7 +259,7 @@ public final class HomeFrame extends SwingFrame
     {
         int result = JOptionPane.showConfirmDialog(
                 frame,
-                "Are you sure you want to delete these items ?",
+                "Are you sure you want to delete this item ?",
                 "Deletion confirmation",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE
@@ -270,62 +270,56 @@ public final class HomeFrame extends SwingFrame
             return;
         }
 
-        RemoveItems(dataListView.getSelectedValuesList());
+        RemoveItems(dataListView.getSelectedValue());
     }
 
     /**
-     * Used to determine the type of items in the JList and call the correct deletion method on the {@link GUIController}
-     * @param selectedValuesList The list of object the user want to delete
+     * Used to determine the type of item in the JList and call the correct deletion method on the {@link GUIController}
+     * @param selectedItem The object the user want to delete
      */
-    private void RemoveItems(List<Object> selectedValuesList)
+    private void RemoveItems(final Object selectedItem)
     {
-        if (selectedValuesList.size() <= 0)
+        if (selectedItem == null)
             return;
 
-        Object object = selectedValuesList.getFirst();
-        if (object instanceof Order)
+        if (selectedItem instanceof Order order)
         {
-            List<Order> orders = selectedValuesList.stream()
-                                         .map(obj -> (Order)obj)
-                                         .toList();
-            DeleteOrder(orders);
+            DeleteOrder(order);
         }
-        else if (object instanceof Product)
+        else if (selectedItem instanceof Product product)
         {
-            List<Product> products = selectedValuesList.stream()
-                                             .map(obj -> (Product)obj)
-                                             .toList();
-            DeleteProduct(products);
+            DeleteProduct(product);
         }
     }
 
     /**
-     * Use to delete a list of {@link Product}
-     * @param products The list of Product the user want to delete
+     * Use to delete a {@link Product}
+     * @param product The Product the user want to delete
      */
-    private void DeleteProduct(List<Product> products)
+    private void DeleteProduct(Product product)
     {
-        //todo
-        for(Product product : products)
-        {
-            controller.DeleteProduct(product.getId(), this::DeleteProductCallback);
-        }
+        controller.DeleteProduct(product.getId(), this::DeleteProductCallback);
     }
 
     /**
-     * Use to delete a list of {@link Order}
-     * @param orders The list of Product the user want to delete
+     * Use to delete an {@link Order}
+     * @param order The Order the user want to delete
      */
-    private void DeleteOrder(List<Order> orders)
+    private void DeleteOrder(Order order)
     {
-        //todo
+        if (order.isDelivered())
+        {
+            JOptionPane.showMessageDialog(frame, "Impossible to delete an Order already delivered", "Order deletion error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        controller.DeleteOrder(order.getId(), this::DeleteOrderCallback);
     }
 
     /**
      * Call when user press the button {@link #buttonUpdateSelectedItem}
-     * @param p_actionEvent The event sent by the button
+     * @param actionEvent The event sent by the button
      */
-    private void OnOpenUpdateDialogButton(ActionEvent p_actionEvent)
+    private void OnOpenUpdateDialogButton(ActionEvent actionEvent)
     {
         if (lastElementIndexSelectedByUserInDataListView < 0
                     || lastElementIndexSelectedByUserInDataListView >= dataList.size())
@@ -353,9 +347,19 @@ public final class HomeFrame extends SwingFrame
         }
     }
 
-    private void DeleteProductCallback(OperationResult<Void> p_voidOperationResult)
+    /**
+     * Callback called at the end of a DeleteProduct call to refresh the view
+     * @param operationResult An {@link OperationResult} able to tell if the operation was succeeded via {@link OperationResult#HasSucceeded()}
+     */
+    private void DeleteProductCallback(OperationResult<Void> operationResult)
     {
-        //todo
+        if (!operationResult.HasSucceeded())
+        {
+            JOptionPane.showMessageDialog(frame, operationResult.getMessage(), "Deletion error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        controller.ReadAllProduct(this::ReadAllProductCallback);
     }
 
     /**
@@ -408,6 +412,21 @@ public final class HomeFrame extends SwingFrame
             return;
 
         DisplayDataListView(result.getData());
+    }
+
+    /**
+     * Callback called at the end of a DeleteOrder call to refresh the view
+     * @param operationResult An {@link OperationResult} able to tell if the operation was succeeded via {@link OperationResult#HasSucceeded()}
+     */
+    private void DeleteOrderCallback(OperationResult<Void> operationResult)
+    {
+        if (!operationResult.HasSucceeded())
+        {
+            JOptionPane.showMessageDialog(frame, operationResult.getMessage(), "Deletion error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        controller.ReadAllOrder(this::ReadAllOrderCallback);
     }
     //endregion CRUD_Callback
 
@@ -495,20 +514,19 @@ public final class HomeFrame extends SwingFrame
     private void OpenUpdateDialog(final int INDEX)
     {
         var item = dataListView.getModel().getElementAt(INDEX);
-        if (item instanceof Product)
+        if (item instanceof Product product)
         {
-            OpenUpdateProductDialog((Product)item);
+            OpenUpdateProductDialog(product);
         }
-        else if (item instanceof Order)
+        else if (item instanceof Order order)
         {
-            Order order = (Order)item;
             if (order.isDelivered())
             {
                 JOptionPane.showMessageDialog(frame, "Impossible to update an already delivered Order",
                         "Update Order Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            OpenUpdateOrderDialog((Order)item);
+            OpenUpdateOrderDialog(order);
         }
     }
 
