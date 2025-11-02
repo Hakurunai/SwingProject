@@ -11,16 +11,6 @@
 
 package model
 {
-    record ID
-    {
-        + ID(id : String)
-    }
-
-    record Category
-    {
-        + Category(categoryName : String)
-    }
-
     class BackApp
     {
         - database : Database
@@ -29,70 +19,26 @@ package model
 
         + BackApp(database)
 
-        + HasNoActiveConnection() : boolean
-        + RequestConnection(GUIController) : OperationResult<AppController>
+        + HasAnActiveConnection() : boolean
+        + RequestNewConnection() : OperationResult<AppController>
     }
 
-    class Product
+    record Category
     {
-        - name : String
-        - price : float
-        - storedQuantity : int
-
-        + Product(id : ID, name, category : Category, price)
-        + Product(other : Product)
-        - Product(name, category : Category, price)
-        + {static} GenerateProductDTO(name, category : Category, price) : Product
-    }
-
-    class Order
-    {
-        - creationDate : LocalDate
-        - clientName : String
-        - orderedProduct : ArrayList<OrderDetail>
-        - isDelivered : boolean
-        - nonDeliveredExplanation : String
-
-        + Order(id : ID, creationDate, clientName, orderedProduct)
-        + Order(other : Order)
-        - Order(creationDate, clientName, orderedProduct)
-
-        + UpdateToNonDeliveredStatus(explanation : String)
-        + UpdateToDeliveredStatus()
-        + {static} GenerateOrderDTO(creationDate, clientName, orderedProduct) : Order
-    }
-
-    record OrderDetail
-    {
-        + OrderDetail(productID : ID, productQuantity : int)
-    }
-
-    class ProductCategoryMap
-    {
-        - categoryIDGenerator : DataIdGenerator
-        - productMap : Map<ID, Product>
-
-        + ProductCategoryMap()
-        + GetNextCategoryIdAsString() : String
-        + TryUpdateCategoryID(value : long)
+        + Category(categoryName : String)
     }
 
     class Database
     {
-        - productMap : Hashmap<Category, Hashmap<ID, Product>>
+        - productMap : Map<Category, ProductCategoryMap>>
         - orderMap : Hashmap<ID, Order>
-
-        - dataPath : String
-
-        + Database(dataPath : String)
-
-        + SaveProductToFile(productPath : String) : OperationResult<Void>
-        + SaveOrderToFile(orderPath : String) : OperationResult<Void>
+        - orderIDGenerator : DataIdGenerator
 
         + CreateNewProduct(data : Product) : OperationResult<ID>
         + CreateNewProductCategory(category : Category) OperationResult<Void>
         + ReadProduct(id : ID) : OperationResult<Product>
         + ReadAllProduct() : OperationResult<Product[]>
+        + ReadAllProductCategories() : OperationResult<Category[]>
         + UpdateProduct(data : Product) OperationResult<Void>
         + DeleteProduct(id : ID) OperationResult<Void>
 
@@ -105,29 +51,38 @@ package model
         + MakeAllDeliveries() : OperationResult<Order[]>
 
         - Init()
-        - InitOrder()
         - InitProduct()
-        - ExtractFromFileAndInsertOrder(line : String)
+        - InitOrder()
         - ExtractFromFileAndInsertProduct(line : String)
+        - ExtractFromFileAndInsertOrder(line : String)
 
         - ReadProductInternal(id : ID) : OperationResult<Product>
         - SplitProductID(productId : ID) : OperationResult<String[]>
         - ExtractProductCategoryFromID(readedID) : OperationResult<Category>
         - CheckIfProductCategoryExist(category) : OperationResult<Void>
-        - UpdateOrderIdGenerator(orderID : ID)
+        - UpdateProductIdGenerator(productId, category)
 
         - ReadOrderInternal(id : ID) : OperationResult<Order>
         - CheckIfOrderIsDoable(order) : boolean
         - FulfillOrder(order)
         - SetNonDoableOrderReason(order)
         - ExtractOrderDetail(orderContent : ArrayList<String>, orderID) : List<OrderDetail>
-        - UpdateProductIdGenerator(productId : ID, category : Category)
+        - UpdateOrderIdGenerator(orderID : ID)
     }
 
-    note right of Database::productMap
-        First map use category as key
-        Next map use complete id
-    end note
+    class DataIdGenerator
+    {
+        - currentId : long
+
+        + GetNextId() : long
+        + GetNextIdAsString() : String
+        + TryUpdateCurrentId(value : long)
+    }
+
+    record ID
+    {
+        + ID(id : String)
+    }
 
     class OperationResult <T>
     {
@@ -146,22 +101,65 @@ package model
         + GetData() : T
     }
 
-    class DataIdGenerator
+    class Order
     {
-        - currentId : long
+        - id : ID
+        - creationDate : LocalDate
+        - clientName : String
+        - orderedProduct : List<OrderDetail>
+        - isDelivered : boolean
+        - nonDeliveredExplanation : String
 
-        + DataIdGenerator()
-        + TryUpdateCurrentId(value : long)
-        + GetNextId() : long
-        + GetNextIdAsString() : String
+        + Order(id : ID, creationDate, clientName, orderedProduct)
+        + Order(other : Order)
+        - Order(clientName, creationDate, orderedProduct)
+
+        + {static} GenerateOrderDTO(clientName, creationDate, orderedProduct) : Order
+        + UpdateToNonDeliveredStatus(explanation : String)
+        + UpdateToDeliveredStatus()
     }
 
-    Order "0,n" o-- "1-n" Product
+    record OrderDetail
+    {
+        + OrderDetail(productID : ID, productQuantity : int)
+    }
+
+    class Product
+    {
+        - id : ID
+        - name : String
+        - category : Category
+
+        - price : float
+        - storedQuantity : int
+
+        + Product(id, name, category, price, storedQuantity)
+        + Product(other : Product)
+        - Product(name, category, price, storedQuantity)
+        + {static} GenerateProductDTO(name, category, price, storedQuantity) : Product
+    }
+
+    class ProductCategoryMap
+    {
+        - categoryIDGenerator : DataIdGenerator
+        - productMap : Map<ID, Product>
+
+        + getProductMap() : Map<ID, Product>
+        + GetNextCategoryIdAsString() : String
+        + TryUpdateCategoryID(value : long)
+    }
+
+    note right of Database::productMap
+        First map use category as key
+        Next map use complete id
+    end note
+
+
+    Order "0-n" --* Database
 
     OrderDetail "1-n" --* Order
 
-    Order "0-n" --* Database
-    Product "0-n" --* Database
+    Product "0-n" --* ProductCategoryMap
 
     ID "1" --* Order
     ID "1" --* Product
@@ -170,17 +168,16 @@ package model
     Category "1" --* Product
     Category "1" --* ProductCategoryMap
 
-
     DataIdGenerator "1" --* Database
     DataIdGenerator "1" --* ProductCategoryMap
 
     ProductCategoryMap "n" --* Database
 
     Database "1" --o BackApp
+    Database --> OperationResult
 }
 
 model.Database --> util.SerializerHelper
-model.Database --> util.CSVHelper
 controller.AppController "1" --* model.BackApp
 
 !endif
