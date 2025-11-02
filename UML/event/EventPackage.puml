@@ -3,17 +3,21 @@
 
 package event
 {
-    interface IEventListener<T>
-    {
-        + OnEvent(T event)
-    }
-
     class EventBus
     {
         - subscribers : Map<Class<?>, List<IEventListener<?>>>
 
         + Subscribe(eventType : Class<T>, listener : IEventListener<T>)
         + Publish(eventType : T)
+    }
+
+    interface IEventListener<T>
+    {
+        + OnEvent(T event)
+    }
+
+    class VoidEvent()
+    {
     }
 
     IEventListener "0-n" --o EventBus
