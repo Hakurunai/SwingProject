@@ -36,10 +36,11 @@ public final class HomeFrame extends SwingFrame
     private JList<Object> dataListView;
 
     private JButton buttonShowStorage;
-    private JButton buttonUpdateSelectedItem;
     private JButton buttonShowOrder;
     private JButton buttonCreateNewItem;
+    private JButton buttonUpdateSelectedItem;
     private JButton buttonRemoveItem;
+
     private JButton buttonMakeDeliveries;
     private JButton buttonComputeProfit;
     private JButton buttonSendMailData;
