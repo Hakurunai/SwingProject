@@ -11,7 +11,11 @@ import java.util.function.Supplier;
  */
 public class SwingAsyncQueue extends AsyncQueue
 {
-    public SwingAsyncQueue(String threadName)
+    /**
+     *
+     * @param threadName The name of the internal Thread. Can be used in the log for example
+     */
+    public SwingAsyncQueue(final String threadName)
     {
         super(threadName);
     }

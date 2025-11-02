@@ -5,7 +5,7 @@ import java.util.Map;
 
 /**
  * Contain a map of <{@link ID}, {@link Product}> and a {@link DataIdGenerator} used to keep
- * track an internal counter dedicated to a {@link Category}
+ * track of an internal counter dedicated to a {@link Category} in the {@link Database}
  */
 public class ProductCategoryMap
 {

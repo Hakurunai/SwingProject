@@ -40,6 +40,9 @@ public abstract class ProductDialog extends DataDialog<Product>
         super(config, controller, frameOwner, onDialogAchieveTask);
     }
 
+    /**
+     * Implementation allowing us to retrieve the data inserted by the user and start an action with it
+     */
     @Override
     protected void OnValidateButton()
     {
@@ -88,6 +91,9 @@ public abstract class ProductDialog extends DataDialog<Product>
     }
 
 
+    /**
+     * Implementation. Used to generate the complete GUI of the Dialog
+     */
     @Override
     protected void Init()
     {

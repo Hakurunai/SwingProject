@@ -2,6 +2,9 @@ package fr.cda;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
+/**
+ * His role is to retrieve all the data contained in the .env file and hide the real value from the code
+ */
 public abstract class Config
 {
     private final static Dotenv dotenv;

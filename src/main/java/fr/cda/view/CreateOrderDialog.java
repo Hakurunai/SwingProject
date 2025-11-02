@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * The view allowing us to insert a new {@link Order} in the {@link fr.cda.model.Database}
+ */
 public class CreateOrderDialog extends OrderDialog
 {
     /**
@@ -26,6 +29,12 @@ public class CreateOrderDialog extends OrderDialog
         super(config, controller, frameOwner, onDialogAchieveTask);
     }
 
+    /**
+     * Implementation. Allow us to try to insert a new {@link Order} in the {@link fr.cda.model.Database} via the data retrieved from the view
+     * @param selectedProduct {@link Product} we are able to retrieve from the selection the user did on the view
+     * @param productQuantities Quantities needed for each product
+     * @param clientName Name of the client
+     */
     @Override
     protected void HandleValidateOperation(final List<Product> selectedProduct,
                                            final List<Integer> productQuantities,

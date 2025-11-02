@@ -1,7 +1,8 @@
 package fr.cda.controller;
 
 /**
- * An exception specifically designed to be throw by the GUIController if the connection with the Database has a problem
+ * An exception designed to be thrown by the {@link GUIController} if there is a problem with Database connection and
+ * someone try to use his services
  */
 public class DatabaseConnectionException extends RuntimeException
 {

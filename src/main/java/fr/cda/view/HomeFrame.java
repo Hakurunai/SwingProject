@@ -22,7 +22,10 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Arrays;
 
-
+/**
+ * Main view of the program. Use to display a lot of data, able to call some methods via different buttons on the {@link GUIController}
+ * and able of opening some new dialog view too.
+ */
 public final class HomeFrame extends SwingFrame
 {
     //region SWING_ATTRIBUTE
@@ -52,6 +55,13 @@ public final class HomeFrame extends SwingFrame
     //endregion IEventListener
 
     //region CTOR
+
+    /**
+     *
+     * @param config The initial config of this view
+     * @param controller The controller we want the view to be linked to. This object will inject this controller to all
+     * the dialog he will open
+     */
     public HomeFrame(SwingViewConfig config, GUIController controller)
     {
         super(config, controller);
@@ -334,7 +344,11 @@ public final class HomeFrame extends SwingFrame
         OpenUpdateDialog(lastElementIndexSelectedByUserInDataListView);
     }
 
-    private void OnComputeProfitButton(ActionEvent p_actionEvent)
+    /**
+     * Call when user press the button {@link #buttonComputeProfit}
+     * @param actionEvent The event sent by the button
+     */
+    private void OnComputeProfitButton(ActionEvent actionEvent)
     {
         LoggerHelper.log.info("TRIGGER HomeFrame::OnComputeProfitButton");
         dataList.clear();
@@ -354,7 +368,11 @@ public final class HomeFrame extends SwingFrame
         controller.SendOrderReviewByMail(this::OnMailSentCallback);
     }
 
-    private void OnGenerateBackUpButton(ActionEvent p_actionEvent)
+    /**
+     * Call when user press the button {@link #buttonGenerateBackUp}
+     * @param actionEvent The event sent by the button
+     */
+    private void OnGenerateBackUpButton(ActionEvent actionEvent)
     {
         SetButtonAddAndRemoveItemVisibility(false);
         controller.SaveBackViaFTP(this::OnBackUpGeneratedCallback);
@@ -471,8 +489,9 @@ public final class HomeFrame extends SwingFrame
         controller.ReadAllOrder(this::ReadAllOrderCallback);
     }
 
+
     /**
-     * Call when user press the button {@link #buttonComputeProfit}
+     * Callback called by the {@link GUIController} when the operation initialised by {@link #buttonComputeProfit} is ended
      * @param operationResult An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
      * and, in case of success, containing an array of {@link Order} representing all the order in the {@link fr.cda.model.Database}
      */
@@ -488,7 +507,10 @@ public final class HomeFrame extends SwingFrame
         detailArea.setText(operationResult.getData());
     }
 
-
+    /**
+     * Callback called by the {@link GUIController} when the operation initialised by {@link #buttonSendMailData} is ended
+     * @param operationResult The result that we will use to react on the view
+     */
     private void OnMailSentCallback(final OperationResult<Void> operationResult)
     {
         if (!operationResult.HasSucceeded())
@@ -499,6 +521,10 @@ public final class HomeFrame extends SwingFrame
         JOptionPane.showMessageDialog(frame, "The mail was correctly sent", "Mail sent", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Callback called by the {@link GUIController} when the operation initialised by {@link #buttonGenerateBackUp} is ended
+     * @param operationResult The result that we will use to react on the view
+     */
     private void OnBackUpGeneratedCallback(final OperationResult<Void> operationResult)
     {
         if (!operationResult.HasSucceeded())
@@ -564,8 +590,6 @@ public final class HomeFrame extends SwingFrame
     }
     //endregion Mouse_Clic_Event
 
-
-
     /**
      * Callback linked to the {@link GUIController#eventBus} to get the message in case of a Connection Event. Messages
      * are displayed in the {@link #infoArea}
@@ -623,6 +647,10 @@ public final class HomeFrame extends SwingFrame
         updateProductDialog.Display();
     }
 
+    /**
+     * Called to open an {@link UpdateOrderDialog} for a specific {@link Order}
+     * @param itemToUpdate The order to update
+     */
     private void OpenUpdateOrderDialog(final Order itemToUpdate)
     {
         SwingViewConfig config = new SwingViewConfig("Update Order", 600, 600);

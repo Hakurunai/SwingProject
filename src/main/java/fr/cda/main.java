@@ -4,12 +4,14 @@ import fr.cda.view.FrontApp;
 import fr.cda.model.BackApp;
 import fr.cda.model.Database;
 
-
+/**
+ * Entry point of the program
+ */
 public class main
 {
-    public final static boolean RUN_APP = true;
-
-
+    /**
+     * Start the main thread and use to set up the initial entity between each others
+     */
     public static void RunApp()
     {
         Database database = new Database();
@@ -18,22 +20,9 @@ public class main
         frontApp.EstablishConnectionWithBack(backApp);
     }
 
-    public static void QuickTest()
-    {
-//        TestReceiver testReceiver = new TestReceiver();
-//        EventBus bus = new EventBus();
-//        bus.Subscribe(String.class, testReceiver);
-//        bus.Subscribe(Integer.class, testReceiver.integerListener);
-//
-//        bus.Publish(10);
-    }
-
 
     public static void main(String[] args)
     {
-        if (RUN_APP)
-            RunApp();
-        else
-            QuickTest();
+        RunApp();
     }
 }

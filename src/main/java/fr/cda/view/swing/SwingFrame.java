@@ -5,6 +5,11 @@ import fr.cda.util.LoggerHelper;
 
 import javax.swing.*;
 
+/**
+ * Parent class owning internally a {@link JFrame}
+ * Automatically {@link #Init()} method at the end of his construction
+ * Analog at {@link SwingDialog}
+ */
 public abstract class SwingFrame extends SwingView
 {
     protected JFrame frame;
@@ -27,6 +32,9 @@ public abstract class SwingFrame extends SwingView
      */
     protected abstract void Init();
 
+    /**
+     * Implementation allowing us to properly close the internal {@link JFrame}
+     */
     @Override
     protected void InternalClose()
     {

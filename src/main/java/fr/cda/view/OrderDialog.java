@@ -47,6 +47,9 @@ public abstract class OrderDialog extends DataDialog<Order>
         orderLines = new ArrayList<>();
     }
 
+    /**
+     * Implementation allowing us to retrieve the data inserted by the user and start an action with it
+     */
     @Override
     protected void OnValidateButton()
     {
@@ -89,6 +92,9 @@ public abstract class OrderDialog extends DataDialog<Order>
         HandleValidateOperation(selectedProducts, quantities, clientName);
     }
 
+    /**
+     * Allow us to generate the GUI of the view
+     */
     @Override
     protected void Init()
     {
@@ -100,11 +106,17 @@ public abstract class OrderDialog extends DataDialog<Order>
         GenerateGUI();
     }
 
+    /**
+     * Allow us to initiate a demand to the database while setting up the interface. A callback is waiting the result
+     */
     private void GetProductListFromDatabase()
     {
         controller.ReadAllProduct(this::ReadAllProductCallback);
     }
 
+    /**
+     * The method used to call all the different methods to create the complete interface
+     */
     private void GenerateGUI()
     {
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -122,6 +134,10 @@ public abstract class OrderDialog extends DataDialog<Order>
         dialog.add(mainPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Generate the panel containing the two buttons on the bottom of the view : Validate and Cancel
+     * @return A JPanel containing the components forming the desired part of the interface
+     */
     private JPanel CreateSouthPanel()
     {
         JPanel mainPanel = new JPanel();
@@ -134,6 +150,10 @@ public abstract class OrderDialog extends DataDialog<Order>
         return mainPanel;
     }
 
+    /**
+     * Generate the panel containing the scrolling part displaying the {@link Product} of an {@link Order}
+     * @return A JPanel containing the components forming the desired part of the interface
+     */
     private JPanel CreateCenterPanel()
     {
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -162,11 +182,19 @@ public abstract class OrderDialog extends DataDialog<Order>
         return mainPanel;
     }
 
-    private void OnAddItemButton(ActionEvent p_actionEvent)
+    /**
+     * Callback called when user click on the "+" button. Add a new row of selected {@link Product} to the view
+     * @param actionEvent The event sent by the button
+     */
+    private void OnAddItemButton(ActionEvent actionEvent)
     {
         AddRow();
     }
 
+    /**
+     * Generate the panel containing the client name label and textField
+     * @return A JPanel containing some components
+     */
     private JPanel CreateNorthPanel()
     {
         JPanel clientNamePanel = new JPanel();
@@ -262,6 +290,10 @@ public abstract class OrderDialog extends DataDialog<Order>
         eventBus.Publish(new VoidEvent());
     }
 
+    /**
+     * Generate a {@link JComboBox} with the choice of all {@link Product} owned by the {@link fr.cda.model.Database}
+     * @return A {@link JComboBox} with a special renderer to display {@link Product}
+     */
     JComboBox<Product> GetComboBoxFromExistingProduct()
     {
         JComboBox<Product> toReturn = new JComboBox<>(existingProducts);
@@ -274,6 +306,12 @@ public abstract class OrderDialog extends DataDialog<Order>
         return toReturn;
     }
 
+    /**
+     * A Method called to act on the {@link Order} with the data collected by the Dialog
+     * @param selectedProduct {@link Product} we are able to retrieve from the selection the user did on the view
+     * @param productQuantities Quantities needed for each product
+     * @param clientName Name of the client
+     */
     protected abstract void HandleValidateOperation(final java.util.List<Product> selectedProduct,
                                                     final java.util.List<Integer> productQuantities,
                                                     final String clientName);

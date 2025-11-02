@@ -14,6 +14,9 @@ public class AsyncQueue
 {
     ExecutorService executor;
 
+    /**
+     * @param threadName The name of the thread. Can be displayed in the log
+     */
     public AsyncQueue(final String threadName)
     {
         executor = Executors.newSingleThreadExecutor(runnable ->

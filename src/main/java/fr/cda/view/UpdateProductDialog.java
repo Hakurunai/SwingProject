@@ -9,6 +9,9 @@ import fr.cda.view.swing.SwingViewConfig;
 import javax.swing.*;
 import java.util.function.Consumer;
 
+/**
+ * The view allowing us to update an existing {@link Product} in the {@link fr.cda.model.Database}
+ */
 public class UpdateProductDialog extends ProductDialog
 {
     private final Product internalCopy;

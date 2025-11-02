@@ -1,7 +1,7 @@
 package fr.cda.model;
 
 /**
- * Represent a product with all the mandatory data
+ * Represent a product with all the mandatory data inside the application
  */
 public class Product
 {

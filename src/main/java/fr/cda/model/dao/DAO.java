@@ -5,7 +5,7 @@ import fr.cda.model.ID;
 import fr.cda.model.OperationResult;
 
 /**
- * A DAO is the only type able to interact with the {@link Database}
+ * A DAO is the only type able to interact directly with the {@link Database}
  * @param <T> Specific type for a proper specialisation of this class
  */
 public abstract class DAO<T>

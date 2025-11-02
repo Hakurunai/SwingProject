@@ -2,6 +2,10 @@ package fr.cda.model;
 
 import fr.cda.util.LoggerHelper;
 
+/**
+ * Simple class able to keep track of a number overtime
+ * Use by {@link Database} to generate unique ID
+ */
 public class DataIdGenerator
 {
     private long currentId;
