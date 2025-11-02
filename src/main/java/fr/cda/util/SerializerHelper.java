@@ -1,17 +1,31 @@
 package fr.cda.util;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 
 /**
  * Utility class for general serialisation necessity
  */
 public abstract class SerializerHelper
 {
-    public static final String PATH_SEPARATOR = "/";
+    public static String[] ReadFile(final String filePath) throws IOException
+    {
+        LoggerHelper.log.info("TRY : to read file at path {}", filePath);
+        Path path = Path.of(filePath);
+
+        if (!Files.exists(path))
+        {
+            throw new FileNotFoundException("File not found: " + filePath);
+        }
+
+        List<String> lines = Files.readAllLines(Path.of(filePath));
+        return lines.toArray(String[]::new);
+    }
 
     public static boolean SerializeToFile(final String content, final String path, final String fileName)
     {

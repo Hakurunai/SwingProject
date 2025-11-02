@@ -1,8 +1,8 @@
 package fr.cda.model;
 
 import fr.cda.Config;
-import fr.cda.util.CSVHelper;
 import fr.cda.util.LoggerHelper;
+import fr.cda.util.SerializerHelper;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -346,10 +346,10 @@ public class Database
      */
     private void InitOrder()
     {
-        LoggerHelper.log.info("START : initialization of Order in the database");
+        LoggerHelper.log.info("TRY : initialization of Order in the database");
         try
         {
-            final String[] DATA = CSVHelper.ReadCsvFile(Config.DB_ORDER_FILE_PATH);
+            final String[] DATA = SerializerHelper.ReadFile(Config.DB_ORDER_FILE_PATH);
             for (String line : DATA)
             {
                 ExtractFromFileAndInsertOrder(line);
@@ -357,7 +357,7 @@ public class Database
         }
         catch (IOException e)
         {
-            LoggerHelper.log.error("An error occurred while reading Order file at path : " + Config.DB_ORDER_FILE_PATH);
+            LoggerHelper.log.error("FAIL : {}",  e.getMessage());
             e.printStackTrace();
         }
     }
@@ -402,10 +402,10 @@ public class Database
      */
     private void InitProduct()
     {
-        LoggerHelper.log.info("START : initialization of Product in the database");
+        LoggerHelper.log.info("TRY : initialization of Product in the database");
         try
         {
-            final String[] DATA = CSVHelper.ReadCsvFile(Config.DB_PRODUCT_FILE_PATH);
+            final String[] DATA = SerializerHelper.ReadFile(Config.DB_PRODUCT_FILE_PATH);
 
             for (String line : DATA)
             {
@@ -414,7 +414,7 @@ public class Database
         }
         catch (IOException e)
         {
-            LoggerHelper.log.error("An error occurred while reading Product file at path : " + Config.DB_PRODUCT_FILE_PATH);
+            LoggerHelper.log.error("FAIL : {}", e.getMessage());
             e.printStackTrace();
         }
     }
