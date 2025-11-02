@@ -16,6 +16,7 @@ public abstract class Config
     public static final String OUTPUT_ORDER_FILE_NAME;
 
 
+    public static final String TINK_CRYPTED_KEY;
     public static final String OUTPUT_CRYPTED_FILE_PATH;
     public static final String OUTPUT_CRYPTED_PRODUCT_FILE_NAME;
     public static final String OUTPUT_CRYPTED_ORDER_FILE_NAME;
@@ -42,6 +43,7 @@ public abstract class Config
         OUTPUT_ORDER_FILE_NAME = dotenv.get("OUTPUT_ORDER_FILE_NAME");
 
 
+        TINK_CRYPTED_KEY = dotenv.get("TINK_CRYPTED_KEY");
         OUTPUT_CRYPTED_FILE_PATH = dotenv.get("OUTPUT_CRYPTED_FILE_PATH");
         OUTPUT_CRYPTED_PRODUCT_FILE_NAME = dotenv.get("OUTPUT_CRYPTED_PRODUCT_FILE_NAME");
         OUTPUT_CRYPTED_ORDER_FILE_NAME = dotenv.get("OUTPUT_CRYPTED_ORDER_FILE_NAME");

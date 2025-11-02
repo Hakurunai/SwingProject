@@ -4,8 +4,10 @@ import fr.cda.Config;
 import fr.cda.model.*;
 import fr.cda.model.dao.OrderDAO;
 import fr.cda.model.dao.ProductDAO;
+import fr.cda.util.CryptHelper;
 import fr.cda.util.SerializerHelper;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -40,7 +42,19 @@ public class AppController
         if (!saveOrderRes.HasSucceeded())
             return OperationResult.FAILURE(saveOrderRes.getMessage());
 
-        //todo : Encrypt the files
+
+        //Encrypt the files
+        Path completePath = Path.of(Config.OUTPUT_FILE_PATH, Config.OUTPUT_PRODUCT_FILE_NAME);
+        boolean cryptResult = CryptHelper.EncryptFile(completePath.toString(), Config.OUTPUT_CRYPTED_FILE_PATH, Config.OUTPUT_CRYPTED_PRODUCT_FILE_NAME,
+                Config.TINK_CRYPTED_KEY);
+        if (!cryptResult)
+            return OperationResult.FAILURE("ERROR : An issue occurred during encryption of file : " + completePath.toString());
+
+        completePath = Path.of(Config.OUTPUT_FILE_PATH, Config.OUTPUT_ORDER_FILE_NAME);
+        cryptResult = CryptHelper.EncryptFile(completePath.toString(), Config.OUTPUT_CRYPTED_FILE_PATH, Config.OUTPUT_CRYPTED_ORDER_FILE_NAME,
+                Config.TINK_CRYPTED_KEY);
+        if (!cryptResult)
+            return OperationResult.FAILURE("ERROR : An issue occurred during encryption of file : " + completePath.toString());
 
 
         //todo : Send them to remote server via FTP

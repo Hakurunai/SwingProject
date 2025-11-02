@@ -13,6 +13,32 @@ import java.util.List;
  */
 public abstract class SerializerHelper
 {
+    /**
+     * Read a file after ensuring his existence and return his content as byte[]
+     * @param filePath The path of the file to read (including his name and extension)
+     * @return An array of byte returned by the method {@link Files#readAllBytes(Path)}
+     * @throws IOException This exception can be thrown during the process
+     */
+    public static byte[] ReadFileAsByte(final String filePath) throws IOException
+    {
+        LoggerHelper.log.info("TRY : to read in binary file at path {}", filePath);
+        Path path = Path.of(filePath);
+
+        if (!Files.exists(path))
+        {
+            throw new FileNotFoundException("File not found: " + filePath);
+        }
+
+        return Files.readAllBytes(Path.of(filePath));
+    }
+
+
+    /**
+     * Read a file after ensuring his existence and return his content
+     * @param filePath The path of the file to read (including his name and extension)
+     * @return An array of String, each one corresponding to one line of the file
+     * @throws IOException This exception can be thrown during the process
+     */
     public static String[] ReadFile(final String filePath) throws IOException
     {
         LoggerHelper.log.info("TRY : to read file at path {}", filePath);
@@ -27,6 +53,44 @@ public abstract class SerializerHelper
         return lines.toArray(String[]::new);
     }
 
+    /**
+     * Serialize an array of byte[] in a file
+     * @param content The content of the file to serialize
+     * @param path The path where you want to put the file
+     * @param fileName The name of the generated file, including his extension
+     * @return True in case of success, false otherwise
+     */
+    public static boolean SerializeToFile(final byte[] content, final String path, final String fileName)
+    {
+        LoggerHelper.log.info("TRY : to serialize file in binary {} at path {}", fileName, path);
+
+        if (!EnsureOrCreatePath(path))
+        {
+            LoggerHelper.log.error("FAIL : to ensure/create path : " + path);
+            return false;
+        }
+        Path filePath = Path.of(path, fileName);
+
+        try
+        {
+            Files.write(filePath, content);
+            return true;
+        }
+        catch (IOException e)
+        {
+            LoggerHelper.log.error("FAIL : to serialize file : {} at path : {}", fileName, path);
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Serialize a String in a file
+     * @param content The content of the file
+     * @param path The path where you want to put the file
+     * @param fileName The name of the generated file, including his extension
+     * @return True in case of success, false otherwise
+     */
     public static boolean SerializeToFile(final String content, final String path, final String fileName)
     {
         LoggerHelper.log.info("TRY : to serialize file {} at path {}", fileName, path);
@@ -55,6 +119,7 @@ public abstract class SerializerHelper
         {
             LoggerHelper.log.error("FAIL : while writing file : " + filePath + " | " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
         return true;
     }
