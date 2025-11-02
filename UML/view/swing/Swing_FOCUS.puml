@@ -6,5 +6,15 @@
 !include ../../Common.puml
 !include SwingPackage.puml
 
+remove controller.AppController
+remove controller.DatabaseConnectionException
+remove controller.DatabaseConnectionEvent
+remove controller.DatabaseOperationEndedEvent
+
+remove util
+
+remove model
+
+remove event
 
 @enduml
