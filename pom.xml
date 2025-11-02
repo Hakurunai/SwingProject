@@ -45,6 +45,13 @@
             <version>7.0.0</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.google.crypto.tink/tink -->
+        <dependency>
+            <groupId>com.google.crypto.tink</groupId>
+            <artifactId>tink</artifactId>
+            <version>1.19.0</version>
+        </dependency>
     </dependencies>
 
 </project>
