@@ -1,8 +1,8 @@
 package fr.cda.model;
 
 import fr.cda.Config;
-import fr.cda.util.CSVHelper;
 import fr.cda.util.LoggerHelper;
+import fr.cda.util.SerializerHelper;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -15,18 +15,13 @@ import java.util.*;
  */
 public class Database
 {
-    private final String ORDER_FILE = "Commandes.txt";
-    private final String PRODUCT_FILE = "Produits.txt";
-
-    private static final String ERROR_ID_ALREADY_EXISTING = "ERROR : The ID used is already present in the database";
     private static final String ERROR_UNKNOWN_ID = "ERROR : The ID used is unknown from the database";
-    private static final String ERROR_UNKNOWN_PRODUCT_CATEGORY = "ERROR : The Category used is unknown from the database";
 
 
     private final Map<Category, ProductCategoryMap> productMap;
     private final Map<ID, Order> orderMap;
 
-    private DataIdGenerator orderIDGenerator;
+    private final DataIdGenerator orderIDGenerator;
 
     //region Ctor
     /**
@@ -46,17 +41,6 @@ public class Database
     //endregion Ctor
 
     //region PUBLIC_METHODS
-    public OperationResult<Void> SaveProductToFile(final String productPath)
-    {
-        //Todo : Implement
-        return null;
-    }
-
-    public OperationResult<Void> SaveOrderToFile(final String productPath)
-    {
-        //Todo : Implement
-        return null;
-    }
 
     //region CRUD OPERATION
 
@@ -80,7 +64,7 @@ public class Database
 
         final ID newProductID = new ID(CATEGORY.categoryName() + "-" + productMap.get(CATEGORY).GetNextCategoryIdAsString());
         if (productMap.get(CATEGORY).getProductMap().containsKey(newProductID))
-            return OperationResult.FAILURE(ERROR_ID_ALREADY_EXISTING);
+            return OperationResult.FAILURE("ERROR : The ID used is already present in the database. ID : " + newProductID.id());
 
 
         Product newProduct = new Product(newProductID, product.getName(), CATEGORY, product.getPrice(), product.getStoredQuantity());
@@ -326,7 +310,7 @@ public class Database
         {
             SetNonDoableOrderReason(order);
         }
-        return OperationResult.SUCCESS(impossibleOrderToFulfill.stream().toArray(Order[]::new),
+        return OperationResult.SUCCESS(impossibleOrderToFulfill.toArray(Order[]::new),
                 "SUCCESS : All possible deliveries has been made. Here are the one impossible to fulfill right now");
     }
     //endregion PUBLIC_METHODS
@@ -349,10 +333,10 @@ public class Database
      */
     private void InitOrder()
     {
-        LoggerHelper.log.info("START : initialization of Order in the database");
+        LoggerHelper.log.info("TRY : initialization of Order in the database");
         try
         {
-            final String[] DATA = CSVHelper.ReadCsvFile(Config.DB_ORDER_FILE_PATH);
+            final String[] DATA = SerializerHelper.ReadFile(Config.DB_ORDER_FILE_PATH);
             for (String line : DATA)
             {
                 ExtractFromFileAndInsertOrder(line);
@@ -360,7 +344,7 @@ public class Database
         }
         catch (IOException e)
         {
-            LoggerHelper.log.error("An error occurred while reading Order file at path : " + Config.DB_ORDER_FILE_PATH);
+            LoggerHelper.log.error("FAIL : {}",  e.getMessage());
             e.printStackTrace();
         }
     }
@@ -405,10 +389,10 @@ public class Database
      */
     private void InitProduct()
     {
-        LoggerHelper.log.info("START : initialization of Product in the database");
+        LoggerHelper.log.info("TRY : initialization of Product in the database");
         try
         {
-            final String[] DATA = CSVHelper.ReadCsvFile(Config.DB_PRODUCT_FILE_PATH);
+            final String[] DATA = SerializerHelper.ReadFile(Config.DB_PRODUCT_FILE_PATH);
 
             for (String line : DATA)
             {
@@ -417,7 +401,7 @@ public class Database
         }
         catch (IOException e)
         {
-            LoggerHelper.log.error("An error occurred while reading Product file at path : " + Config.DB_PRODUCT_FILE_PATH);
+            LoggerHelper.log.error("FAIL : {}", e.getMessage());
             e.printStackTrace();
         }
     }
@@ -542,7 +526,7 @@ public class Database
     private OperationResult<Void> CheckIfProductCategoryExist(final Category category)
     {
         if (!productMap.containsKey(category))
-            return OperationResult.FAILURE(ERROR_UNKNOWN_PRODUCT_CATEGORY + " : " + category.categoryName());
+            return OperationResult.FAILURE("ERROR : The Category used is unknown from the database : " + category.categoryName());
 
         return OperationResult.SUCCESS("SUCCESS : Category found in database. Category : " + category.categoryName());
     }
@@ -658,9 +642,9 @@ public class Database
         //OrderContent Format for each String : ID(Name-Number)=Quantity
         String[] productDetail;
         List<OrderDetail> orderDetails = new ArrayList<>();
-        for (int i = 0 ; i < orderContent.size(); ++i)
+        for (String string : orderContent)
         {
-            productDetail = orderContent.get(i).split("=");
+            productDetail = string.split("=");
             ID productID = new ID(productDetail[0]);
 
             if (!ReadProductInternal(productID).HasSucceeded())

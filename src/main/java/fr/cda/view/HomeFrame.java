@@ -21,7 +21,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Arrays;
-import java.util.Map;
 
 
 public final class HomeFrame extends SwingFrame
@@ -210,9 +209,10 @@ public final class HomeFrame extends SwingFrame
         buttonComputeProfit.addActionListener(this::OnComputeProfitButton);
 
         buttonSendMailData = new JButton("Send data to mail");
-        buttonGenerateBackUp = new JButton("Generate back up");
+        buttonSendMailData.addActionListener(this::OnSendMailButton);
 
-        //Todo: Add listener to the buttons
+        buttonGenerateBackUp = new JButton("Generate back up");
+        buttonGenerateBackUp.addActionListener(this::OnGenerateBackUpButton);
 
         JButton[] buttonArray =
                 { buttonShowStorage, buttonShowOrder, buttonUpdateSelectedItem, buttonMakeDeliveries,
@@ -344,25 +344,25 @@ public final class HomeFrame extends SwingFrame
     }
 
     /**
-     * Call when user press the button {@link #buttonComputeProfit}
-     * @param operationResult An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
-     * and, in case of success, containing an array of {@link Order} representing all the order in the {@link fr.cda.model.Database}
+     * Call when a user press {@link #buttonSendMailData}
+     * Used to gather and generate the same information as {@link #buttonComputeProfit} but send the result via mail
+     * @param actionEvent The event sent by the button
      */
-    private void DisplayOrderProfitCallback(OperationResult<String> operationResult)
+    private void OnSendMailButton(ActionEvent actionEvent)
     {
-        if (!operationResult.HasSucceeded())
-        {
-            JOptionPane.showMessageDialog(frame, "An error occured while trying to get the data from the database : "
-                    + operationResult.getMessage(), "Compute profit error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        SetButtonAddAndRemoveItemVisibility(false);
+        controller.SendOrderReviewByMail(this::OnMailSentCallback);
+    }
 
-        detailArea.setText(operationResult.getData());
+    private void OnGenerateBackUpButton(ActionEvent p_actionEvent)
+    {
+        SetButtonAddAndRemoveItemVisibility(false);
+        controller.SaveBackViaFTP(this::OnBackUpGeneratedCallback);
     }
 
     //endregion Button_Event
 
-    //region CRUD_Callback
+    //region GUIController_CALLBACK
     /**
      * Callback called when a new Product is created from an {@link CreateProductDialog} to add it to the view
      * @param result An {@link OperationResult} able to tell if the operation was succeeded via {@link OperationResult#HasSucceeded()}
@@ -470,7 +470,46 @@ public final class HomeFrame extends SwingFrame
 
         controller.ReadAllOrder(this::ReadAllOrderCallback);
     }
-    //endregion CRUD_Callback
+
+    /**
+     * Call when user press the button {@link #buttonComputeProfit}
+     * @param operationResult An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     * and, in case of success, containing an array of {@link Order} representing all the order in the {@link fr.cda.model.Database}
+     */
+    private void DisplayOrderProfitCallback(OperationResult<String> operationResult)
+    {
+        if (!operationResult.HasSucceeded())
+        {
+            JOptionPane.showMessageDialog(frame, "An error occured while trying to get the data from the database : "
+                                                         + operationResult.getMessage(), "Compute profit error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        detailArea.setText(operationResult.getData());
+    }
+
+
+    private void OnMailSentCallback(final OperationResult<Void> operationResult)
+    {
+        if (!operationResult.HasSucceeded())
+        {
+            JOptionPane.showMessageDialog(frame, "Fail to send the mail", "Mail sending error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        JOptionPane.showMessageDialog(frame, "The mail was correctly sent", "Mail sent", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void OnBackUpGeneratedCallback(final OperationResult<Void> operationResult)
+    {
+        if (!operationResult.HasSucceeded())
+        {
+            JOptionPane.showMessageDialog(frame, "Fail to generate the backup", "Backup generation error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        JOptionPane.showMessageDialog(frame, "The backup was successfully generated and sent on remote server", "Backup generated", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    //endregion GUIController_CALLBACK
 
     //region Mouse_Clic_Event
     /**

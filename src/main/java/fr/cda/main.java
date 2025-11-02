@@ -1,6 +1,5 @@
 package fr.cda;
 
-import fr.cda.event.EventBus;
 import fr.cda.view.FrontApp;
 import fr.cda.model.BackApp;
 import fr.cda.model.Database;
@@ -32,7 +31,7 @@ public class main
 
     public static void main(String[] args)
     {
-        if (RUN_APP == true)
+        if (RUN_APP)
             RunApp();
         else
             QuickTest();

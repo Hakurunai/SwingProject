@@ -7,7 +7,7 @@ import fr.cda.model.*;
  */
 public class ProductDAO extends DAO<Product>
 {
-    public ProductDAO(Database database)
+    public ProductDAO(final Database database)
     {
         super(database);
     }
@@ -19,7 +19,7 @@ public class ProductDAO extends DAO<Product>
      * and containing, in case of success, the {@link ID} generated during the insertion
      */
     @Override
-    public OperationResult<ID> CreateNewData(Product data)
+    public OperationResult<ID> CreateNewData(final Product data)
     {
         return database.CreateNewProduct(data);
     }
@@ -31,7 +31,7 @@ public class ProductDAO extends DAO<Product>
      * and containing, in case of success, a copy of the {@link Product} targeted
      */
     @Override
-    public OperationResult<Product> ReadData(ID id)
+    public OperationResult<Product> ReadData(final ID id)
     {
         return database.ReadProduct(id);
     }
@@ -63,7 +63,7 @@ public class ProductDAO extends DAO<Product>
      * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
      */
     @Override
-    public OperationResult<Void> UpdateData(Product data)
+    public OperationResult<Void> UpdateData(final Product data)
     {
         return database.UpdateProduct(data);
     }
@@ -74,23 +74,18 @@ public class ProductDAO extends DAO<Product>
      * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
      */
     @Override
-    public OperationResult<Void> DeleteData(ID id)
+    public OperationResult<Void> DeleteData(final ID id)
     {
         return database.DeleteProduct(id);
     }
 
-    @Override
-    public OperationResult<Void> SaveDataToFile(String pathFile)
-    {
-        return database.SaveProductToFile(pathFile);
-    }
 
     /**
      * Use to create a new {@link Category} of {@link Product} in the linked {@link Database}
      * @param category The {@link Category} you want to add
      * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
      */
-    public OperationResult<Void> CreateNewProductCategory(Category category)
+    public OperationResult<Void> CreateNewProductCategory(final Category category)
     {
         return database.CreateNewProductCategory(category);
     }

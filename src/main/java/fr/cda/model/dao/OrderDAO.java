@@ -4,8 +4,6 @@ import fr.cda.model.Database;
 import fr.cda.model.ID;
 import fr.cda.model.OperationResult;
 import fr.cda.model.Order;
-import jdk.dynalink.Operation;
-
 
 /**
  * Specialisation of the DAO for handling {@link Order} object
@@ -72,12 +70,6 @@ public class OrderDAO extends DAO<Order>
     public OperationResult<Void> DeleteData(ID id)
     {
         return database.DeleteOrder(id);
-    }
-
-    @Override
-    public OperationResult<Void> SaveDataToFile(String pathFile)
-    {
-        return database.SaveOrderToFile(pathFile);
     }
 
     /**

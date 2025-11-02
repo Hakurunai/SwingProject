@@ -1,10 +1,15 @@
 package fr.cda.controller;
 
+import fr.cda.Config;
 import fr.cda.event.EventBus;
 import fr.cda.model.*;
+import fr.cda.util.MailMessenger;
+import fr.cda.util.SerializerHelper;
 import fr.cda.view.swing.async.SwingAsyncQueue;
 import fr.cda.util.LoggerHelper;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Consumer;
@@ -12,7 +17,7 @@ import java.util.function.Consumer;
 public class GUIController
 {
     private AppController appController;
-    private SwingAsyncQueue swingAsyncQueue;
+    private final SwingAsyncQueue swingAsyncQueue;
 
     public final EventBus eventBus;
 
@@ -266,16 +271,55 @@ public class GUIController
         return OperationResult.FAILURE("App Controller is null");
     }
 
-    public void SaveProductToFile(final String filePath, final Consumer<OperationResult<String>> callback)
-    {
-        //todo : implement
-    }
 
-    public void SaveOrderToFile(final String filePath, final Consumer<OperationResult<String>> callback)
+    public void SendOrderReviewByMail(final Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
     {
-        //todo : implement
-    }
+        VerifyConnection();
 
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.GenerateProfitFile(), // Supplier<String>
+                fileGenerationResult ->
+                {
+                    if (!fileGenerationResult.HasSucceeded())
+                    {
+                        DatabaseOperationCallbackWrapper(callback).accept(
+                                OperationResult.FAILURE("FAIL : File generation : " + fileGenerationResult.getMessage())
+                        );
+                        return;
+                    }
+
+                    // Serialize the data
+                    boolean serialized = SerializerHelper.SerializeToFile(
+                            fileGenerationResult.getData(),
+                            Config.OUTPUT_FILE_PATH,
+                            Config.REVIEW_ORDER_FILE_NAME
+                    );
+
+                    if (!serialized)
+                    {
+                        DatabaseOperationCallbackWrapper(callback).accept(
+                                OperationResult.FAILURE("FAIL : Serialize file failed at path : "
+                                                         + Config.OUTPUT_FILE_PATH + Config.REVIEW_ORDER_FILE_NAME)
+                        );
+                        return;
+                    }
+
+                    // Send the mail
+                    Path filePath = Paths.get(Config.OUTPUT_FILE_PATH, Config.REVIEW_ORDER_FILE_NAME);
+
+                    OperationResult<Void> mailResult = MailMessenger.SendMail(
+                            Config.SEND_BLUE_MAIL_TARGET_MAIL,
+                            Config.SEND_BLUE_MAIL_TARGET_NAME,
+                            Config.SEND_BLUE_MAIL_SENDER_MAIL,
+                            Config.SEND_BLUE_MAIL_SENDER_NAME,
+                            "Order delivered review",
+                            "In attachment the desired file",
+                            new Path[]{filePath}
+                    );
+
+                    DatabaseOperationCallbackWrapper(callback).accept(mailResult);
+                });
+    }
 
     /**
      * Method to call to ask the linked {@link Database} to perform {@link Database#MakeAllDeliveries()} through a Chain of Responsibility
@@ -291,20 +335,6 @@ public class GUIController
                 DatabaseOperationCallbackWrapper(callback));
     }
 
-    /**
-     * Action used to send the data of the deliverer order by mail. A callback is then used on the {@link OperationResult}
-     * returned by the {@link Database}
-     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
-     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
-     */
-    public void SendDeliveredOrderByMail(final Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
-    {
-        VerifyConnection();
-
-        swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.SendDeliveredOrderByMail(),
-                DatabaseOperationCallbackWrapper(callback));
-    }
 
     /**
      * Action used to save the data in the {@link Database} on a server via FTP protocol. A callback is then used on the {@link OperationResult}
@@ -317,7 +347,7 @@ public class GUIController
         VerifyConnection();
 
         swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.SaveBackViaFTP(),
+                () -> appController.GenerateBackUp(),
                 DatabaseOperationCallbackWrapper(callback));
     }
     //endregion PUBLIC_METHODS

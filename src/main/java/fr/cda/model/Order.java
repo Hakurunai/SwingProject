@@ -50,11 +50,6 @@ public class Order
         orderedProduct = new ArrayList<>(other.orderedProduct);
     }
 
-    /**
-     * Used by {@link #GenerateOrderDTO(String, List)} to create an Order with a NULL ID
-     * @param clientName Name of the client
-     * @param orderedProduct ProductDetail contained in the Order
-     */
 
     /**
      ** Used by {@link #GenerateOrderDTO(String, LocalDate, List)} to create an Order with a NULL ID
@@ -78,7 +73,7 @@ public class Order
      * as a temporary format non-yet-integrated in the {@link Database}
      * @param clientName Name of the client
      * @param orderedProduct Products contained in the Order
-     * @return
+     * @return An order without any valid {@link ID}
      */
     public static Order GenerateOrderDTO(final String clientName, final LocalDate creationDate,
                                          final List<OrderDetail> orderedProduct)
@@ -114,11 +109,6 @@ public class Order
     public LocalDate getCreationDate()
     {
         return creationDate;
-    }
-
-    public void setCreationDate(LocalDate p_creationDate)
-    {
-        creationDate = p_creationDate;
     }
 
     public String getClientName()

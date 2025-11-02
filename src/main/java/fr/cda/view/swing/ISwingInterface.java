@@ -5,10 +5,10 @@ public interface ISwingInterface
     /**
      * Used to show the interface on screen
      */
-    public void Display();
+    void Display();
 
     /**
      * Used to hide the interface already visible on screen
      */
-    public void Hide();
+    void Hide();
 }

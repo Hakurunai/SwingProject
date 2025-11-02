@@ -28,7 +28,7 @@ public class AsyncQueue
      * We can stack a new process who will be executed when all the previous one are ended
      * @param operation a supplier who will be executed first
      * @param onOperationDone a Consumer acting as a callback who will use the returned value from the supplier as a parameter
-     * @param <T>
+     * @param <T> The type of object needed by the supplier and the consumer
      */
     public <T> void SubmitAsyncOperation(final Supplier<T> operation, final Consumer<T> onOperationDone)
     {

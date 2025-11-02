@@ -34,7 +34,7 @@ public class CreateOrderDialog extends OrderDialog
         if (selectedProduct.size() != productQuantities.size())
             return;
 
-        List<OrderDetail> details = new ArrayList<OrderDetail>();
+        List<OrderDetail> details = new ArrayList<>();
         for (int i = 0; i < selectedProduct.size(); i++)
         {
             OrderDetail tempDetail = new OrderDetail(selectedProduct.get(i).getId(),
