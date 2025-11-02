@@ -5,6 +5,7 @@ import fr.cda.model.*;
 import fr.cda.model.dao.OrderDAO;
 import fr.cda.model.dao.ProductDAO;
 import fr.cda.util.CryptHelper;
+import fr.cda.util.FTPSender;
 import fr.cda.util.SerializerHelper;
 
 import java.nio.file.Path;
@@ -57,8 +58,19 @@ public class AppController
             return OperationResult.FAILURE("ERROR : An issue occurred during encryption of file : " + completePath.toString());
 
 
-        //todo : Send them to remote server via FTP
+        final Path productEncryptedPath = Path.of(Config.OUTPUT_CRYPTED_FILE_PATH, Config.OUTPUT_CRYPTED_PRODUCT_FILE_NAME);
+        final Path orderEncryptedPath = Path.of(Config.OUTPUT_CRYPTED_FILE_PATH, Config.OUTPUT_CRYPTED_ORDER_FILE_NAME);
 
+
+        //Send them to remote server via FTP
+        OperationResult<Void> ftpResult = FTPSender.SendData(new String[]{productEncryptedPath.toString(), orderEncryptedPath.toString()},
+                                                            Config.FTP_SERVER_URL, Config.FTP_SERVER_USERNAME, Config.FTP_SERVER_PASSWORD,
+                                                            Config.FTP_SERVER_PATH_TO_SEND,21);
+
+        if (!ftpResult.HasSucceeded())
+        {
+            return OperationResult.FAILURE(ftpResult.getMessage());
+        }
         return OperationResult.SUCCESS("SUCCESS : Backup correctly generated and sent to the distant server.");
     }
 

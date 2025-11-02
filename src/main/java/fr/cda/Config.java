@@ -29,6 +29,12 @@ public abstract class Config
     public static final String SEND_BLUE_MAIL_SENDER_NAME;
 
 
+    public static final String FTP_SERVER_URL;
+    public static final String FTP_SERVER_USERNAME;
+    public static final String FTP_SERVER_PASSWORD;
+    public static final String FTP_SERVER_PATH_TO_SEND;
+
+
     static
     {
         dotenv = Dotenv.load();
@@ -54,5 +60,11 @@ public abstract class Config
         SEND_BLUE_MAIL_TARGET_NAME = dotenv.get("SEND_BLUE_MAIL_TARGET_NAME");
         SEND_BLUE_MAIL_SENDER_MAIL = dotenv.get("SEND_BLUE_MAIL_SENDER_MAIL");
         SEND_BLUE_MAIL_SENDER_NAME = dotenv.get("SEND_BLUE_MAIL_SENDER_NAME");
+
+
+        FTP_SERVER_URL = dotenv.get("FTP_SERVER_URL");
+        FTP_SERVER_USERNAME = dotenv.get("FTP_SERVER_USERNAME");
+        FTP_SERVER_PASSWORD = dotenv.get("FTP_SERVER_PASSWORD");
+        FTP_SERVER_PATH_TO_SEND = dotenv.get("FTP_SERVER_PATH_TO_SEND");
     }
 }
