@@ -13,7 +13,7 @@ public class BackApp
 
     /**
      *
-     * @param database
+     * @param database The database we want to be linked to
      */
     public BackApp(final Database database)
     {

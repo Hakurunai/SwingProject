@@ -3,7 +3,6 @@ package fr.cda.view;
 import fr.cda.controller.GUIController;
 import fr.cda.event.EventBus;
 import fr.cda.event.VoidEvent;
-import fr.cda.model.Category;
 import fr.cda.model.OperationResult;
 import fr.cda.model.Order;
 import fr.cda.model.Product;
@@ -293,7 +292,7 @@ public abstract class OrderDialog extends DataDialog<Order>
 
     /**
      * Generate a {@link JComboBox} with the choice of all {@link Product} owned by the {@link fr.cda.model.Database}
-     * @return
+     * @return A {@link JComboBox} with a special renderer to display {@link Product}
      */
     JComboBox<Product> GetComboBoxFromExistingProduct()
     {

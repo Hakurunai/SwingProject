@@ -3,7 +3,6 @@ package fr.cda.view;
 import fr.cda.controller.GUIController;
 import fr.cda.model.Category;
 import fr.cda.model.OperationResult;
-import fr.cda.model.Order;
 import fr.cda.model.Product;
 import fr.cda.view.swing.SwingViewConfig;
 

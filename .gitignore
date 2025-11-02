@@ -39,3 +39,4 @@ build/
 .DS_Store
 /logs/log4j.log
 /output/
+/doc/

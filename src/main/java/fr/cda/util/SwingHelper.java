@@ -2,7 +2,6 @@ package fr.cda.util;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
 
 /**
  * Util class used to help to generate parts of interface
