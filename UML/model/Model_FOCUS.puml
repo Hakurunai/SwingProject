@@ -7,16 +7,17 @@
 !include ModelPackage.puml
 
 remove util.CryptHelper
-remove util.DeliverMailHelper
+remove util.SwingHelper
+remove util.FTPSender
+remove util.MailMessenger
 
 remove controller.GUIController
 remove controller.DatabaseConnectionException
 remove controller.DatabaseConnectionEvent
+remove controller.DatabaseOperationEndedEvent
 
 remove view
-
 remove async
-
 remove event
 
 @enduml

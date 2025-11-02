@@ -10,61 +10,244 @@ package view
 {
     class FrontApp
     {
-        - allOrder : Hashmap<String, Order>
-        - allProduct : Hashmap<String, Product>
-
-        - homeViewConfig : SwingViewConfig
+        - mainApp : HomeFrame
+        - siteConfig : SwingViewConfig
+        - controller : GUIController
 
         + FrontApp()
-        - LaunchApp()
-        + EstablishConnection(backApp : BackApp)
+        + EstablishConnectionWithBack(back : BackApp)
 
         - LoadConfig()
         - LoadCustomConfig() : boolean
         - LoadDefaultConfig()
+        - LaunchApp()
 
-        - CreateHomeView()
-        - ConnectToDatabase(remoteController : AppController) : OperationResult<Void>
-        - GetDataFromDatabase()
-
-        # ListAllProducts() : String
-        # ListAllOrder() : String
-        # ListOrder(final int id) : String
+        - CreateApplication()
     }
 
 
     class HomeFrame <<final>>
     {
         - JTextArea infoArea
-        - JTextArea productDetailArea
+        - JTextArea detailArea
 
         - buttonShowStorage : JButton
         - buttonShowOrder : JButton
-        - buttonShowSpecificOrder : JButton
+        - buttonCreateNewItem : JButton
+        - buttonUpdateSelectedItem : JButton
+        - buttonRemoveItem : JButton
+
         - buttonMakeDeliveries : JButton
         - buttonComputeProfit : JButton
         - buttonSendMailData : JButton
         - buttonGenerateBackUp : JButton
 
+        - lastElementIndexSelectedByUserInDataListView : int
         - {static} PANEL_BORDER_SIZE : int {final}
 
-        # Init()
+        databaseConnectionEventListener : IEventListener<DatabaseConnectionEvent>
+        databaseOperationEndedEventListener : IEventListener<DatabaseOperationEndedEvent>
 
-        - JPanel CreateCenterPanel()
-        - JPanel CreateInfoArea()
-        - JPanel CreateListAndDescriptionPanel()
-        - JPanel CreateButtonPanel()
+        + HomeFrame(config, controller)
+
+        # Init() <<implementation>>
+
+        - CreateCenterPanel() : JPanel
+        - CreateInfoArea() : JPanel
+        - CreateListAndDescriptionPanel() : JPanel
+        - CreateButtonPanel() : JPanel
+
+        - OnAddItemButton(e : ActionEvent)
+        - OnRemoveItemButton(e : ActionEvent)
+        - OnOpenUpdateDialogButton(e : ActionEvent)
+        - OnComputeProfitButton(e : ActionEvent)
+        - OnSendMailButton(e : ActionEvent)
+        - OnGenerateBackUpButton(e : ActionEvent)
+
+        - RemoveItems(selectedItem : Object)
+        - DeleteProduct(product : Product)
+        - DeleteOrder(order : Order)
+
+        - OnNewProductCreated(result : OperationResult<Product>)
+        - DeleteProductCallback(result : OperationResult<Void>)
+        - OnProductUpdated(result : OperationResult<Product>)
+        - ReadAllProductCallback(result : OperationResult<Product[]>)
+
+        - OnNewOrderCreated(result : OperationResult<Order>)
+        - ReadAllOrderCallback(result : OperationResult<Order[]>)
+        - OnOrderUpdated(result : OperationResult<Order>)
+        - DeleteOrderCallback(result : OperationResult<Void>)
+
+        - DisplayOrderProfitCallback(result : OperationResult<String>)
+        - OnMailSentCallback(result : OperationResult<Void>)
+        - OnBackUpGeneratedCallback(result : OperationResult<Void>)
+
+        - OnDataListSelectionChanged(event : ListSelectionEvent)
+        - OnListClic(e : MouseEvent)
+
+        - OnDatabaseConnectionEvent(databaseConnectionEvent : DatabaseConnectionEvent)
+        - OnDatabaseOperationEnded(event : DatabaseOperationEndedEvent)
+
+        - OpenCreateNewOrderDialog()
+        - OpenCreateNewProductDialog()
+        - OpenUpdateDialog(index : int)
+        - OpenUpdateProductDialog(itemToUpdate : Product)
+        - OpenUpdateOrderDialog(itemToUpdate : Order)
+
+        - ShowMessage(message : String)
+        - DisplayDataListView(result : T[])
+        - DisplayOrderDetails(selected : List<Order>)
+        - DisplayProductDetail(selected : List<Product>)
+
+        - GenerateProductStringFormat(selected : List<Product>, headers : String[]) : String
+        - ExtractProductDataAsColumn(product : Product) : String[]
+        - SetButtonAddAndRemoveItemVisibility(newVisibilityLevel : boolean)
     }
 
+    abstract DataDialog <T>
+    {
+        # OnDialogAchieveTask : Consumer<OperationResult<T>>
 
-    FrontApp "1" ..> HomeFrame
+        # validateButton : JButton
+        # cancelButton : JButton
+
+        + DataDialog(config, controller, frameOwner, achieveTaskCallback : Consumer<OperationResult<T>>)
+
+        # {abstract} OnValidateButton()
+        # Init() <<implementation>>
+        # DialogAchieveTask(taskOperationRes : OperationResult<Void>, toReturn : T)
+    }
+
+    abstract ProductDialog <Product>
+    {
+        - {static} TEXT_DIMENSION : Dimension
+        - {static} NUMBER_DIMENSION : Dimension
+
+        - nameField : JTextField
+        - categoryCombo : JComboBox<Category>
+        - newCategoryField : JTextField
+        - priceField : JTextField
+        - quantityField : JTextField
+        - newCategoryCheck JCheckBox
+
+        + ProductDialog(config, controller, frameOwner, onDialogAchieveTask : Consumer<OperationResult<Product>>)
+
+        # OnValidateButton() <<implementation>>
+        # Init() <<implementation>>
+
+        # OnCategoryComboInitialized(result : OperationResult<Category[]>)
+        # HandleNewCategoryCase(category, name, price, quantity)
+        # {abstract} HandleProductActionOnDatabase(name, category, priceRef, quantity);
+
+        - HandleFillCategoryChoice()
+    }
+
+    abstract OrderDialog <Order>
+    {
+        - existingProducts : Product[]
+        - clientNameField : JTextField
+        # addNewProductButton : JButton
+        # listContainerPanel : JPanel
+        # orderLines : ArrayList<OrderLinePanel>
+        # eventBus : EventBus
+
+
+        + OrderDialog(config, controller, frameOwner, onDialogAchieveTask : Consumer<OperationResult<Order>>)
+
+        # OnValidateButton() <<implementation>>
+        # Init() <<implementation>>
+        # {abstract} HandleValidateOperation(selectedProduct : List<Product>, productQuantities : List<Integer>, clientName)
+
+        - GetProductListFromDatabase()
+        - GenerateGUI()
+        - CreateNorthPanel() : JPanel
+        - CreateCenterPanel() : JPanel
+        - CreateSouthPanel() : JPanel
+
+        - OnAddItemButton(actionEvent : ActionEvent)
+        - AddRow()
+        - RemoveRow(toRemove : JPanel)
+        - GetComboBoxFromExistingProduct() : JComboBox<Product>
+
+        - ReadAllProductCallback(operationResult : OperationResult<Product[]>)
+    }
+
+    class CreateProductDialog
+    {
+        + CreateProductDialog(config, controller, frameOwner, onDialogAchieveTask : Consumer<OperationResult<Product>>)
+        # HandleProductActionOnDatabase(name, category, priceRef, quantity) <<implementation>>
+    }
+
+    class UpdateProductDialog
+    {
+        - internalCopy : Product
+
+        + UpdateProductDialog(config, controller, frameOwner, onDialogAchieveTask : Consumer<OperationResult<Product>>, productToUpdate : Product)
+
+        # OnCategoryComboInitialized(result : OperationResult<Category[]>) <<override>>
+        # HandleProductActionOnDatabase(name, category, priceRef, quantity) <<implementation>>
+
+        - InitField()
+    }
+
+    class CreateOrderDialog
+    {
+        + CreateOrderDialog(config, controller, frameOwner, onDialogAchieveTask : Consumer<OperationResult<Order>>)
+        # HandleValidateOperation(selectedProduct : List<Product>, productQuantities : List<Integer>, clientName) <<implementation>>
+    }
+
+    class UpdateOrderDialog
+    {
+        - internalOrder : Order
+
+        + UpdateOrderDialog(config, controller, frameOwner, onDialogAchieveTask : Consumer<OperationResult<Order>>, orderToUpdate : Order)
+
+        # HandleValidateOperation(selectedProduct : List<Product>, productQuantities : List<Integer>, clientName) <<implementation>>
+
+        - InitGUIWithValueFromObjectToUpdate()
+        - SelectProductInComboBox(comboBox : JComboBox<Product>, target : ID)
+    }
+
+    class OrderLinePanel
+    {
+        - panel : JPanel
+        - productCombo : JComboBox<Product>
+        - quantityField : JTextField
+
+        + OrderLinePanel(panel, productCombo, quantityField)
+    }
 
     HomeFrame "1" --* FrontApp
     HomeFrame --|> swing.SwingFrame
-    HomeFrame --> swing.SwingHelper
     HomeFrame --> cellRenderer.ProductOrderListRenderer
+    HomeFrame ..> CreateProductDialog
+    note on link : create
+    HomeFrame ..> UpdateProductDialog
+    note on link : create
+    HomeFrame ..> CreateOrderDialog
+    note on link : create
+    HomeFrame ..> UpdateOrderDialog
+    note on link : create
+
+    ProductDialog --|> DataDialog
+    OrderDialog --|> DataDialog
+    OrderDialog --> ProductComboBoxCellRenderer
+
+    OrderLinePanel "0-n" --* OrderDialog
+
+    CreateProductDialog --|> ProductDialog
+    UpdateProductDialog --|> ProductDialog
+
+    CreateOrderDialog --|> OrderDialog
+    UpdateOrderDialog --|> OrderDialog
 }
 
+view.DataDialog --|> view.swing.SwingDialog
+
+view.HomeFrame --> event.EventBus
+view.HomeFrame --> util.SwingHelper
+
+view.swing.SwingViewConfig "1" --* view.FrontApp
 controller.GUIController "1" --* view.FrontApp
 
 

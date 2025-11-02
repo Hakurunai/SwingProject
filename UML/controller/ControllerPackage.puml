@@ -9,17 +9,14 @@ package controller
 {
     class AppController
     {
+        - productDAO : ProductDAO
+        - orderDAO : orderDAO
+
         + AppController(database : Database)
 
-        + SaveProductToFile(filePath : String) : OperationResult<String>
-        + SaveOrderToFile(filePath : String) : OperationResult<String>
-
-        + CreateNewProduct(data : Product) : OperationResult<String>
-        + CreateNewProductCategory(category : Category) OperationResult<Void>
-        + ReadProduct(id : String) : OperationResult<Product>
-        + ReadAllProduct() : OperationResult<ArrayList<Product>>
-        + UpdateProduct(data : Product) OperationResult<Void>
-        + DeleteProduct(id : String) OperationResult<Void>
+        + GenerateBackUp() : OperationResult<Void>
+        + GenerateProfitFile() : OperationResult<String>
+        + MakeAllDeliveries() : OperationResult<Order[]>
 
         + CreateNewOrder(data : Order) : OperationResult<String>
         + ReadOrder(id : String) : OperationResult<Order>
@@ -27,28 +24,36 @@ package controller
         + UpdateOrder(data : Order) OperationResult<Void>
         + DeleteOrder(id : String) OperationResult<Void>
 
-        + MakeAllDeliveries() : OperationResult<Order[]>
+        + CreateNewProduct(data : Product) : OperationResult<String>
+        + CreateNewProductCategory(category : Category) OperationResult<Void>
+        + ReadProduct(id : String) : OperationResult<Product>
+        + ReadAllProduct() : OperationResult<ArrayList<Product>>
+        + ReadAllProductCategories() : OperationResult<Category[]>
+        + UpdateProduct(data : Product) OperationResult<Void>
+        + DeleteProduct(id : String) OperationResult<Void>
 
-        + SendDeliveredOrderByMail() : OperationResult<Void>
-        + SaveBackViaFTP() : OperationResult<Void>
+        - SaveProductToFile(filePath : String, fileName : String) : OperationResult<Void>
+        - SaveOrderToFile(filePath : String, fileName : String) : OperationResult<Void>
+
+        - GenerateAllCSVProductData(data : Product[]) : String
+        - GenerateCSVProductData(data : Product) : String
+        - GenerateAllCSVOrderData(data : Order[]) : String
+        - GenerateCSVOrderData(data : Order) : String
+        - CollectOrderData(order : Order, orderProfit : ArrayList<Float>) : String
     }
 
     class GUIController
     {
-        + eventBus : EventBus
         - appController : AppController
+        - swingAsyncQueue : SwingAsyncQueue
 
-        + ConnectToBackApp(backApp : BackApp) : OperationResult<Void>
-        + IsConnected() : OperationResult<Void>
-
-
-        + SaveProductToFile(filePath : String, callback : Consumer<OperationResult<String>>)
-        + SaveOrderToFile(filePath : String, callback : Consumer<OperationResult<String>>)
+        + eventBus : EventBus
 
         + CreateNewProduct(data : Product, callback : Consumer<OperationResult<ID>>)
         + CreateNewProductCategory(category : Category, callback : Consumer<OperationResult<Void>>)
         + ReadProduct(id : ID, callback : Consumer<OperationResult<Product>>)
         + ReadAllProduct(callback : Consumer<OperationResult<Product[]>>)
+        + ReadAllProductCategory(callback : Consumer<OperationResult<Category[]>>)
         + UpdateProduct(data : Product, callback : Consumer<OperationResult<Void>>)
         + DeleteProduct(id : ID, callback : Consumer<OperationResult<Void>>)
 
@@ -57,10 +62,21 @@ package controller
         + ReadAllOrder(callback : Consumer<OperationResult<Order[]>>)
         + UpdateOrder(data : Order, callback : Consumer<OperationResult<Void>>)
         + DeleteOrder(id : ID, callback : Consumer<OperationResult<Void>>)
+
+        + ConnectToBackApp(backApp : BackApp) : OperationResult<Void>
+        + IsConnected() : OperationResult<Void>
+
+
+        + SaveProductToFile(filePath : String, callback : Consumer<OperationResult<String>>)
+        + SaveOrderToFile(filePath : String, callback : Consumer<OperationResult<String>>)
         + MakeAllDeliveries(callback : Consumer<OperationResult<Order[]>>)
 
-        + SendDeliveredOrderByMail(callback : Consumer<OperationResult<Void>>)
+        + QueryProfitMade(callback : Consumer<OperationResult<String>>)
+        + SendOrderReviewByMail(callback : Consumer<OperationResult<Void>>)
         + SaveBackViaFTP(callback : Consumer<OperationResult<Void>>)
+
+        - VerifyConnection()
+        - DatabaseOperationCallbackWrapper(callBack : Consumer<OperationResult<T>>) : Consumer<OperationResult<T>>
     }
 
     exception DatabaseConnectionException
@@ -70,6 +86,11 @@ package controller
         + DatabaseConnectionEvent(message : String, isConnected : boolean)
     }
 
+    record DatabaseOperationEndedEvent
+    {
+        + DatabaseOperationEndedEvent(message : String)
+    }
+
     note right of GUIController
         Use his own thread to treat demands
         from FrontApp while keeping order
@@ -77,13 +98,20 @@ package controller
 
 
     AppController "1" --o GUIController
+
+    GUIController --> DatabaseConnectionEvent
+    GUIController --> DatabaseOperationEndedEvent
+    GUIController --> DatabaseConnectionException
 }
 
 model.dao.ProductDAO "1" --* controller.AppController
 model.dao.OrderDAO "1" --* controller.AppController
 
-controller.AppController --> util.DeliverMailHelper
 controller.AppController --> util.CryptHelper
+controller.AppController --> util.FTPSender
+controller.AppController --> util.SerializerHelper
+controller.AppController --> model.OperationResult
+controller.GUIController --> util.MailMessenger
 
 view.swing.async.SwingAsyncQueue "1" --* controller.GUIController
 

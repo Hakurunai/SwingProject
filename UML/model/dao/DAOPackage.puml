@@ -16,8 +16,6 @@ package model.dao
         + {abstract} ReadAllData() : OperationResult<T[]>
         + {abstract} UpdateData(data : T) : OperationResult<Void>
         + {abstract} DeleteData(id : ID) : OperationResult<Void>
-
-        + SaveDataToFile(path : String) : OperationResult<Void>
     }
 
     class OrderDAO <Order> <<final>>
@@ -27,12 +25,14 @@ package model.dao
 
     class ProductDAO <Product> <<final>>
     {
-        + CreateNewProductCategory(category : Category) :
+        + CreateNewProductCategory(category : Category) : OperationResult<Void>
+        + ReadAllProductCategories() : OperationResult<Category[]>
     }
 
     OrderDAO --|> DAO
     ProductDAO --|> DAO
 }
+
 
 model.Database "1" ..o model.dao.DAO
 

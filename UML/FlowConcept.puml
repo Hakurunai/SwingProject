@@ -27,7 +27,7 @@ package view
 
 circle files
 
-note left of GUIController : Handle first verifications\nbefore any operation on back
+note top of GUIController : Thread all his operations
 note right of Database : Keep data in memory while app is running
 
 Database "1" --* BackApp
@@ -35,7 +35,7 @@ AppController "1" --* BackApp
 
 Order "n" --* "1" Database
 Product "n" --* "1" Database
-Database --> files : handle read and write
+Database --> files
 
 DAO --> Database : Send Crud operation
 DAO "n" --* "1" AppController

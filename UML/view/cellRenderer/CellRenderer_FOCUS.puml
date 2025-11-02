@@ -4,4 +4,18 @@
 !include ../../Common.puml
 !include CellRendererPackage.puml
 
+remove controller
+remove util
+remove async
+remove event
+
+remove view.swing.async
+
+remove model.dao
+remove model.Database
+remove model.DataIdGenerator
+remove model.ProductCategoryMap
+remove model.BackApp
+remove model.OperationResult
+
 @enduml

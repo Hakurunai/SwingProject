@@ -3,40 +3,50 @@
 
 package util
 {
-    abstract SerializerHelper
-    {
-        + {static} SerializeProduct(Product)
-        + {static} SerializeProduct(List<Product>)
-
-        + {static} SerializeOrder(Order)
-        + {static} SerializeOrder(List<Order>)
-
-        + {static} DeserializeProduct(File) : List<Product>
-        + {static} DeserializeOrder(File) : List<Order>
-    }
-
-    abstract CSVHelper
-    {
-        + {static} ReadCsvFile(filePath : String) : String[]
-    }
-
-    abstract DeliverMailHelper
-    {
-
-    }
-
     abstract CryptHelper
     {
+        - {static} static()
 
+        + {static} DecryptFile(fileToDecrypt: String, keyToUse : String)
+        + {static} EncryptFile(fileToCrypt: String, cryptedPathLocation : String, cryptedFileName : String, keyToUse : String)
+        + {static} GenerateKey()
     }
 
-    abstract LoggerHelper
+    abstract FTPSender
+    {
+        + {static} SendData(fileToSend : String[], serverUrl, serverUsername, serverPassword, remoteServerPath, port : int) : OperationResult<Void>
+        - {static} CreateDirToDistantRepo(ftpClient : FTPClient, dirPath : String)
+    }
+
+   abstract LoggerHelper
     {
         + {static} log : log4j::Logger
     }
 
+    abstract MailMessenger
+    {
+        + {static} SendMail(targetMail, targetName, senderMail, senderName, subject, content, attachmentPath : Path[]) : OperationResult<Void>
+    }
+
+    abstract SerializerHelper
+    {
+        + {static} ReadFileAsByte(filePath : String) : byte[]
+        + {static} ReadFile(filePath : String) : String[]
+        + {static} SerializeToFile(content : byte[], path : String, fileName : String) : boolean
+        + {static} SerializeToFile(content : String, path : String, fileName : String) : boolean
+        + {static} EnsureOrCreatePath(filePath : String) : boolean
+    }
+
+    abstract SwingHelper
+    {
+        + {static} SetSameSize(components : JComponent[])
+        + {static} DetermineMaxSize(components : JComponent[]) : Dimension
+        + {static} AddComponentToPanelWithStruts(targetPanel : JPanel, components : JComponent[], horizontalStrut : int, verticalStrut : int)
+        + {static} CreateNonEditableTextArea() : JTextArea
+    }
+
     note right of LoggerHelper
-        Is used everywhere
+        Can be used by everyone
     end note
 }
 

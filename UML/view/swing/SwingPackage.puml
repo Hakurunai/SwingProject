@@ -2,7 +2,7 @@
 !define SWING__PUML
 
 !include async/SwingAsyncPackage.puml
-
+!include ../../controller/ControllerPackage.puml
 
 package view.swing
 {
@@ -14,9 +14,14 @@ package view.swing
 
     abstract class SwingView
     {
-        + SwingView(config : SwingViewConfig, autoShow : boolean)
+        # config : SwingViewConfig
+        # controller : GUIController
+
+        + SwingView(config, controller)
+        + Close()
+
         # {abstract} Init()
-        # Autoshow(autoshow : boolean)
+        # InternalClose()
     }
 
     note left of SwingView::Init
@@ -33,33 +38,29 @@ package view.swing
 
         + SwingViewConfig(title, width, height)
         + {static} DEFAULT : SiteConfig
+        - {static} static()
     }
 
     abstract class SwingDialog
     {
         # dialog : JDialog
 
-        # SwingDialog(config : SwingViewConfig, frameOwner : JFrame, isModal : boolean, autoShow : boolean)
-        + Display()
-        + Hide()
+        + SwingDialog(config, controller, frameOwner : JFrame, isModal : boolean)
+        + Display() <<implementation>>
+        + Hide() <<implementation>>
+        # InternalClose() <<implementation>>
     }
 
     abstract class SwingFrame
     {
         # frame : JFrame
 
-        #Frame(config : SwingInterfaceConfig, autoShow : boolean)
-        + Display()
-        + Hide()
+        + SwingFrame(config, controller)
+        + Display() <<implementation>>
+        + Hide() <<implementation>>
+        # InternalClose() <<implementation>>
     }
 
-    abstract SwingHelper
-    {
-        + {static} SetSameSize(JComponent[])
-        + {static} DetermineMaxSize(JComponent[]) : Dimension
-        + {static} AddComponentToPanelWithStruts(JPanel, JComponent[], final int, final int)
-        + {static} CreateNonEditableTextArea() : JTextArea
-    }
 
     SwingView ..|> ISwingInterface
     SwingFrame --|> SwingView
@@ -67,6 +68,8 @@ package view.swing
 
     SwingView "0-n" *-- "1" SwingViewConfig
 }
+
+controller.GUIController "1" --o view.swing.SwingView
 
 
 !endif
