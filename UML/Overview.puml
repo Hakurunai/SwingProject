@@ -21,6 +21,30 @@ package fr.cda
         + {static} DB_ORDER_FILE_PATH : String
         + {static} DB_PRODUCT_FILE_PATH : String
 
+        + {static} OUTPUT_FILE_PATH : String
+        + {static} REVIEW_ORDER_FILE_NAME : String
+        + {static} OUTPUT_PRODUCT_FILE_NAME : String
+        + {static} OUTPUT_ORDER_FILE_NAME : String
+
+
+        + {static} TINK_CRYPTED_KEY : String
+        + {static} OUTPUT_CRYPTED_FILE_PATH : String
+        + {static} OUTPUT_CRYPTED_PRODUCT_FILE_NAME : String
+        + {static} OUTPUT_CRYPTED_ORDER_FILE_NAME : String
+
+
+        + {static} SEND_BLUE_API_KEY : String
+        + {static} SEND_BLUE_MAIL_TARGET_MAIL : String
+        + {static} SEND_BLUE_MAIL_TARGET_NAME : String
+        + {static} SEND_BLUE_MAIL_SENDER_MAIL : String
+        + {static} SEND_BLUE_MAIL_SENDER_NAME : String
+
+
+        + {static} FTP_SERVER_URL : String
+        + {static} FTP_SERVER_USERNAME : String
+        + {static} FTP_SERVER_PASSWORD : String
+        + {static} FTP_SERVER_PATH_TO_SEND : String
+
         - {static} static()
     }
 }
