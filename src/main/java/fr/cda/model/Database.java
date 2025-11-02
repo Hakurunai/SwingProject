@@ -329,62 +329,6 @@ public class Database
     }
 
     /**
-     * Used internally to read all Orders from the configuration file, called after {@link #InitProduct()}
-     */
-    private void InitOrder()
-    {
-        LoggerHelper.log.info("TRY : initialization of Order in the database");
-        try
-        {
-            final String[] DATA = SerializerHelper.ReadFile(Config.DB_ORDER_FILE_PATH);
-            for (String line : DATA)
-            {
-                ExtractFromFileAndInsertOrder(line);
-            }
-        }
-        catch (IOException e)
-        {
-            LoggerHelper.log.error("FAIL : {}",  e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Used in {@link #InitOrder()} to create the Orders from the read CSV file
-     * @param line The content of the {@link Order} CSV file
-     */
-    private void ExtractFromFileAndInsertOrder(final String line)
-    {
-        //Todo : check if content is ill-formed
-
-        //FORMAT : ID ; CreationDate ; ClientName ; ProductRef (ID=Quantity)...
-        //1;21/09/2022;Macron Brigitte;LIVRE-1=1;LIVRE-2=2;...
-
-        final int ORDER_CONTENT_INDEX_START_POSITION = 3;
-
-        String[] dataContent = line.split(";");
-        ID orderID = new ID(dataContent[0]);
-
-        var readRes = ReadOrderInternal(orderID);
-        if (readRes.HasSucceeded())
-        {
-            LoggerHelper.log.warn("CHECK : You tried to initialize an already existing Order in the database" + orderID.id());
-            return;
-        }
-
-        ArrayList<String> orderContentFromFile = new ArrayList<>();
-        for (int i = ORDER_CONTENT_INDEX_START_POSITION ; i < dataContent.length; ++i)
-        {
-            orderContentFromFile.add(dataContent[i]);
-        }
-        List<OrderDetail> orderDetails = ExtractOrderDetails(orderContentFromFile, orderID);
-
-        Order newOrder = new Order(orderID, LocalDate.parse(dataContent[1], DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                dataContent[2], orderDetails);
-        orderMap.put(orderID, newOrder);
-    }
-
-    /**
      * Internally used to Read all the {@link Product} from the configuration file
      */
     private void InitProduct()
@@ -402,6 +346,27 @@ public class Database
         catch (IOException e)
         {
             LoggerHelper.log.error("FAIL : {}", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Used internally to read all Orders from the configuration file, called after {@link #InitProduct()}
+     */
+    private void InitOrder()
+    {
+        LoggerHelper.log.info("TRY : initialization of Order in the database");
+        try
+        {
+            final String[] DATA = SerializerHelper.ReadFile(Config.DB_ORDER_FILE_PATH);
+            for (String line : DATA)
+            {
+                ExtractFromFileAndInsertOrder(line);
+            }
+        }
+        catch (IOException e)
+        {
+            LoggerHelper.log.error("FAIL : {}",  e.getMessage());
             e.printStackTrace();
         }
     }
@@ -449,6 +414,41 @@ public class Database
                 Integer.parseInt(dataContent[3]));
 
         productMap.get(category).getProductMap().put(newProduct.getId(), newProduct);
+    }
+
+    /**
+     * Used in {@link #InitOrder()} to create the Orders from the read CSV file
+     * @param line The content of the {@link Order} CSV file
+     */
+    private void ExtractFromFileAndInsertOrder(final String line)
+    {
+        //Todo : check if content is ill-formed
+
+        //FORMAT : ID ; CreationDate ; ClientName ; ProductRef (ID=Quantity)...
+        //1;21/09/2022;Macron Brigitte;LIVRE-1=1;LIVRE-2=2;...
+
+        final int ORDER_CONTENT_INDEX_START_POSITION = 3;
+
+        String[] dataContent = line.split(";");
+        ID orderID = new ID(dataContent[0]);
+
+        var readRes = ReadOrderInternal(orderID);
+        if (readRes.HasSucceeded())
+        {
+            LoggerHelper.log.warn("CHECK : You tried to initialize an already existing Order in the database" + orderID.id());
+            return;
+        }
+
+        ArrayList<String> orderContentFromFile = new ArrayList<>();
+        for (int i = ORDER_CONTENT_INDEX_START_POSITION ; i < dataContent.length; ++i)
+        {
+            orderContentFromFile.add(dataContent[i]);
+        }
+        List<OrderDetail> orderDetails = ExtractOrderDetails(orderContentFromFile, orderID);
+
+        Order newOrder = new Order(orderID, LocalDate.parse(dataContent[1], DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                dataContent[2], orderDetails);
+        orderMap.put(orderID, newOrder);
     }
     //endregion INIT
 
@@ -554,7 +554,7 @@ public class Database
      * @return An {@link OperationResult} able to tell you if the deletion was a success using {@link OperationResult#HasSucceeded()}
      * and containing, in case of success, a REFERENCE of the internal {@link Order}
      */
-    public OperationResult<Order> ReadOrderInternal(final ID orderId)
+    private OperationResult<Order> ReadOrderInternal(final ID orderId)
     {
         if (!orderMap.containsKey(orderId))
             return OperationResult.FAILURE(ERROR_UNKNOWN_ID + " : " + orderId.id());

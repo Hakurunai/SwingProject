@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * The view allowing us to update an existing {@link Order} in the {@link fr.cda.model.Database}
+ */
 public class UpdateOrderDialog extends OrderDialog
 {
     private final Order internalOrder;
@@ -33,6 +36,12 @@ public class UpdateOrderDialog extends OrderDialog
         });
     }
 
+    /**
+     * Implementation allowing us to try to update an existing {@link Order} in the {@link Database}
+     * @param selectedProduct {@link Product} we are able to retrieve from the selection the user did on the view
+     * @param productQuantities Quantities needed for each product
+     * @param clientName Name of the client
+     */
     @Override
     protected void HandleValidateOperation(List<Product> selectedProduct, List<Integer> productQuantities, String clientName)
     {
@@ -59,6 +68,9 @@ public class UpdateOrderDialog extends OrderDialog
         });
     }
 
+    /**
+     * Allow the view to update all his component values based on the {@link Order} we want to update from her
+     */
     private void InitGUIWithValueFromObjectToUpdate()
     {
         clientNameField.setText(internalOrder.getClientName());
@@ -88,7 +100,13 @@ public class UpdateOrderDialog extends OrderDialog
         }
     }
 
-    public void SelectProductInComboBox(JComboBox<Product> comboBox, ID target) {
+    /**
+     * Allow us to set the value of a {@link JComboBox} of {@link Product} if this value exist in her model
+     * @param comboBox The targeted comboBox
+     * @param target The {@link ID} you want to set the value of the comboBox
+     */
+    private void SelectProductInComboBox(JComboBox<Product> comboBox, ID target)
+    {
         ComboBoxModel<Product> model = comboBox.getModel();
         for (int i = 0; i < model.getSize(); i++)
         {

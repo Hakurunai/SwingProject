@@ -1,9 +1,8 @@
 package fr.cda.model;
 
 /**
- * Represent a success/failure of an operation. Transport a
- * message and an object resulting of this operation.
- * @param <T> A data transported by this object as a result of an operation
+ * Represent a success/failure of an operation. Transport a message and an object resulting of this operation.
+ * @param <T> A data transported by this object as a result of an operation. Can be of type Void
  */
 public class OperationResult <T>
 {
@@ -11,6 +10,12 @@ public class OperationResult <T>
     private final String message;
     private final boolean bSuccess;
 
+    /**
+     * Internal constructor designed to be call via explicit and static method
+     * @param data The data to transport by this object
+     * @param message A message transported by this object
+     * @param bSuccess A boolean indicating if the operation was a success or a failure
+     */
     private OperationResult(T data, String message, boolean bSuccess)
     {
         this.data = data;

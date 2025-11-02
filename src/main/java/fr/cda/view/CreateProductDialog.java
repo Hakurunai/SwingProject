@@ -3,12 +3,16 @@ package fr.cda.view;
 import fr.cda.controller.GUIController;
 import fr.cda.model.Category;
 import fr.cda.model.OperationResult;
+import fr.cda.model.Order;
 import fr.cda.model.Product;
 import fr.cda.view.swing.SwingViewConfig;
 
 import javax.swing.*;
 import java.util.function.Consumer;
 
+/**
+ * The view allowing us to insert a new {@link Product} and a new {@link Category} in the {@link fr.cda.model.Database}
+ */
 public class CreateProductDialog extends ProductDialog
 {
     /**

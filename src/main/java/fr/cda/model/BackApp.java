@@ -2,12 +2,19 @@ package fr.cda.model;
 
 import fr.cda.controller.AppController;
 
+/**
+ * Object owing the {@link Database} and the {@link AppController} of the application
+ */
 public class BackApp
 {
     private final Database database;
     private final AppController appController;
     private boolean hasAnActiveConnection = false;
 
+    /**
+     *
+     * @param database
+     */
     public BackApp(final Database database)
     {
         this.database = database;

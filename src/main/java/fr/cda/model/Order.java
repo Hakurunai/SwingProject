@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represent an order with all the mandatory data
+ * Represent an order with all the mandatory data inside the application
  */
 public class Order
 {

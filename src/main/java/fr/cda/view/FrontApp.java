@@ -8,6 +8,9 @@ import fr.cda.view.swing.SwingViewConfig;
 import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
 
+/**
+ * The object owning the complete view AND the {@link GUIController}
+ */
 public class FrontApp
 {
     private HomeFrame mainApp;
@@ -24,6 +27,11 @@ public class FrontApp
         LaunchApp();
     }
 
+    /**
+     * Basic method to emulate the connection between a back and a front
+     * Allow us to link our internal {@link GUIController} to an extern {@link fr.cda.controller.AppController}
+     * @param back The back we want to be connected with
+     */
     public void EstablishConnectionWithBack(final BackApp back)
     {
         LoggerHelper.log.info("TRY to connect the FrontApp to the BackApp");

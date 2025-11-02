@@ -24,7 +24,7 @@ public class GUIController
     //region CTOR
     public GUIController()
     {
-        swingAsyncQueue = new SwingAsyncQueue("AsyncQueue");
+        swingAsyncQueue = new SwingAsyncQueue("GUIController AsyncQueue");
         eventBus = new EventBus();
     }
     //endregion CTOR
@@ -227,18 +227,8 @@ public class GUIController
     //endregion Order_Crud
 
     //endregion CRUD_OPERATION
-
-    public void QueryProfitMade(final Consumer<OperationResult<String>> callback) throws DatabaseConnectionException
-    {
-        VerifyConnection();
-
-        swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.GenerateProfitFile(),
-                callback);
-    }
-
     /**
-     * Action used to get the {@link AppController} owned by the {@link BackApp}
+     * Action used to connect this object to the {@link AppController} owned by the {@link BackApp}
      * @param backApp The {@link BackApp} you want to be connected with
      * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
      */
@@ -271,7 +261,40 @@ public class GUIController
         return OperationResult.FAILURE("App Controller is null");
     }
 
+    /**
+     * Method to call to ask the linked {@link Database} to perform {@link Database#MakeAllDeliveries()} through a Chain of Responsibility
+     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
+     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
+     */
+    public void MakeAllDeliveries(final Consumer<OperationResult<Order[]>> callback) throws DatabaseConnectionException
+    {
+        VerifyConnection();
 
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.MakeAllDeliveries(),
+                DatabaseOperationCallbackWrapper(callback));
+    }
+
+    /**
+     * Call when you want to generate the data concerning the orders delivered and the profit made
+     * @param callback A callback called when the operation has ended
+     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
+     */
+    public void QueryProfitMade(final Consumer<OperationResult<String>> callback) throws DatabaseConnectionException
+    {
+        VerifyConnection();
+
+        swingAsyncQueue.SubmitAsyncOperation(
+                () -> appController.GenerateProfitFile(),
+                callback);
+    }
+
+    /**
+     * Call when you want to generate the data concerning the orders delivered AND send it directly via mail
+     * This method is not intended to be use just to do the computation and retrieve the result. Cd {@link #QueryProfitMade(Consumer)} instead
+     * @param callback A callback called when the operation has ended
+     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
+     */
     public void SendOrderReviewByMail(final Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
     {
         VerifyConnection();
@@ -299,7 +322,7 @@ public class GUIController
                     {
                         DatabaseOperationCallbackWrapper(callback).accept(
                                 OperationResult.FAILURE("FAIL : Serialize file failed at path : "
-                                                         + Config.OUTPUT_FILE_PATH + Config.REVIEW_ORDER_FILE_NAME)
+                                                                + Config.OUTPUT_FILE_PATH + Config.REVIEW_ORDER_FILE_NAME)
                         );
                         return;
                     }
@@ -320,21 +343,6 @@ public class GUIController
                     DatabaseOperationCallbackWrapper(callback).accept(mailResult);
                 });
     }
-
-    /**
-     * Method to call to ask the linked {@link Database} to perform {@link Database#MakeAllDeliveries()} through a Chain of Responsibility
-     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
-     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
-     */
-    public void MakeAllDeliveries(final Consumer<OperationResult<Order[]>> callback) throws DatabaseConnectionException
-    {
-        VerifyConnection();
-
-        swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.MakeAllDeliveries(),
-                DatabaseOperationCallbackWrapper(callback));
-    }
-
 
     /**
      * Action used to save the data in the {@link Database} on a server via FTP protocol. A callback is then used on the {@link OperationResult}
