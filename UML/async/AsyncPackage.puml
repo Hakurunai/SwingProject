@@ -8,7 +8,7 @@ package async
         - executor : ExecutorService
 
         + AsyncQueue(threadName : String)
-        + SubmitAsyncOperation <T> ( operation : Supplier<T>, onOperationDone : Consumer<T>)
+        + SubmitAsyncOperation ( operation : Supplier<T>, onOperationDone : Consumer<T>)
         + Shutdown()
     }
 }
