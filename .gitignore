@@ -40,3 +40,4 @@ build/
 /logs/log4j.log
 /output/
 /doc/
+/logs/
