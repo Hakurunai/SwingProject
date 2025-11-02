@@ -1,6 +1,8 @@
 !ifndef CELLRENDERER__PUML
 !define CELLRENDERER__PUML
 
+!include ../../model/modelPackage.puml
+
 package view.cellRenderer
 {
     class ProductOrderListRenderer
@@ -10,6 +12,16 @@ package view.cellRenderer
         + OrderRenderer(list : JList<?>, order : Order, isSelected : boolean)
         + SetBackGroundLabelColor(color : awt.Color, label : JLabel)
     }
+
+    class ProductComboBoxCellRenderer
+    {
+        + getListCellRendererComponent(list : JList<?>, value : Object, index : int, isSelected : boolean, cellHasFocus : boolean)
+    }
 }
+
+view.cellRenderer.ProductOrderListRenderer --> model.Order
+view.cellRenderer.ProductOrderListRenderer --> model.Product
+
+view.cellRenderer.ProductComboBoxCellRenderer --> model.Product
 
 !endif
