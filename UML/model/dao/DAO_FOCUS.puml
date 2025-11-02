@@ -14,6 +14,7 @@ remove util
 
 remove controller.GUIController
 remove controller.DatabaseConnectionEvent
+remove controller.DatabaseOperationEndedEvent
 remove controller.DatabaseConnectionException
 
 remove event
