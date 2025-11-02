@@ -206,14 +206,13 @@ public final class HomeFrame extends SwingFrame
         buttonMakeDeliveries.addActionListener(e -> controller.MakeAllDeliveries(this::ReadAllOrderCallback));
 
         buttonComputeProfit = new JButton("Compute profit");
-        buttonComputeProfit.addActionListener(this::OnComputeProfitButtonCallback);
+        buttonComputeProfit.addActionListener(this::OnComputeProfitButton);
 
         buttonSendMailData = new JButton("Send data to mail");
-        buttonSendMailData.addActionListener(this::OnSendMailButtonCallback);
+        buttonSendMailData.addActionListener(this::OnSendMailButton);
 
         buttonGenerateBackUp = new JButton("Generate back up");
-
-        //Todo: Add listener to the buttons
+        buttonGenerateBackUp.addActionListener(this::OnGenerateBackUpButton);
 
         JButton[] buttonArray =
                 { buttonShowStorage, buttonShowOrder, buttonUpdateSelectedItem, buttonMakeDeliveries,
@@ -224,7 +223,6 @@ public final class HomeFrame extends SwingFrame
 
         return panelButtons;
     }
-
 
     //endregion INIT_PHASE
 
@@ -336,7 +334,7 @@ public final class HomeFrame extends SwingFrame
         OpenUpdateDialog(lastElementIndexSelectedByUserInDataListView);
     }
 
-    private void OnComputeProfitButtonCallback(ActionEvent p_actionEvent)
+    private void OnComputeProfitButton(ActionEvent p_actionEvent)
     {
         LoggerHelper.log.info("TRIGGER HomeFrame::OnComputeProfitButton");
         dataList.clear();
@@ -346,44 +344,25 @@ public final class HomeFrame extends SwingFrame
     }
 
     /**
-     * Call when user press the button {@link #buttonComputeProfit}
-     * @param operationResult An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
-     * and, in case of success, containing an array of {@link Order} representing all the order in the {@link fr.cda.model.Database}
-     */
-    private void DisplayOrderProfitCallback(OperationResult<String> operationResult)
-    {
-        if (!operationResult.HasSucceeded())
-        {
-            JOptionPane.showMessageDialog(frame, "An error occured while trying to get the data from the database : "
-                    + operationResult.getMessage(), "Compute profit error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        detailArea.setText(operationResult.getData());
-    }
-
-    /**
      * Call when a user press {@link #buttonSendMailData}
      * Used to gather and generate the same information as {@link #buttonComputeProfit} but send the result via mail
      * @param actionEvent The event sent by the button
      */
-    private void OnSendMailButtonCallback(ActionEvent actionEvent)
+    private void OnSendMailButton(ActionEvent actionEvent)
     {
+        SetButtonAddAndRemoveItemVisibility(false);
         controller.SendOrderReviewByMail(this::OnMailSentCallback);
     }
 
-    private void OnMailSentCallback(OperationResult<Void> operationResult)
+    private void OnGenerateBackUpButton(ActionEvent p_actionEvent)
     {
-        if (!operationResult.HasSucceeded())
-        {
-            JOptionPane.showMessageDialog(frame, "Fail to send the mail", "Mail sending error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        JOptionPane.showMessageDialog(frame, "The mail was correctly sent", "Mail sent", JOptionPane.INFORMATION_MESSAGE);
+        SetButtonAddAndRemoveItemVisibility(false);
+        controller.SaveBackViaFTP(this::OnBackUpGeneratedCallback);
     }
+
     //endregion Button_Event
 
-    //region CRUD_Callback
+    //region GUIController_CALLBACK
     /**
      * Callback called when a new Product is created from an {@link CreateProductDialog} to add it to the view
      * @param result An {@link OperationResult} able to tell if the operation was succeeded via {@link OperationResult#HasSucceeded()}
@@ -491,7 +470,46 @@ public final class HomeFrame extends SwingFrame
 
         controller.ReadAllOrder(this::ReadAllOrderCallback);
     }
-    //endregion CRUD_Callback
+
+    /**
+     * Call when user press the button {@link #buttonComputeProfit}
+     * @param operationResult An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     * and, in case of success, containing an array of {@link Order} representing all the order in the {@link fr.cda.model.Database}
+     */
+    private void DisplayOrderProfitCallback(OperationResult<String> operationResult)
+    {
+        if (!operationResult.HasSucceeded())
+        {
+            JOptionPane.showMessageDialog(frame, "An error occured while trying to get the data from the database : "
+                                                         + operationResult.getMessage(), "Compute profit error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        detailArea.setText(operationResult.getData());
+    }
+
+
+    private void OnMailSentCallback(final OperationResult<Void> operationResult)
+    {
+        if (!operationResult.HasSucceeded())
+        {
+            JOptionPane.showMessageDialog(frame, "Fail to send the mail", "Mail sending error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        JOptionPane.showMessageDialog(frame, "The mail was correctly sent", "Mail sent", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void OnBackUpGeneratedCallback(final OperationResult<Void> operationResult)
+    {
+        if (!operationResult.HasSucceeded())
+        {
+            JOptionPane.showMessageDialog(frame, "Fail to generate the backup", "Backup generation error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        JOptionPane.showMessageDialog(frame, "The backup was successfully generated and sent on remote server", "Backup generated", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    //endregion GUIController_CALLBACK
 
     //region Mouse_Clic_Event
     /**

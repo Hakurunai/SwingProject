@@ -72,12 +72,6 @@ public class OrderDAO extends DAO<Order>
         return database.DeleteOrder(id);
     }
 
-    @Override
-    public OperationResult<Void> SaveDataToFile(String pathFile)
-    {
-        return database.SaveOrderToFile(pathFile);
-    }
-
     /**
      * Used to call {@link Database#MakeAllDeliveries()} on the linked {@link Database}
      * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}

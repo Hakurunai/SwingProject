@@ -271,15 +271,6 @@ public class GUIController
         return OperationResult.FAILURE("App Controller is null");
     }
 
-    public void SaveProductToFile(final String filePath, final Consumer<OperationResult<String>> callback)
-    {
-        //todo : implement
-    }
-
-    public void SaveOrderToFile(final String filePath, final Consumer<OperationResult<String>> callback)
-    {
-        //todo : implement
-    }
 
     public void SendOrderReviewByMail(final Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
     {
@@ -344,20 +335,6 @@ public class GUIController
                 DatabaseOperationCallbackWrapper(callback));
     }
 
-    /**
-     * Action used to send the data of the deliverer order by mail. A callback is then used on the {@link OperationResult}
-     * returned by the {@link Database}
-     * @param callback A {@link java.util.function.Consumer} used with the result returned by the {@link Database}
-     * @throws DatabaseConnectionException Throw in case of an issue with the reference of the {@link AppController}, cf {@link GUIController#VerifyConnection()}
-     */
-    public void SendDeliveredOrderByMail(final Consumer<OperationResult<Void>> callback) throws DatabaseConnectionException
-    {
-        VerifyConnection();
-
-        swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.SendDeliveredOrderByMail(),
-                DatabaseOperationCallbackWrapper(callback));
-    }
 
     /**
      * Action used to save the data in the {@link Database} on a server via FTP protocol. A callback is then used on the {@link OperationResult}
@@ -370,7 +347,7 @@ public class GUIController
         VerifyConnection();
 
         swingAsyncQueue.SubmitAsyncOperation(
-                () -> appController.SaveBackViaFTP(),
+                () -> appController.GenerateBackUp(),
                 DatabaseOperationCallbackWrapper(callback));
     }
     //endregion PUBLIC_METHODS

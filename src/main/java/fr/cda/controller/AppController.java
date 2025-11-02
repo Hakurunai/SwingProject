@@ -1,10 +1,13 @@
 package fr.cda.controller;
 
+import fr.cda.Config;
 import fr.cda.model.*;
 import fr.cda.model.dao.OrderDAO;
 import fr.cda.model.dao.ProductDAO;
+import fr.cda.util.SerializerHelper;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,18 +24,172 @@ public class AppController
         orderDAO = new OrderDAO(database);
     }
 
-    public OperationResult<String> SaveProductToFile(final String filePath)
+    /**
+     * Call this to generate a crypted backup of the content of the linked {@link Database}
+     * The backup is then sent on a remote server
+     * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     */
+    public OperationResult<Void> GenerateBackUp()
     {
-        //todo: implement
-        return null;
+        //Generate the file from the current state of the Database
+        OperationResult<Void> saveProdRes = SaveProductToFile(Config.OUTPUT_PRODUCT_FILE_PATH, Config.OUTPUT_PRODUCT_FILE_NAME);
+        if (!saveProdRes.HasSucceeded())
+            return OperationResult.FAILURE(saveProdRes.getMessage());
+
+        OperationResult<Void> saveOrderRes = SaveOrderToFile(Config.OUTPUT_ORDER_FILE_PATH, Config.OUTPUT_ORDER_FILE_NAME);
+        if (!saveOrderRes.HasSucceeded())
+            return OperationResult.FAILURE(saveOrderRes.getMessage());
+
+        //todo : Encrypt the files
+
+        //todo : Send them to remote server via FTP
+
+        return OperationResult.SUCCESS("SUCCESS : Backup correctly generated and sent to the distant server.");
     }
 
-    public OperationResult<String> SaveOrderToFile(final String filePath)
+    /**
+     * Call to retrieve and format all the data concerning the {@link Product} inside the linked {@link Database}
+     * The file is in CSV format
+     * @param filePath The path where you want to save your file
+     * @param fileName The name of the generated file
+     * @return An OperationResult able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     */
+    private OperationResult<Void> SaveProductToFile(final String filePath, final String fileName)
     {
-        //todo: implement
-        return null;
+        OperationResult<Product[]> readResult = productDAO.ReadAllData();
+        if (!readResult.HasSucceeded())
+            return OperationResult.FAILURE(readResult.getMessage());
+
+        final String productAsCSV = GenerateAllCSVProductData(readResult.getData());
+        boolean serialisationRes = SerializerHelper.SerializeToFile(productAsCSV, filePath, fileName);
+
+        final String COMPLETE_PATH = filePath + "\\" + fileName;
+        return serialisationRes ? OperationResult.SUCCESS("SUCCESS : All products has been serialised at path : "
+                                                                  + COMPLETE_PATH)
+                                : OperationResult.FAILURE("FAIL : An issue occurred while saving product at path "
+                                                                    + COMPLETE_PATH);
     }
 
+    /**
+     * Generate one CSV formatted String for all {@link Product} in parameter
+     * @param data The {@link Product} you want to use to generate the String
+     * @return A CSV formatted String containing all the data concatenated corresponding to each Product passed in parameter
+     */
+    private String GenerateAllCSVProductData(final Product[] data)
+    {
+        final StringBuilder builder = new StringBuilder();
+        final char NEW_LINE = '\n';
+
+        for (Product product : data)
+        {
+            builder.append(GenerateCSVProductData(product));
+            builder.append(NEW_LINE);
+        }
+        return builder.toString();
+    }
+
+    /**
+     * Generate a CSV formatted String based on a {@link Product}
+     * @param product The targeted object
+     * @return A String formatted in CSV
+     */
+    private String GenerateCSVProductData(final Product product)
+    {
+        //FORMAT : ID (Category-Number) ; Name ; Price ; Quantity
+        //LIVRE-1;Les Miserables de Victor Hugo;8.50;6
+
+        final char CSV_SEPARATOR = ';';
+
+        final StringBuilder builder = new StringBuilder();
+        builder.append(product.getId().id()).append(CSV_SEPARATOR)
+                .append(product.getName()).append(CSV_SEPARATOR)
+                .append(String.format("%.2f", product.getPrice())).append(CSV_SEPARATOR)
+                .append(product.getStoredQuantity());
+
+        return builder.toString();
+    }
+
+    /**
+     * Call to retrieve and format all the data concerning the {@link Order} inside the linked {@link Database}
+     * The file is in CSV format
+     * @param filePath The path where you want to save your file
+     * @param fileName The name of the generated file
+     * @return An OperationResult able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     */
+    public OperationResult<Void> SaveOrderToFile(final String filePath, final String fileName)
+    {
+        OperationResult<Order[]> readResult = orderDAO.ReadAllData();
+        if (!readResult.HasSucceeded())
+            return OperationResult.FAILURE(readResult.getMessage());
+
+        final String orderAsCSV = GenerateAllCSVOrderData(readResult.getData());
+        boolean serialisationRes = SerializerHelper.SerializeToFile(orderAsCSV, filePath, fileName);
+
+        final String COMPLETE_PATH = filePath + "\\" + fileName;
+        return serialisationRes ? OperationResult.SUCCESS("SUCCESS : All products has been serialised at path : "
+                                                                  + COMPLETE_PATH)
+                       : OperationResult.FAILURE("FAIL : An issue occurred while saving product at path "
+                                                         + COMPLETE_PATH);
+    }
+
+    /**
+     * Generate one CSV formatted String for all {@link Order} in parameter
+     * @param data The {@link Order} you want to use to generate the String
+     * @return A CSV formatted String containing all the data concatenated corresponding to each Order passed in parameter
+     */
+    private String GenerateAllCSVOrderData(Order[] data)
+    {
+        final StringBuilder builder = new StringBuilder();
+        final char NEW_LINE = '\n';
+
+        for (Order order : data)
+        {
+            builder.append(GenerateCSVOrderData(order));
+            builder.append(NEW_LINE);
+        }
+        return builder.toString();
+    }
+
+    /**
+     * Generate a CSV formatted String based on an {@link Order}
+     * @param order The targeted object
+     * @return A String formatted in CSV
+     */
+    private String GenerateCSVOrderData(final Order order)
+    {
+        //FORMAT : ID ; CreationDate ; ClientName ; ProductRef (ID=Quantity)...
+        //1;21/09/2022;Macron Brigitte;LIVRE-1=1;LIVRE-2=2;...
+
+        final StringBuilder builder = new StringBuilder();
+        final char CSV_SEPARATOR = ';';
+
+        final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        final String FORMATTED_DATE = order.getCreationDate().format(DATE_FORMATTER);
+
+        builder.append(order.getId().id()).append(CSV_SEPARATOR)
+                .append(FORMATTED_DATE).append(CSV_SEPARATOR)
+                .append(order.getClientName()).append(CSV_SEPARATOR);
+
+        for (int i = 0 ; i < order.getOrderedProduct().size() ; ++i)
+        {
+            final OrderDetail detail = order.getOrderedProduct().get(i);
+
+            builder.append(detail.productID().id()).append("=")
+                    .append(detail.productQuantity());
+
+            if (i !=  order.getOrderedProduct().size() - 1)
+            {
+                builder.append(CSV_SEPARATOR);
+            }
+        }
+        return builder.toString();
+    }
+
+    /**
+     * Generate a String ready to be displayed, containing all the profit generated by the currently delivered {@link Order}
+     * @return An {@link OperationResult} able to tell if the operation succeeded via {@link OperationResult#HasSucceeded()}
+     * and containing, in case of success, a String ready to be displayed with all the relatives information
+     */
     public OperationResult<String> GenerateProfitFile()
     {
         OperationResult<Order[]> ordersOperation = orderDAO.ReadAllData();
@@ -64,6 +221,12 @@ public class AppController
         return OperationResult.SUCCESS(builder.toString(), "SUCCESS : Completed computation of profit made");
     }
 
+    /**
+     * Generate a String already formatted to display the detail of the profit made by an Order
+     * @param order The order you want to generate the string from
+     * @param orderProfit We put inside this list the sum of the profit made by the order
+     * @return A String ready to display the profit generated by the order
+     */
     private String CollectOrderData(final Order order, ArrayList<Float> orderProfit)
     {
         StringBuilder builder = new StringBuilder();
@@ -225,17 +388,5 @@ public class AppController
     public OperationResult<Order[]> MakeAllDeliveries()
     {
         return orderDAO.MakeAllDeliveries();
-    }
-
-    public OperationResult<Void> SendDeliveredOrderByMail()
-    {
-        //todo : implement
-        return null;
-    }
-
-    public OperationResult<Void> SaveBackViaFTP()
-    {
-        //todo : implement
-        return null;
     }
 }

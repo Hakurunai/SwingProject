@@ -57,7 +57,4 @@ public abstract class DAO<T>
      * @return An {@link OperationResult} able to tell if the Operation succeeded via {@link OperationResult#HasSucceeded()}
      */
     public abstract OperationResult<Void> DeleteData(final ID id);
-
-
-    public abstract OperationResult<Void> SaveDataToFile(final String pathFile);
 }

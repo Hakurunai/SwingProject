@@ -15,9 +15,7 @@ import java.util.*;
  */
 public class Database
 {
-    private static final String ERROR_ID_ALREADY_EXISTING = "ERROR : The ID used is already present in the database";
     private static final String ERROR_UNKNOWN_ID = "ERROR : The ID used is unknown from the database";
-    private static final String ERROR_UNKNOWN_PRODUCT_CATEGORY = "ERROR : The Category used is unknown from the database";
 
 
     private final Map<Category, ProductCategoryMap> productMap;
@@ -43,17 +41,6 @@ public class Database
     //endregion Ctor
 
     //region PUBLIC_METHODS
-    public OperationResult<Void> SaveProductToFile(final String productPath)
-    {
-        //Todo : Implement
-        return null;
-    }
-
-    public OperationResult<Void> SaveOrderToFile(final String productPath)
-    {
-        //Todo : Implement
-        return null;
-    }
 
     //region CRUD OPERATION
 
@@ -77,7 +64,7 @@ public class Database
 
         final ID newProductID = new ID(CATEGORY.categoryName() + "-" + productMap.get(CATEGORY).GetNextCategoryIdAsString());
         if (productMap.get(CATEGORY).getProductMap().containsKey(newProductID))
-            return OperationResult.FAILURE(ERROR_ID_ALREADY_EXISTING);
+            return OperationResult.FAILURE("ERROR : The ID used is already present in the database. ID : " + newProductID.id());
 
 
         Product newProduct = new Product(newProductID, product.getName(), CATEGORY, product.getPrice(), product.getStoredQuantity());
@@ -539,7 +526,7 @@ public class Database
     private OperationResult<Void> CheckIfProductCategoryExist(final Category category)
     {
         if (!productMap.containsKey(category))
-            return OperationResult.FAILURE(ERROR_UNKNOWN_PRODUCT_CATEGORY + " : " + category.categoryName());
+            return OperationResult.FAILURE("ERROR : The Category used is unknown from the database : " + category.categoryName());
 
         return OperationResult.SUCCESS("SUCCESS : Category found in database. Category : " + category.categoryName());
     }

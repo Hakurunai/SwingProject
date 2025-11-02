@@ -18,6 +18,11 @@ public abstract class Config
     public static final String SEND_BLUE_MAIL_SENDER_MAIL;
     public static final String SEND_BLUE_MAIL_SENDER_NAME;
 
+    public static final String OUTPUT_PRODUCT_FILE_PATH;
+    public static final String OUTPUT_PRODUCT_FILE_NAME;
+    public static final String OUTPUT_ORDER_FILE_PATH;
+    public static final String OUTPUT_ORDER_FILE_NAME;
+
     static
     {
         dotenv = Dotenv.load();
@@ -33,5 +38,10 @@ public abstract class Config
         SEND_BLUE_MAIL_TARGET_NAME = dotenv.get("SEND_BLUE_MAIL_TARGET_NAME");
         SEND_BLUE_MAIL_SENDER_MAIL = dotenv.get("SEND_BLUE_MAIL_SENDER_MAIL");
         SEND_BLUE_MAIL_SENDER_NAME = dotenv.get("SEND_BLUE_MAIL_SENDER_NAME");
+
+        OUTPUT_PRODUCT_FILE_PATH  = dotenv.get("OUTPUT_PRODUCT_FILE_PATH");
+        OUTPUT_PRODUCT_FILE_NAME = dotenv.get("OUTPUT_PRODUCT_FILE_NAME");
+        OUTPUT_ORDER_FILE_PATH = dotenv.get("OUTPUT_ORDER_FILE_PATH");
+        OUTPUT_ORDER_FILE_NAME = dotenv.get("OUTPUT_ORDER_FILE_NAME");
     }
 }
