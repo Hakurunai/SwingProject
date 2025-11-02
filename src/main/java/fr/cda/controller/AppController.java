@@ -32,15 +32,16 @@ public class AppController
     public OperationResult<Void> GenerateBackUp()
     {
         //Generate the file from the current state of the Database
-        OperationResult<Void> saveProdRes = SaveProductToFile(Config.OUTPUT_PRODUCT_FILE_PATH, Config.OUTPUT_PRODUCT_FILE_NAME);
+        OperationResult<Void> saveProdRes = SaveProductToFile(Config.OUTPUT_FILE_PATH, Config.OUTPUT_PRODUCT_FILE_NAME);
         if (!saveProdRes.HasSucceeded())
             return OperationResult.FAILURE(saveProdRes.getMessage());
 
-        OperationResult<Void> saveOrderRes = SaveOrderToFile(Config.OUTPUT_ORDER_FILE_PATH, Config.OUTPUT_ORDER_FILE_NAME);
+        OperationResult<Void> saveOrderRes = SaveOrderToFile(Config.OUTPUT_FILE_PATH, Config.OUTPUT_ORDER_FILE_NAME);
         if (!saveOrderRes.HasSucceeded())
             return OperationResult.FAILURE(saveOrderRes.getMessage());
 
         //todo : Encrypt the files
+
 
         //todo : Send them to remote server via FTP
 

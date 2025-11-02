@@ -291,7 +291,7 @@ public class GUIController
                     // Serialize the data
                     boolean serialized = SerializerHelper.SerializeToFile(
                             fileGenerationResult.getData(),
-                            Config.REVIEW_ORDER_FILE_PATH,
+                            Config.OUTPUT_FILE_PATH,
                             Config.REVIEW_ORDER_FILE_NAME
                     );
 
@@ -299,13 +299,13 @@ public class GUIController
                     {
                         DatabaseOperationCallbackWrapper(callback).accept(
                                 OperationResult.FAILURE("FAIL : Serialize file failed at path : "
-                                                                + Config.REVIEW_ORDER_FILE_PATH)
+                                                         + Config.OUTPUT_FILE_PATH + Config.REVIEW_ORDER_FILE_NAME)
                         );
                         return;
                     }
 
                     // Send the mail
-                    Path filePath = Paths.get(Config.REVIEW_ORDER_FILE_PATH, Config.REVIEW_ORDER_FILE_NAME);
+                    Path filePath = Paths.get(Config.OUTPUT_FILE_PATH, Config.REVIEW_ORDER_FILE_NAME);
 
                     OperationResult<Void> mailResult = MailMessenger.SendMail(
                             Config.SEND_BLUE_MAIL_TARGET_MAIL,
