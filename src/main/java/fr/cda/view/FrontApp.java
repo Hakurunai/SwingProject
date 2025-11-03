@@ -71,7 +71,11 @@ public class FrontApp
     /**
      * Load a static SiteConfig inside this object
      */
-    private void LoadDefaultConfig() {siteConfig = SwingViewConfig.DEFAULT;}
+    private void LoadDefaultConfig()
+    {
+        siteConfig = SwingViewConfig.DEFAULT;
+        siteConfig.setTitle("Home");
+    }
 
     /**
      * Order and call the different steps necessary for the application to work
