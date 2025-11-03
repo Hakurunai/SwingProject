@@ -21,8 +21,18 @@ package controller
 package view
 {
     class FrontApp
-    class HomeView
+    class HomeFrame
     class AnyDialogView
+}
+
+package util
+{
+    class CryptHelper
+    class FTPSender
+    class LoggerHelper
+    class MailMessenger
+    class SerializerHelper
+    class SwingHelper
 }
 
 circle files
@@ -44,8 +54,9 @@ GUIController <--> AppController : exchange operation and result
 
 GUIController --* FrontApp : send result
 
-AnyDialogView "n" --* "1" HomeView
-HomeView "1" --* FrontApp
+AnyDialogView "n" --* "1" HomeFrame
+HomeFrame "1" --* FrontApp
+HomeFrame --> controller.GUIController
 
 
 @enduml

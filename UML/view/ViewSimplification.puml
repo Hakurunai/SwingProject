@@ -1,0 +1,54 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!include ../Common.puml
+
+Interface ISwingInterface
+
+Abstract SwingView
+
+class SwingViewConfig
+
+abstract SwingDialog
+{
+    - dialog : JDialog
+}
+
+abstract SwingFrame
+{
+    - frame : JFrame
+}
+
+class HomeFrame
+
+abstract DataDialog
+abstract ProductDialog
+abstract OrderDialog
+
+class CreateProductDialog
+class UpdateProductDialog
+
+class CreateOrderDialog
+class UpdateOrderDialog
+
+SwingView ..|> ISwingInterface
+
+SwingViewConfig "1" --* SwingView
+
+SwingDialog --|> SwingView
+SwingFrame --|> SwingView
+
+HomeFrame --|> SwingFrame
+
+DataDialog --|> SwingDialog
+
+ProductDialog --|> DataDialog
+OrderDialog --|> DataDialog
+
+CreateProductDialog --|> ProductDialog
+UpdateProductDialog --|> ProductDialog
+
+CreateOrderDialog --|> OrderDialog
+UpdateOrderDialog --|> OrderDialog
+
+@enduml
