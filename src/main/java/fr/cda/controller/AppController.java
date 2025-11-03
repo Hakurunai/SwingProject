@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * This class handle the interaction others want to ask at the Database
@@ -341,7 +342,7 @@ public class AppController
         final StringBuilder builder = new StringBuilder();
         builder.append(product.getId().id()).append(CSV_SEPARATOR)
                 .append(product.getName()).append(CSV_SEPARATOR)
-                .append(String.format("%.2f", product.getPrice())).append(CSV_SEPARATOR)
+                .append(String.format(Locale.US,"%.2f", product.getPrice())).append(CSV_SEPARATOR)
                 .append(product.getStoredQuantity());
 
         return builder.toString();

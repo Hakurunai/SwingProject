@@ -338,11 +338,28 @@ public class Database
         LoggerHelper.log.info("TRY : initialization of Product in the database");
         try
         {
-            final String[] DATA = SerializerHelper.ReadFile(Config.DB_PRODUCT_FILE_PATH);
-
-            for (String line : DATA)
+            Path toTest = Paths.get(Config.OUTPUT_FILE_PATH, Config.OUTPUT_PRODUCT_FILE_NAME);
+            if (SerializerHelper.FileExist(toTest.toString()))
             {
-                ExtractFromFileAndInsertProduct(line);
+                final String[] DATA = SerializerHelper.ReadFile(toTest.toString());
+                for (String line : DATA)
+                {
+                    ExtractFromFileAndInsertProduct(line);
+                }
+            }
+            else
+            {
+                if (!SerializerHelper.FileExist(Config.DB_PRODUCT_FILE_PATH))
+                {
+                    LoggerHelper.log.error("FAIL : file at path {} seems to not exist",  Config.DB_PRODUCT_FILE_PATH);
+                    return;
+                }
+
+                final String[] DATA = SerializerHelper.ReadFile(Config.DB_PRODUCT_FILE_PATH);
+                for (String line : DATA)
+                {
+                    ExtractFromFileAndInsertProduct(line);
+                }
             }
         }
         catch (IOException e)
