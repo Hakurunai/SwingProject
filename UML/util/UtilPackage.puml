@@ -34,6 +34,9 @@ package util
         + {static} ReadFile(filePath : String) : String[]
         + {static} SerializeToFile(content : byte[], path : String, fileName : String) : boolean
         + {static} SerializeToFile(content : String, path : String, fileName : String) : boolean
+        + {static} FileExist (filePath : String) : boolean
+        + {static} HideBreakLineForCSV(line : String) : String
+        + {static} ShowBreakLineFromCSV(line : String) : String
         + {static} EnsureOrCreatePath(filePath : String) : boolean
     }
 
