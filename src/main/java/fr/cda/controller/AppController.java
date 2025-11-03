@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * This class handle the interaction others want to ask at the Database
@@ -341,7 +342,7 @@ public class AppController
         final StringBuilder builder = new StringBuilder();
         builder.append(product.getId().id()).append(CSV_SEPARATOR)
                 .append(product.getName()).append(CSV_SEPARATOR)
-                .append(String.format("%.2f", product.getPrice())).append(CSV_SEPARATOR)
+                .append(String.format(Locale.US,"%.2f", product.getPrice())).append(CSV_SEPARATOR)
                 .append(product.getStoredQuantity());
 
         return builder.toString();
@@ -382,9 +383,13 @@ public class AppController
         final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         final String FORMATTED_DATE = order.getCreationDate().format(DATE_FORMATTER);
 
+        final String CSVReadyNonDeliveredExplanation = SerializerHelper.HideBreakLineForCSV(order.getNonDeliveredExplanation());
+
         builder.append(order.getId().id()).append(CSV_SEPARATOR)
                 .append(FORMATTED_DATE).append(CSV_SEPARATOR)
-                .append(order.getClientName()).append(CSV_SEPARATOR);
+                .append(order.getClientName()).append(CSV_SEPARATOR)
+                .append(order.isDelivered()).append(CSV_SEPARATOR)
+                .append(CSVReadyNonDeliveredExplanation).append(CSV_SEPARATOR);
 
         for (int i = 0 ; i < order.getOrderedProduct().size() ; ++i)
         {

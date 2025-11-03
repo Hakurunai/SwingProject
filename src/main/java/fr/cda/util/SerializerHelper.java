@@ -85,6 +85,45 @@ public abstract class SerializerHelper
     }
 
     /**
+     * Check if a file exist following the path
+     * @param filePath Path to the file INCLUDING fileName.extension
+     * @return true if file exist, false otherwise
+     */
+    public static boolean FileExist(final String filePath)
+    {
+        if (filePath == null || filePath.isEmpty())
+        {
+            return false;
+        }
+        Path path = Paths.get(filePath);
+        return Files.exists(path) && Files.isRegularFile(path);
+    }
+
+    /**
+     * Replace all break line by \\n in the file to avoid a break line when serializing a CSV file
+     * @param line The line containing some \n
+     * @return A line without any simple \n
+     */
+    public static String HideBreakLineForCSV(final String line)
+    {
+        if (line == null)
+            return null;
+        return new String(line.replace("\n", "\\\\n"));
+    }
+
+    /**
+     * Replace all \\n in the file by \n. Useful when deserializing a CSV file containing a text
+     * @param line The line containing some \\n
+     * @return A line with al her \\n replaced by \n
+     */
+    public static String ShowBreakLineFromCSV(final String line)
+    {
+        if (line == null)
+            return null;
+        return new String(line.replace("\\\\n", "\n"));
+    }
+
+    /**
      * Serialize a String in a file
      * @param content The content of the file
      * @param path The path where you want to put the file

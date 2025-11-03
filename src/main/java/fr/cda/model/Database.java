@@ -5,6 +5,8 @@ import fr.cda.util.LoggerHelper;
 import fr.cda.util.SerializerHelper;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -336,11 +338,28 @@ public class Database
         LoggerHelper.log.info("TRY : initialization of Product in the database");
         try
         {
-            final String[] DATA = SerializerHelper.ReadFile(Config.DB_PRODUCT_FILE_PATH);
-
-            for (String line : DATA)
+            Path toTest = Paths.get(Config.OUTPUT_FILE_PATH, Config.OUTPUT_PRODUCT_FILE_NAME);
+            if (SerializerHelper.FileExist(toTest.toString()))
             {
-                ExtractFromFileAndInsertProduct(line);
+                final String[] DATA = SerializerHelper.ReadFile(toTest.toString());
+                for (String line : DATA)
+                {
+                    ExtractFromFileAndInsertProduct(line);
+                }
+            }
+            else
+            {
+                if (!SerializerHelper.FileExist(Config.DB_PRODUCT_FILE_PATH))
+                {
+                    LoggerHelper.log.error("FAIL : file at path {} seems to not exist",  Config.DB_PRODUCT_FILE_PATH);
+                    return;
+                }
+
+                final String[] DATA = SerializerHelper.ReadFile(Config.DB_PRODUCT_FILE_PATH);
+                for (String line : DATA)
+                {
+                    ExtractFromFileAndInsertProduct(line);
+                }
             }
         }
         catch (IOException e)
@@ -358,10 +377,30 @@ public class Database
         LoggerHelper.log.info("TRY : initialization of Order in the database");
         try
         {
-            final String[] DATA = SerializerHelper.ReadFile(Config.DB_ORDER_FILE_PATH);
-            for (String line : DATA)
+            Path toTest = Paths.get(Config.OUTPUT_FILE_PATH, Config.OUTPUT_ORDER_FILE_NAME);
+            if (SerializerHelper.FileExist(toTest.toString()))
             {
-                ExtractFromFileAndInsertOrder(line);
+                final String[] DATA = SerializerHelper.ReadFile(toTest.toString());
+                for (String line : DATA)
+                {
+                    ExtractFromFileAndInsertOrder(line);
+                }
+            }
+            else
+            {
+                if (!SerializerHelper.FileExist(Config.DB_ORDER_FILE_PATH))
+                {
+                    LoggerHelper.log.error("FAIL : file at path {} seems to not exist",  Config.DB_ORDER_FILE_PATH);
+                    return;
+                }
+                else
+                {
+                    final String[] DATA = SerializerHelper.ReadFile(Config.DB_ORDER_FILE_PATH);
+                    for (String line : DATA)
+                    {
+                        ExtractFromFileAndInsertOrder(line);
+                    }
+                }
             }
         }
         catch (IOException e)
@@ -424,11 +463,8 @@ public class Database
     {
         //Todo : check if content is ill-formed
 
-        //FORMAT : ID ; CreationDate ; ClientName ; ProductRef (ID=Quantity)...
-        //1;21/09/2022;Macron Brigitte;LIVRE-1=1;LIVRE-2=2;...
-
-        final int ORDER_CONTENT_INDEX_START_POSITION = 3;
-
+        //FORMAT : ID ; CreationDate ; ClientName ; OrderWasDelivered ; NonDeliveredExplanation ; ProductRef (ID=Quantity)...
+        //1;21/09/2022;Macron Brigitte;true;N/A;LIVRE-1=1;LIVRE-2=2;...
         String[] dataContent = line.split(";");
         ID orderID = new ID(dataContent[0]);
 
@@ -439,6 +475,13 @@ public class Database
             return;
         }
 
+        final LocalDate creationDate = LocalDate.parse(dataContent[1], DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        final String clienName = dataContent[2];
+        final boolean wasDelivered = dataContent[3].equals("true");
+        final String nonDeliveredExplanation = SerializerHelper.ShowBreakLineFromCSV(dataContent[4]);
+
+
+        final int ORDER_CONTENT_INDEX_START_POSITION = 5;
         ArrayList<String> orderContentFromFile = new ArrayList<>();
         for (int i = ORDER_CONTENT_INDEX_START_POSITION ; i < dataContent.length; ++i)
         {
@@ -446,8 +489,16 @@ public class Database
         }
         List<OrderDetail> orderDetails = ExtractOrderDetails(orderContentFromFile, orderID);
 
-        Order newOrder = new Order(orderID, LocalDate.parse(dataContent[1], DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                dataContent[2], orderDetails);
+        Order newOrder = new Order(orderID, creationDate, clienName, orderDetails);
+        if (wasDelivered)
+        {
+            newOrder.UpdateToDeliveredStatus();
+        }
+        else
+        {
+            newOrder.UpdateToNonDeliveredStatus(nonDeliveredExplanation);
+        }
+
         orderMap.put(orderID, newOrder);
     }
     //endregion INIT
