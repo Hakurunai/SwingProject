@@ -364,6 +364,7 @@ public final class HomeFrame extends SwingFrame
      */
     private void OnSendMailButton(ActionEvent actionEvent)
     {
+        frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         SetButtonAddAndRemoveItemVisibility(false);
         controller.SendOrderReviewByMail(this::OnMailSentCallback);
     }
@@ -374,6 +375,7 @@ public final class HomeFrame extends SwingFrame
      */
     private void OnGenerateBackUpButton(ActionEvent actionEvent)
     {
+        frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         SetButtonAddAndRemoveItemVisibility(false);
         controller.SaveBackViaFTP(this::OnBackUpGeneratedCallback);
     }
@@ -513,6 +515,8 @@ public final class HomeFrame extends SwingFrame
      */
     private void OnMailSentCallback(final OperationResult<Void> operationResult)
     {
+        frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+
         if (!operationResult.HasSucceeded())
         {
             JOptionPane.showMessageDialog(frame, "Fail to send the mail", "Mail sending error", JOptionPane.ERROR_MESSAGE);
@@ -527,6 +531,7 @@ public final class HomeFrame extends SwingFrame
      */
     private void OnBackUpGeneratedCallback(final OperationResult<Void> operationResult)
     {
+        frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         if (!operationResult.HasSucceeded())
         {
             JOptionPane.showMessageDialog(frame, "Fail to generate the backup", "Backup generation error", JOptionPane.ERROR_MESSAGE);
