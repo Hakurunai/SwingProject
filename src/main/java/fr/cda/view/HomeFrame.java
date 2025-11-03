@@ -58,7 +58,6 @@ public final class HomeFrame extends SwingFrame
     //region CTOR
 
     /**
-     *
      * @param config The initial config of this view
      * @param controller The controller we want the view to be linked to. This object will inject this controller to all
      * the dialog he will open
@@ -70,7 +69,7 @@ public final class HomeFrame extends SwingFrame
         controller.eventBus.Subscribe(DatabaseConnectionEvent.class, databaseConnectionEventListener);
         controller.eventBus.Subscribe(DatabaseOperationEndedEvent.class, databaseOperationEndedEventListener);
     }
-    //endregion CTOR
+    //endregion CTORS
 
     //region INIT_PHASE
     /**
