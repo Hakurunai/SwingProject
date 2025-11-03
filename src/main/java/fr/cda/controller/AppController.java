@@ -382,9 +382,13 @@ public class AppController
         final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         final String FORMATTED_DATE = order.getCreationDate().format(DATE_FORMATTER);
 
+        final String CSVReadyNonDeliveredExplanation = SerializerHelper.HideBreakLineForCSV(order.getNonDeliveredExplanation());
+
         builder.append(order.getId().id()).append(CSV_SEPARATOR)
                 .append(FORMATTED_DATE).append(CSV_SEPARATOR)
-                .append(order.getClientName()).append(CSV_SEPARATOR);
+                .append(order.getClientName()).append(CSV_SEPARATOR)
+                .append(order.isDelivered()).append(CSV_SEPARATOR)
+                .append(CSVReadyNonDeliveredExplanation).append(CSV_SEPARATOR);
 
         for (int i = 0 ; i < order.getOrderedProduct().size() ; ++i)
         {
