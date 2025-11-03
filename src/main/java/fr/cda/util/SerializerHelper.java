@@ -85,6 +85,46 @@ public abstract class SerializerHelper
     }
 
     /**
+     * Serialize a String in a file
+     * @param content The content of the file
+     * @param path The path where you want to put the file
+     * @param fileName The name of the generated file, including his extension
+     * @return True in case of success, false otherwise
+     */
+    public static boolean SerializeToFile(final String content, final String path, final String fileName)
+    {
+        LoggerHelper.log.info("TRY : to serialize file {} at path {}", fileName, path);
+
+        if (!EnsureOrCreatePath(path))
+        {
+            LoggerHelper.log.error("FAIL : to ensure/create path : " + path);
+            return false;
+        }
+
+        Path filePath = Path.of(path, fileName);
+
+        try
+        {
+            Files.writeString
+                         (
+                                 filePath,
+                                 content,
+                                 StandardOpenOption.CREATE,
+                                 StandardOpenOption.TRUNCATE_EXISTING
+                         );
+
+            LoggerHelper.log.info("SUCCESS : File written to : " + filePath.toAbsolutePath());
+        }
+        catch (IOException e)
+        {
+            LoggerHelper.log.error("FAIL : while writing file : " + filePath + " | " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Check if a file exist following the path
      * @param filePath Path to the file INCLUDING fileName.extension
      * @return true if file exist, false otherwise
@@ -121,46 +161,6 @@ public abstract class SerializerHelper
         if (line == null)
             return null;
         return new String(line.replace("\\\\n", "\n"));
-    }
-
-    /**
-     * Serialize a String in a file
-     * @param content The content of the file
-     * @param path The path where you want to put the file
-     * @param fileName The name of the generated file, including his extension
-     * @return True in case of success, false otherwise
-     */
-    public static boolean SerializeToFile(final String content, final String path, final String fileName)
-    {
-        LoggerHelper.log.info("TRY : to serialize file {} at path {}", fileName, path);
-
-        if (!EnsureOrCreatePath(path))
-        {
-            LoggerHelper.log.error("FAIL : to ensure/create path : " + path);
-            return false;
-        }
-
-        Path filePath = Path.of(path, fileName);
-
-        try
-        {
-            Files.writeString
-                    (
-                    filePath,
-                    content,
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING
-                    );
-
-            LoggerHelper.log.info("SUCCESS : File written to : " + filePath.toAbsolutePath());
-        }
-        catch (IOException e)
-        {
-            LoggerHelper.log.error("FAIL : while writing file : " + filePath + " | " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
-        return true;
     }
 
     /**
