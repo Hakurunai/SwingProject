@@ -37,9 +37,11 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+
+### Custom
 /logs/log4j.log
 /output/
 /doc/
 /logs/
-/Guide_Utilisateur_Soutenance1.docx
-/Guide_Developpeur.pptx
+.env
